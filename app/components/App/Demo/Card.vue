@@ -1,14 +1,14 @@
 <template>
-  <div class="rounded-xl bg-[#fbfaf9] p-1.5 dark:bg-neutral-950">
-    <div class="card-shadow rounded-md bg-white dark:bg-neutral-900">
+  <div class="dark:bg-neutral-950 rounded-xl bg-[#fbfaf9] p-1.5">
+    <div class="card-shadow bg-white dark:bg-neutral-900 rounded-md">
       <header
-        class="border-b border-neutral-100 px-4 py-2 dark:border-white/10"
+        class="border-neutral-100 dark:border-white/10 border-b px-4 py-2"
       >
-        <p class="text-sm text-neutral-500">{{ title }}</p>
+        <p class="text-neutral-500 text-sm">{{ title }}</p>
       </header>
       <div class="p-4">
         <slot />
-        <p v-if="description" class="text-sm text-neutral-500">
+        <p v-if="description" class="text-neutral-500 text-sm">
           {{ description }}
         </p>
       </div>

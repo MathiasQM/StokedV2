@@ -1,11 +1,10 @@
-<!-- Everything in a single page on purpose. So you can just delete it if you don't need it. -->
 <template>
   <main class="px-4">
     <header>
       <WebsiteSection class="flex w-full items-center justify-between">
         <NuxtLink to="/" class="flex items-center gap-2">
-          <img src="/logo.png" alt="logo" class="h-6 w-auto md:h-7">
-          <p class="font-bold">Supersaas V3</p>
+          <img src="/logo.png" alt="logo" class="h-6 w-auto md:h-7" />
+          <p class="font-bold">Striive</p>
         </NuxtLink>
         <div class="hidden flex-1 items-center justify-center gap-3 md:flex">
           <UButton label="Features" color="neutral" variant="ghost" />
@@ -65,7 +64,7 @@
                 Ship 🏴‍☠️ a fullstack SaaS app faster than ever.
               </p>
               <p class="text-base text-balance text-neutral-500 sm:text-xl">
-                Teams, Typescript, Drizzle ORM, NuxtHub, Postgres, Turso,
+                Portfolios, Typescript, Drizzle ORM, NuxtHub, Postgres, Turso,
                 TailwindCSS V4, Nuxt UI V3. All in one package. This is a mock
                 title.
               </p>
@@ -102,12 +101,12 @@
             src="/mock-image-light.jpg"
             alt="Dashboard"
             class="aspect-video w-full rounded-md border border-neutral-200 md:rounded-2xl dark:hidden dark:border-white/10"
-          >
+          />
           <img
             src="/mock-image-dark.jpg"
             alt="Dashboard"
             class="hidden aspect-video w-full rounded-2xl border border-neutral-200 dark:block dark:border-white/10"
-          >
+          />
         </div>
       </WebsiteSection>
     </div>
@@ -180,6 +179,7 @@
 <script setup lang="ts">
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
+definePageMeta({ layout: false })
 
 const { loggedIn } = useUserSession()
 const authOptions = ref([

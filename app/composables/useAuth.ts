@@ -75,8 +75,8 @@ export const useAuth = () => {
 
   const logout = async () => {
     await clear()
-    useState('teamSlug').value = ''
-    useState('teams').value = []
+    useState('portfolioSlug').value = ''
+    useState('portfolios').value = []
   }
 
   const register = async (

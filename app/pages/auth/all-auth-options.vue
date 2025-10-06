@@ -4,7 +4,7 @@
       <UButton
         to="/auth/login"
         block
-        color="neutral"
+        color="orange"
         size="lg"
         icon="i-lucide-lock"
         variant="subtle"
@@ -14,7 +14,7 @@
       <UButton
         to="/auth/magic-link"
         block
-        color="neutral"
+        color="orange"
         size="lg"
         icon="i-lucide-link"
         variant="subtle"
@@ -24,7 +24,7 @@
       <UButton
         to="/auth/login-passkey"
         block
-        color="neutral"
+        color="orange"
         size="lg"
         icon="i-lucide-fingerprint"
         variant="subtle"
@@ -34,7 +34,7 @@
       <UButton
         to="/auth/login-phone"
         block
-        color="neutral"
+        color="orange"
         size="lg"
         icon="i-lucide-phone"
         variant="subtle"
@@ -59,3 +59,9 @@
     </div>
   </main>
 </template>
+
+<script setup lang="ts">
+definePageMeta({
+  layout: false,
+})
+</script>

@@ -8,12 +8,12 @@ export default defineEventHandler(async (event) => {
   }
 
   const userCount = await useDB().$count(tables.users)
-  const teamCount = await useDB().$count(tables.teams)
+  const portfolioCount = await useDB().$count(tables.portfolios)
   const feedbackCount = await useDB().$count(tables.feedback)
   const newsletterCount = await useDB().$count(tables.waitlist)
   return {
     users: userCount,
-    teams: teamCount,
+    portfolios: portfolioCount,
     feedback: feedbackCount,
     newsletter: newsletterCount,
   }

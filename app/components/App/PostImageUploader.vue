@@ -1,6 +1,6 @@
 <template>
   <div class="relative flex flex-col gap-2">
-    <div class="absolute -top-2 -right-2 z-30">
+    <div class="absolute -right-2 -top-2 z-30">
       <UButton
         v-if="model"
         icon="i-lucide-x"
@@ -12,15 +12,15 @@
     </div>
     <button
       type="button"
-      class="relative z-20 flex h-40 w-full cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-lg bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-900"
+      class="bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-900 relative z-20 flex h-40 w-full cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-lg"
       @click="open()"
     >
       <UIcon
         v-if="!model"
         name="i-lucide-image-plus"
-        class="h-4 w-5 text-neutral-400"
+        class="text-neutral-400 h-4 w-5"
       />
-      <img v-else :src="model" class="h-full w-full object-cover">
+      <img v-else :src="model" class="h-full w-full object-cover" />
     </button>
   </div>
 </template>

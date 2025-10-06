@@ -1,3 +1,4 @@
+import { eq, and, lt, isNull, isNotNull } from 'drizzle-orm'
 import type {
   Passkey,
   InsertPasskey,
@@ -23,11 +24,10 @@ export const createCredential = async (
   credential: InsertPasskey,
 ): Promise<Passkey> => {
   try {
-    const record = await useDB()
+    const [record] = await useDB()
       .insert(tables.webAuthnCredentials)
       .values(credential)
       .returning()
-      .get()
     return record
   } catch (error) {
     console.error(error)
@@ -62,11 +62,10 @@ export const getAndDeleteChallenge = async (
       .where(lt(tables.webAuthnChallenges.expiresAt, new Date()))
 
     // Get the challenge
-    const record = await useDB()
+    const [record] = await useDB()
       .select()
       .from(tables.webAuthnChallenges)
       .where(eq(tables.webAuthnChallenges.id, attemptId))
-      .get()
 
     if (record) {
       // Delete the challenge

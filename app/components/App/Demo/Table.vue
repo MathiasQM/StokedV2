@@ -6,7 +6,7 @@
           <tr
             v-for="contact in contacts"
             :key="contact.id"
-            class="border-b border-neutral-100 text-sm text-neutral-500 hover:bg-neutral-50 dark:border-white/10 dark:text-neutral-400 dark:hover:bg-neutral-800/50 [&>td]:whitespace-nowrap"
+            class="border-neutral-100 text-neutral-500 hover:bg-neutral-50 dark:border-white/10 dark:text-neutral-400 dark:hover:bg-neutral-800/50 border-b text-sm [&>td]:whitespace-nowrap"
           >
             <td class="p-2">
               <div class="flex items-center gap-2">

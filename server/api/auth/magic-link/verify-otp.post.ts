@@ -57,12 +57,10 @@ export default defineEventHandler(async (event) => {
 
   await updateLastActiveTimestamp(user.id)
   await setUserSession(event, { user: sanitizeUser(user) })
-
   // Send login notification
   await sendLoginNotification({
     name: user.name,
     email: user.email,
   })
-
   return sanitizeUser(user)
 })

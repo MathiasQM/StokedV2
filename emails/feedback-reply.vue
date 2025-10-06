@@ -79,7 +79,10 @@ const footer = {
       <Container :style="container">
         <Heading :style="h1">Response to your feedback</Heading>
         <Text :style="text">Hello {{ userName }},</Text>
-        <Text :style="text">We appreciate you taking the time to share your thoughts. Here's our response:</Text>
+        <Text :style="text"
+          >We appreciate you taking the time to share your thoughts. Here's our
+          response:</Text
+        >
 
         <div :style="messageBox">
           <Text :style="{ ...text, margin: '0 0 8px 0', fontWeight: 'bold' }">
@@ -100,12 +103,13 @@ const footer = {
         </div>
 
         <Text :style="text">
-          If you have any further questions or concerns, please don't hesitate to reach out.
+          If you have any further questions or concerns, please don't hesitate
+          to reach out.
         </Text>
 
         <Text :style="text">
-          Thanks,<br>
-          {{ env.APP_NAME }} team
+          Thanks,<br />
+          {{ env.APP_NAME }} portfolio
         </Text>
 
         <Img :src="env.LOGO_URL" width="32" alt="Logo" />
@@ -115,8 +119,8 @@ const footer = {
             target="_blank"
             :style="{ color: '#898989', textDecoration: 'underline' }"
           >
-            {{ env.APP_NAME }}
-          </Link>, {{ env.APP_DESCRIPTION }}
+            {{ env.APP_NAME }} </Link
+          >, {{ env.APP_DESCRIPTION }}
         </Text>
       </Container>
     </Body>

@@ -1,10 +1,11 @@
 import type { InsertPost, Post } from '@@/types/database'
+import { and, eq, desc } from 'drizzle-orm'
 import { H3Error } from 'h3'
 
-export const getAllPosts = async (teamId: string) => {
+export const getAllPosts = async (portfolioId: string) => {
   try {
     const posts = await useDB().query.posts.findMany({
-      where: and(eq(tables.posts.teamId, teamId)),
+      where: and(eq(tables.posts.portfolioId, portfolioId)),
       orderBy: [desc(tables.posts.createdAt)],
       with: {
         userId: {
@@ -29,13 +30,12 @@ export const getAllPosts = async (teamId: string) => {
 
 export const createPost = async (post: InsertPost) => {
   try {
-    const newPost = await useDB()
+    const [newPost] = await useDB()
       .insert(tables.posts)
       .values(post)
       .returning()
-      .get()
     return newPost
-  } catch {
+  } catch (error) {
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to create post',
@@ -45,19 +45,15 @@ export const createPost = async (post: InsertPost) => {
 
 export const getPostById = async (
   id: string,
-  teamId: string,
+  portfolioId?: string,
   userId: string,
 ) => {
   try {
     const post = await useDB().query.posts.findFirst({
-      where: and(
-        eq(tables.posts.id, id),
-        eq(tables.posts.teamId, teamId),
-        eq(tables.posts.userId, userId),
-      ),
+      where: and(eq(tables.posts.id, id), eq(tables.posts.userId, userId)),
     })
     return post
-  } catch {
+  } catch (error) {
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to get post by ID',
@@ -67,7 +63,6 @@ export const getPostById = async (
 
 export const updatePost = async (
   id: string,
-  teamId: string,
   userId: string,
   post: Partial<Post>,
 ) => {
@@ -75,13 +70,7 @@ export const updatePost = async (
     const result = await useDB()
       .update(tables.posts)
       .set(post)
-      .where(
-        and(
-          eq(tables.posts.id, id),
-          eq(tables.posts.teamId, teamId),
-          eq(tables.posts.userId, userId),
-        ),
-      )
+      .where(and(eq(tables.posts.id, id), eq(tables.posts.userId, userId)))
       .returning()
 
     if (!result.length) {
@@ -103,21 +92,11 @@ export const updatePost = async (
   }
 }
 
-export const deletePost = async (
-  id: string,
-  teamId: string,
-  userId: string,
-) => {
+export const deletePost = async (id: string, userId: string) => {
   try {
     const result = await useDB()
       .delete(tables.posts)
-      .where(
-        and(
-          eq(tables.posts.id, id),
-          eq(tables.posts.teamId, teamId),
-          eq(tables.posts.userId, userId),
-        ),
-      )
+      .where(and(eq(tables.posts.id, id), eq(tables.posts.userId, userId)))
       .returning()
 
     if (!result.length) {

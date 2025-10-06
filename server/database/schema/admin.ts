@@ -1,39 +1,43 @@
 import { nanoid } from 'nanoid'
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
+import { pgTable, text, timestamp, jsonb, uuid } from 'drizzle-orm/pg-core'
 import { users } from './users'
 import { relations } from 'drizzle-orm'
 
-export const subscribers = sqliteTable('subscribers', {
+export const subscribers = pgTable('subscribers', {
   id: text('id')
     .primaryKey()
     .$default(() => nanoid()),
   email: text('email').notNull().unique(),
   referrer: text('referrer'),
-  meta: text('meta', { mode: 'json' }),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$default(
-    () => new Date(),
-  ),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().$onUpdate(
-    () => new Date(),
-  ),
+  // Use jsonb for better performance and indexing with JSON in Postgres
+  meta: jsonb('meta'),
+  // Use the native timestamp type for Postgres
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .notNull()
+    .$onUpdate(() => new Date()),
 })
 
-export const feedback = sqliteTable('feedback', {
+export const feedback = pgTable('feedback', {
   id: text('id')
     .primaryKey()
     .$default(() => nanoid()),
-  user: text('user')
+  // Assuming users.id is a UUID. If it's text, change this back to text('user')
+  user: uuid('user')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   message: text('message').notNull(),
   status: text('status').notNull().default('pending'),
   reply: text('reply'),
-  meta: text('meta', { mode: 'json' }),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$default(
-    () => new Date(),
-  ),
+  meta: jsonb('meta'),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 })
 
+// The relations function works the same for all database drivers
 export const feedbackRelations = relations(feedback, ({ one }) => ({
   user: one(users, {
     fields: [feedback.user],

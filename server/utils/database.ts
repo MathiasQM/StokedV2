@@ -1,11 +1,25 @@
-import { drizzle } from 'drizzle-orm/d1'
+import { drizzle } from 'drizzle-orm/postgres-js'
+import postgres from 'postgres'
 import * as schema from '../database/schema'
 
-// Export commonly used query builder functions
-export { eq, and, or, ne, not, lt, gt, asc, desc, count } from 'drizzle-orm'
-
-export const tables = schema
+declare global {
+  var _drizzle: ReturnType<typeof drizzle> | undefined
+}
 
 export function useDB() {
-  return drizzle(hubDatabase(), { schema })
+  if (global._drizzle) return global._drizzle
+
+  const { postgresUrl } = useRuntimeConfig()
+
+  if (!postgresUrl) throw new Error('POSTGRES_URL missing')
+
+  const client = postgres(postgresUrl, {
+    connect_timeout: 30,
+    idle_timeout: 60,
+  })
+
+  global._drizzle = drizzle(client, { schema })
+  return global._drizzle
 }
+
+export const tables = schema

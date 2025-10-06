@@ -11,8 +11,17 @@ import { updateUser } from '@@/server/database/queries/users'
 import { stripeService } from '@@/server/services/stripe'
 
 export default defineEventHandler(async (event) => {
-  const webhookSecret = env.NUXT_STRIPE_WEBHOOK_SECRET
-  const stripeSecretKey = env.NUXT_STRIPE_SECRET_KEY
+  const config = useRuntimeConfig()
+
+  const webhookSecret =
+    config.public.enviroment === 'production'
+      ? config.nuxtStripeWebhookSecret
+      : config.nuxtStripeTestWebhookSecret
+
+  const stripeSecretKey =
+    config.public.enviroment === 'production'
+      ? config.nuxtStripeSecretKey
+      : config.nuxtStripeTestSecretKey
 
   const stripe = new Stripe(stripeSecretKey)
 
@@ -56,6 +65,7 @@ export default defineEventHandler(async (event) => {
     'customer.subscription.deleted',
     'customer.subscription.paused',
     'customer.subscription.resumed',
+    'subscription_schedule.released',
     'price.created',
     'price.deleted',
     'price.updated',
@@ -148,7 +158,6 @@ const handleSubscriptionEvent = async (data: Stripe.Subscription) => {
       statusMessage: 'Customer not found',
     })
   }
-  const teamId = customer.teamId
   const userId = customer.userId
   if (!userId) {
     throw createError({
@@ -161,18 +170,19 @@ const handleSubscriptionEvent = async (data: Stripe.Subscription) => {
     id: data.id,
     customerId: data.customer as string,
     priceId: data.items.data[0].price.id,
-    teamId: teamId,
     userId: userId,
     status: data.status,
     metadata: data.metadata,
     quantity: data.items.data[0].quantity ?? 1,
     cancelAtPeriodEnd: data.cancel_at_period_end,
-    currentPeriodEnd: new Date(data.items.data[0].current_period_end * 1000),
-    currentPeriodStart: new Date(data.items.data[0].current_period_start * 1000),
+    currentPeriodEnd: new Date(data.current_period_end * 1000),
+    currentPeriodStart: new Date(data.current_period_start * 1000),
     endedAt: data.ended_at ? new Date(data.ended_at * 1000) : null,
     cancelAt: data.cancel_at ? new Date(data.cancel_at * 1000) : null,
     trialStart: data.trial_start ? new Date(data.trial_start * 1000) : null,
     trialEnd: data.trial_end ? new Date(data.trial_end * 1000) : null,
+    pendingSwitch: false,
+    pendingPriceId: null,
   })
 
   // Update user's pro account status based on subscription status
@@ -198,7 +208,6 @@ const handleCheckoutSessionEvent = async (data: Stripe.Checkout.Session) => {
     })
   }
   const customerId = existingCustomer.id
-  const teamId = existingCustomer.teamId
   const userId = existingCustomer.userId
 
   if (!userId) {
@@ -218,18 +227,13 @@ const handleCheckoutSessionEvent = async (data: Stripe.Checkout.Session) => {
     const subscriptionData: InsertSubscription = {
       id: subscription.id,
       customerId,
-      teamId,
       userId,
       priceId: subscription.items.data[0].price.id,
       status: subscription.status,
       quantity: subscription.items.data[0].quantity ?? 1,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
-      currentPeriodEnd: new Date(
-        subscription.items.data[0].current_period_end * 1000,
-      ),
-      currentPeriodStart: new Date(
-        subscription.items.data[0].current_period_start * 1000,
-      ),
+      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodStart: new Date(subscription.current_period_start * 1000),
       cancelAt: subscription.cancel_at
         ? new Date(subscription.cancel_at * 1000)
         : null,

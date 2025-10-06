@@ -1,7 +1,7 @@
-import { findUserTeams } from '@@/server/database/queries/teams'
+import { findUserPortfolios } from '~~/server/database/queries/portfolios'
 
 export default defineEventHandler(async (event) => {
   const { user } = await requireUserSession(event)
-  const teams = await findUserTeams(user.id)
-  return teams
+  const portfolios = await findUserPortfolios(user.id)
+  return portfolios
 })

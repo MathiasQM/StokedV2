@@ -6,11 +6,11 @@
       </li>
     </template>
     <template v-else>
-      <li v-for="link in teamNavLinks" :key="link.to">
+      <li v-for="link in portfolioNavLinks" :key="link.to">
         <AppSidebarLink v-bind="link" />
       </li>
       <USeparator class="my-4" />
-      <li v-for="link in teamSettingsLinks" :key="link.to">
+      <li v-for="link in portfolioSettingsLinks" :key="link.to">
         <AppSidebarLink v-bind="link" />
       </li>
     </template>
@@ -20,7 +20,7 @@
 <script lang="ts" setup>
 const props = defineProps<{
   isAccountSettings: boolean
-  teamSlug?: string
+  portfolioSlug?: string
 }>()
 
 const accountLinks = [
@@ -31,34 +31,34 @@ const accountLinks = [
   },
 ]
 
-const teamNavLinks = computed(() => [
+const portfolioNavLinks = computed(() => [
   {
     label: 'Home',
     icon: 'i-lucide-home',
-    to: `/dashboard/${props.teamSlug}`,
+    to: `/dashboard/${props.portfolioSlug}`,
   },
   {
     label: 'Posts',
     icon: 'i-lucide-file-text',
-    to: `/dashboard/${props.teamSlug}/posts`,
+    to: `/dashboard/${props.portfolioSlug}/posts`,
   },
 ])
 
-const teamSettingsLinks = computed(() => [
+const portfolioSettingsLinks = computed(() => [
   {
     label: 'Workspace Settings',
     icon: 'i-lucide-settings',
-    to: `/dashboard/${props.teamSlug}/settings`,
+    to: `/dashboard/${props.portfolioSlug}/settings`,
   },
   {
     label: 'Workspace Members',
     icon: 'i-lucide-users',
-    to: `/dashboard/${props.teamSlug}/settings/members`,
+    to: `/dashboard/${props.portfolioSlug}/settings/members`,
   },
   {
     label: 'Billing',
     icon: 'i-lucide-credit-card',
-    to: `/dashboard/${props.teamSlug}/settings/billing`,
+    to: `/dashboard/${props.portfolioSlug}/settings/billing`,
   },
 ])
 </script>

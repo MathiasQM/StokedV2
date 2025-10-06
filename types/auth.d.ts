@@ -9,17 +9,18 @@ declare module '#auth-utils' {
     superAdmin: boolean
   }
 
-  interface User extends Omit<
-    DrizzleUser,
-    | 'hashedPassword'
-    | 'banned'
-    | 'bannedReason'
-    | 'bannedUntil'
-    | 'createdAt'
-    | 'updatedAt'
-    | 'phoneNumber'
-    | 'lastActive'
-  > {
+  interface User
+    extends Omit<
+      DrizzleUser,
+      | 'hashedPassword'
+      | 'banned'
+      | 'bannedReason'
+      | 'bannedUntil'
+      | 'createdAt'
+      | 'updatedAt'
+      | 'phoneNumber'
+      | 'lastActive'
+    > {
     _impersonated?: boolean
     superAdmin: boolean
   }
@@ -78,7 +79,7 @@ declare module '#auth-utils' {
      */
     openInPopup: (
       route: string,
-      size?: { width?: number, height?: number },
+      size?: { width?: number; height?: number },
     ) => void
   }
 

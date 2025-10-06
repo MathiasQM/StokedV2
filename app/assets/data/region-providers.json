@@ -1,0 +1,133 @@
+[
+  {
+    "label": "EU, UK & Norway",
+    "regions": [
+      {
+        "code": "AT",
+        "name": "Austria",
+        "securityProviders": {
+          "Tink": ["Erste Bank", "Raiffeisen Bank"]
+        }
+      },
+      {
+        "code": "BE",
+        "name": "Belgium",
+        "securityProviders": {
+          "Tink": ["ING Belgium", "KBC"]
+        }
+      },
+      {
+        "code": "DK",
+        "name": "Denmark",
+        "securityProviders": {
+          "Tink": ["Nordnet", "Jyske Bank", "Danske Bank", "Nordea"]
+        }
+      },
+      {
+        "code": "FI",
+        "name": "Finland",
+        "securityProviders": {
+          "Tink": ["OP", "Nordea"]
+        }
+      },
+      {
+        "code": "FR",
+        "name": "France",
+        "securityProviders": {
+          "Tink": ["Crédit Agricole", "BNP Paribas"]
+        }
+      },
+      {
+        "code": "DE",
+        "name": "Germany",
+        "securityProviders": {
+          "Tink": ["Commerzbank", "Deutsche Bank"]
+        }
+      },
+      {
+        "code": "IE",
+        "name": "Ireland",
+        "securityProviders": {
+          "Tink": ["AIB", "Bank of Ireland"]
+        }
+      },
+      {
+        "code": "IT",
+        "name": "Italy",
+        "securityProviders": {
+          "Tink": ["Intesa Sanpaolo", "UniCredit"]
+        }
+      },
+      {
+        "code": "NL",
+        "name": "Netherlands",
+        "securityProviders": {
+          "Tink": ["ING", "ABN AMRO"]
+        }
+      },
+      {
+        "code": "PL",
+        "name": "Poland",
+        "securityProviders": {
+          "Tink": ["mBank", "PKO Bank Polski"]
+        }
+      },
+      {
+        "code": "PT",
+        "name": "Portugal",
+        "securityProviders": {
+          "Tink": ["Caixa Geral de Depósitos", "Millennium BCP"]
+        }
+      },
+      {
+        "code": "ES",
+        "name": "Spain",
+        "securityProviders": {
+          "Tink": ["BBVA", "CaixaBank"]
+        }
+      },
+      {
+        "code": "SE",
+        "name": "Sweden",
+        "securityProviders": {
+          "Tink": ["Avanza", "Swedbank"],
+          "Nordnet": ["Nordnet"]
+        }
+      },
+      {
+        "code": "NO",
+        "name": "Norway",
+        "securityProviders": {
+          "Tink": ["DNB"],
+          "Nordnet": ["Nordnet"]
+        }
+      },
+      {
+        "code": "UK",
+        "name": "United Kingdom",
+        "securityProviders": {
+          "Tink": ["Revolut", "HSBC", "Barclays"]
+        }
+      }
+    ]
+  },
+  {
+    "label": "North America",
+    "regions": [
+      {
+        "code": "US",
+        "name": "United States",
+        "securityProviders": {
+          "Plaid": ["Chase", "Robinhood", "Bank of America", "Public"]
+        }
+      },
+      {
+        "code": "CA",
+        "name": "Canada",
+        "securityProviders": {
+          "Plaid": ["RBC", "TD", "Wealthsimple"]
+        }
+      }
+    ]
+  }
+]

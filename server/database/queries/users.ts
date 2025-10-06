@@ -1,5 +1,7 @@
 import type { User, InsertUser } from '@@/types/database'
 import { H3Error } from 'h3'
+import { eq, and } from 'drizzle-orm'
+import type { H3Event } from 'h3'
 
 export const findUserByEmail = async (email: string): Promise<User | null> => {
   try {
@@ -16,7 +18,7 @@ export const findUserByEmail = async (email: string): Promise<User | null> => {
 
 export const createUserWithPassword = async (payload: InsertUser) => {
   try {
-    const record = await useDB()
+    const [record] = await useDB()
       .insert(tables.users)
       .values(payload)
       .onConflictDoUpdate({
@@ -27,7 +29,6 @@ export const createUserWithPassword = async (payload: InsertUser) => {
         },
       })
       .returning()
-      .get()
     return record
   } catch (error) {
     console.error(error)
@@ -58,12 +59,11 @@ export const updateLastActiveTimestamp = async (
   userId: string,
 ): Promise<InsertUser> => {
   try {
-    const record = await useDB()
+    const [record] = await useDB()
       .update(tables.users)
       .set({ lastActive: new Date() })
       .where(eq(tables.users.id, userId))
       .returning()
-      .get()
     return record
   } catch (error) {
     console.error(error)
@@ -75,29 +75,27 @@ export const updateLastActiveTimestamp = async (
 }
 
 export const findUserById = async (id: string) => {
-  try {
-    const [user] = await useDB()
-      .select()
-      .from(tables.users)
-      .where(eq(tables.users.id, id))
-    return user || null
-  } catch (error) {
-    console.error(error)
+  const [user] = await useDB()
+    .select()
+    .from(tables.users)
+    .where(eq(tables.users.id, id))
+  if (!user) {
+    console.error(`User not found: ${id}`)
     throw createError({
-      statusCode: 500,
-      statusMessage: 'Failed to find user by ID',
+      statusCode: 404,
+      statusMessage: 'User not found',
     })
   }
+  return user || null
 }
 
 export const verifyUser = async (userId: string) => {
   try {
-    const record = await useDB()
+    const [record] = await useDB()
       .update(tables.users)
       .set({ emailVerified: true })
       .where(eq(tables.users.id, userId))
       .returning()
-      .get()
     return record
   } catch (error) {
     console.error(error)
@@ -110,7 +108,7 @@ export const verifyUser = async (userId: string) => {
 
 export const createUserWithOAuth = async (payload: InsertUser) => {
   try {
-    const record = await useDB()
+    const [record] = await useDB()
       .insert(tables.users)
       .values(payload)
       .onConflictDoUpdate({
@@ -122,7 +120,6 @@ export const createUserWithOAuth = async (payload: InsertUser) => {
         },
       })
       .returning()
-      .get()
     return record
   } catch (error) {
     console.error(error)
@@ -135,17 +132,11 @@ export const createUserWithOAuth = async (payload: InsertUser) => {
 
 export const updateUser = async (userId: string, payload: Partial<User>) => {
   try {
-    // Super admin cannot be updated - Makes sure no super admin can be created
-    // Only way to create a super admin is either through the CLI or directly in the database
-    if (payload.superAdmin) {
-      delete payload.superAdmin
-    }
-    const record = await useDB()
+    const [record] = await useDB()
       .update(tables.users)
       .set(payload)
       .where(eq(tables.users.id, userId))
       .returning()
-      .get()
     return record
   } catch (error) {
     console.error(error)
@@ -161,12 +152,11 @@ export const updateUserPassword = async (
   hashedPassword: string,
 ) => {
   try {
-    const record = await useDB()
+    const [record] = await useDB()
       .update(tables.users)
       .set({ hashedPassword })
       .where(eq(tables.users.id, userId))
       .returning()
-      .get()
     return record
   } catch (error) {
     console.error(error)
@@ -198,7 +188,6 @@ export const linkOAuthAccount = async (
         .set({ userId })
         .where(eq(tables.oauthAccounts.id, existingAccount.id))
         .returning()
-        .get()
     } else {
       // Insert if it doesn't exist
       return await useDB()
@@ -209,7 +198,6 @@ export const linkOAuthAccount = async (
           providerUserId,
         })
         .returning()
-        .get()
     }
   } catch (error) {
     console.error(error)

@@ -4,7 +4,7 @@ interface AvatarOptions {
   type?: AvatarType
 }
 
-type AvatarType = 'user' | 'team'
+type AvatarType = 'user' | 'portfolio'
 
 export function getAvatarUrl(options: AvatarOptions & { type: AvatarType }) {
   const { identifier, path, type } = options

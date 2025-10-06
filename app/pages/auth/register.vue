@@ -2,15 +2,15 @@
   <main class="relative flex min-h-screen items-center justify-center">
     <div class="mx-auto w-full max-w-sm space-y-4">
       <template v-if="!registered">
-        <img src="/logo.png" alt="logo" class="mx-auto h-10 w-auto">
+        <img src="/logo.png" alt="logo" class="mx-auto h-10 w-auto" />
         <div class="text-center">
-          <p class="text-lg font-bold">Get Started with Supersaas</p>
+          <p class="text-lg font-bold">Get Started with Striive</p>
           <p class="text-sm text-neutral-500">
             Already have an account?
             <UButton
               padding="none"
               trailing-icon="i-lucide-arrow-right"
-              color="neutral"
+              color="orange"
               to="/auth/login"
               variant="link"
               label="Login"
@@ -59,7 +59,7 @@
             type="submit"
             :loading="loading"
             block
-            color="neutral"
+            color="orange"
             class="cursor-pointer"
             size="lg"
           >
@@ -73,11 +73,6 @@
             icon="i-logos-google-icon"
             provider="google"
           />
-          <AuthSocialLoginButton
-            label="Github"
-            icon="i-mdi-github"
-            provider="github"
-          />
         </div>
       </template>
       <UCard v-else>
@@ -89,21 +84,23 @@
       </UCard>
     </div>
     <div class="absolute bottom-2 left-1/2 -translate-x-1/2">
-      <NuxtLink to="/auth/all-auth-options" class="text-sm text-neutral-500">All auth options</NuxtLink>
+      <!-- <NuxtLink to="/auth/all-auth-options" class="text-sm text-neutral-500"
+        >All auth options</NuxtLink -->
+      >
     </div>
   </main>
 </template>
 
 <script setup lang="ts">
 import middleware from '@@/app/middleware/invite-email'
+definePageMeta({
+  middleware: [middleware],
+  layout: false,
+})
 
 import type { z } from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 import { registerUserSchema } from '@@/shared/validations/auth'
-
-definePageMeta({
-  middleware: [middleware],
-})
 type Schema = z.output<typeof registerUserSchema>
 
 const registered = ref(false)

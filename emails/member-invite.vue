@@ -91,7 +91,11 @@ const footer = {
 
         <Text :style="footer">
           If you weren't expecting this invitation, you can ignore this email.
-          <br>
+          <<<<<<< HEAD
+          <br />
+          =======
+          <br />
+          >>>>>>> 132e76a051ac0d77b249c6c7cc70d1aafa07611a
           <Link
             :href="env.BASE_URL"
             target="_blank"

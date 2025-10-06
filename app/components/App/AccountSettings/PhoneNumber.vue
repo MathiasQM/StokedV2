@@ -1,8 +1,8 @@
 <template>
-  <UCard>
+  <UCard class="flex min-w-[16rem] flex-1 basis-[16rem] flex-col">
     <template #header>
       <h3 class="font-medium">Phone Number</h3>
-      <p class="mt-1 text-sm text-neutral-500">
+      <p class="text-neutral-500 mt-1 text-sm">
         Your phone number is not shared with anyone.
       </p>
     </template>
@@ -22,7 +22,7 @@
       </UFormField>
       <div class="flex items-center gap-2">
         <UButton
-          color="neutral"
+          color="orange"
           :loading="loading"
           :disabled="loading || !isValidPhoneNumber"
           label="Verify Phone Number"
@@ -60,7 +60,7 @@
 
       <div class="flex items-center gap-2">
         <UButton
-          color="neutral"
+          color="orange"
           :loading="loading"
           :disabled="loading || otpCode.length !== 6"
           label="Verify"
@@ -68,7 +68,7 @@
         />
 
         <UButton
-          color="neutral"
+          color="orange"
           variant="ghost"
           :loading="resendLoading"
           :disabled="resendLoading || resendCountdown > 0"
@@ -80,7 +80,7 @@
         </UButton>
 
         <UButton
-          color="neutral"
+          color="orange"
           variant="ghost"
           :disabled="loading"
           label="Cancel"
@@ -101,7 +101,7 @@
       </UFormField>
 
       <UButton
-        color="neutral"
+        color="orange"
         label="Change Phone Number"
         @click="mode = 'input'"
       />

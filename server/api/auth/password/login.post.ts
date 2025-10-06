@@ -32,11 +32,11 @@ export default defineEventHandler(async (event) => {
 
     // Format the list of providers
     const formattedProviders = providers.map(formatProviderName)
-    const providerList
-      = formattedProviders.length > 1
-        ? formattedProviders.slice(0, -1).join(', ')
-        + ' and '
-        + formattedProviders.slice(-1)[0]
+    const providerList =
+      formattedProviders.length > 1
+        ? formattedProviders.slice(0, -1).join(', ') +
+          ' and ' +
+          formattedProviders.slice(-1)[0]
         : formattedProviders[0]
 
     throw createError({
@@ -79,7 +79,7 @@ export default defineEventHandler(async (event) => {
   if (user.banned && user.bannedUntil && user.bannedUntil > new Date()) {
     throw createError({
       statusCode: 403,
-      statusMessage: 'You account has been banned',
+      statusMessage: "You're account has been banned",
     })
   }
 

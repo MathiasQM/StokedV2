@@ -17,9 +17,15 @@
       color="neutral"
       block
       :variant="active ? 'solid' : 'outline'"
-      :label="active ? 'Manage plan' : hasActiveSubscription ? 'Switch plan' : 'Subscribe'"
+      :label="
+        active
+          ? 'Current plan'
+          : hasActiveSubscription
+            ? 'Switch plan'
+            : 'Subscribe'
+      "
       :loading="loading"
-      :disabled="loading"
+      :disabled="loading || disabled"
       size="lg"
       @click="handleClick"
     />
@@ -71,10 +77,6 @@ const formatPrice = (price?: number): string => {
 }
 
 const handleClick = () => {
-  if (props.hasActiveSubscription) {
-    emit('manage', props.priceId)
-  } else {
-    emit('subscribe', props.priceId)
-  }
+  emit('subscribe', props.priceId)
 }
 </script>

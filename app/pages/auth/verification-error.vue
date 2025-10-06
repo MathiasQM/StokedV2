@@ -1,10 +1,10 @@
 <template>
   <main class="flex min-h-screen items-center justify-center">
     <div class="mx-auto w-full max-w-sm space-y-4">
-      <img src="/logo.png" alt="logo" class="mx-auto h-10 w-auto">
+      <img src="/logo.png" alt="logo" class="mx-auto h-10 w-auto" />
       <div class="text-center">
         <p class="text-lg font-bold">Email Verification Error</p>
-        <p class="mt-2 text-sm text-neutral-500">
+        <p class="text-neutral-500 mt-2 text-sm">
           {{ errorMessage }}
         </p>
       </div>
@@ -12,7 +12,7 @@
       <div v-if="hasEmail" class="mt-8">
         <UButton
           block
-          color="neutral"
+          color="orange"
           class="cursor-pointer"
           size="lg"
           loading-auto
@@ -26,7 +26,7 @@
         <UButton
           padding="none"
           trailing-icon="i-lucide-arrow-right"
-          color="neutral"
+          color="orange"
           to="/auth/login"
           variant="link"
           label="Back to Login"
@@ -42,6 +42,9 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  layout: false,
+})
 const route = useRoute()
 const errorMessage = ref(
   route.query.message || 'An error occurred during email verification.',

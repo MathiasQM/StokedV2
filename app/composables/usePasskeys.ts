@@ -50,14 +50,39 @@ export const usePasskeys = () => {
       })
       await refresh()
       toast.add({
-        title: 'Passkey deleted successfully',
+        title: 'Passkey revoked successfully',
         color: 'success',
       })
       return true
-    } catch (error) {
+    } catch (error: any) {
       toast.add({
         title: 'Failed to delete passkey',
         description: error instanceof FetchError ? error.data?.message : null,
+        color: 'error',
+      })
+      return false
+    } finally {
+      deleting.value = null
+    }
+  }
+
+  const invokePasskey = async (id: string) => {
+    try {
+      deleting.value = id
+      await $fetch('/api/auth/webauthn/invoke-passkey', {
+        method: 'POST',
+        body: { id },
+      })
+      await refresh()
+      toast.add({
+        title: 'Passkey invoked successfully',
+        color: 'success',
+      })
+      return true
+    } catch (error: any) {
+      toast.add({
+        title: 'Failed to invoke passkey',
+        description: error.data?.statusMessage || 'Failed to invoke passkey',
         color: 'error',
       })
       return false
@@ -87,6 +112,7 @@ export const usePasskeys = () => {
     deleting,
     createPasskey,
     deletePasskey,
+    invokePasskey,
     authenticateWithPasskey,
   }
 }

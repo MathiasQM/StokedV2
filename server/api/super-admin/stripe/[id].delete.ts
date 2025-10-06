@@ -1,4 +1,5 @@
 import { deleteStripeProduct } from '@@/server/database/queries/stripe'
+import { eq } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
   const productId = getRouterParam(event, 'id')
@@ -13,7 +14,6 @@ export default defineEventHandler(async (event) => {
     await useDB()
       .delete(tables.prices)
       .where(eq(tables.prices.productId, productId))
-      .run()
 
     await deleteStripeProduct(productId)
 

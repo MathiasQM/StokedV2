@@ -1,10 +1,10 @@
 <template>
-  <AppContainer title="Stripe Plans">
+  <AppContainer title="Stripe Plans" class="mt-20 md:mt-0">
     <template #actions>
       <UButton
         icon="i-lucide-refresh-cw"
         :loading="loading"
-        color="primary"
+        color="orange"
         :ui="{ leadingIcon: 'size-4' }"
         @click="syncStripeData"
       >
@@ -27,20 +27,20 @@
             @click="deleteProduct(product.id)"
           />
         </template>
-        <div class="divide-y divide-neutral-100 dark:divide-white/10">
+        <div class="divide-neutral-100 dark:divide-white/10 divide-y">
           <div
             v-for="plan in getProductPlans(product.id)"
             :key="plan.id"
             class="flex items-center gap-4 py-4"
           >
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-100 dark:bg-white/10"
+              class="bg-neutral-100 dark:bg-white/10 flex h-10 w-10 items-center justify-center rounded-lg"
             >
               <UIcon name="i-lucide-package" class="h-5 w-5" />
             </div>
             <div class="flex-1">
               <p class="text-sm font-medium capitalize">{{ plan.interval }}</p>
-              <p class="text-xs text-neutral-500 dark:text-white/50">
+              <p class="text-neutral-500 dark:text-white/50 text-xs">
                 {{ plan.id }}
               </p>
             </div>
@@ -48,7 +48,7 @@
               <p class="font-bold">
                 {{ formatPrice(plan.unitAmount) }}
               </p>
-              <p class="text-xs text-neutral-500 dark:text-white/50">
+              <p class="text-neutral-500 dark:text-white/50 text-xs">
                 per {{ plan.interval }}
               </p>
             </div>
@@ -56,19 +56,19 @@
         </div>
 
         <div class="mt-4">
-          <p class="text-sm text-neutral-500 dark:text-white/50">
+          <p class="text-neutral-500 dark:text-white/50 text-sm">
             {{ product.description }}
           </p>
 
           <!-- Product features -->
           <div v-if="product.features && product.features.length" class="mt-2">
-            <ul class="text-sm text-neutral-600 dark:text-white/70">
+            <ul class="text-neutral-600 dark:text-white/70 text-sm">
               <li
                 v-for="feature in product.features"
                 :key="feature.name"
                 class="flex items-center gap-1.5"
               >
-                <UIcon name="i-lucide-check" class="h-4 w-4 text-emerald-500" />
+                <UIcon name="i-lucide-check" class="text-emerald-500 h-4 w-4" />
                 {{ feature.name }}
               </li>
             </ul>
@@ -82,8 +82,8 @@
 <script lang="ts" setup>
 const loading = ref(false)
 const toast = useToast()
-const { data: plans, refresh: refreshPlans }
-  = await useFetch('/api/stripe/plans')
+const { data: plans, refresh: refreshPlans } =
+  await useFetch('/api/stripe/plans')
 
 // Compute unique products from plans
 const uniqueProducts = computed(() => {

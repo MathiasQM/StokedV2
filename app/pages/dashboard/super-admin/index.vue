@@ -1,5 +1,5 @@
 <template>
-  <AppContainer title="Users">
+  <AppContainer title="Users" class="mt-20 md:mt-0">
     <template #actions>
       <UButton
         :label="isEmailsMasked ? 'Unmask emails' : 'Mask Emails'"
@@ -14,17 +14,28 @@
       <table class="w-full table-auto text-left text-sm">
         <thead>
           <tr>
-            <th v-for="column in columns" :key="column" class="p-2 text-nowrap whitespace-nowrap">
+            <th
+              v-for="column in columns"
+              :key="column"
+              class="whitespace-nowrap text-nowrap p-2"
+            >
               {{ column }}
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="user in users" :key="user.id"
-            class="border-b border-neutral-100 text-sm text-neutral-500 hover:bg-neutral-50 dark:border-white/10 dark:text-neutral-400 dark:hover:bg-neutral-800/50 [&>td]:whitespace-nowrap">
+          <tr
+            v-for="user in users"
+            :key="user.id"
+            class="border-neutral-100 text-neutral-500 hover:bg-neutral-50 dark:border-white/10 dark:text-neutral-400 dark:hover:bg-neutral-800/50 border-b text-sm [&>td]:whitespace-nowrap"
+          >
             <td class="p-2">
               <div class="flex items-center gap-2">
-                <UAvatar :src="user.avatarUrl ?? undefined" size="2xs" :alt="user.name" />
+                <UAvatar
+                  :src="user.avatarUrl ?? undefined"
+                  size="2xs"
+                  :alt="user.name"
+                />
                 {{ user.name }}
               </div>
             </td>
@@ -33,13 +44,22 @@
             </td>
             <td class="p-2">{{ user.emailVerified ? 'Yes' : 'No' }}</td>
             <td class="p-2">
-              <SuperAdminUserBanStatus :user="user" :loading="loadingUserId === user.id" @lift-ban="liftBan" />
+              <SuperAdminUserBanStatus
+                :user="user"
+                :loading="loadingUserId === user.id"
+                @lift-ban="liftBan"
+              />
             </td>
             <td class="p-2">
-              <SuperAdminUserOAuthAccounts :oauth-accounts="user.oauthAccounts" />
+              <SuperAdminUserOAuthAccounts
+                :oauth-accounts="user.oauthAccounts"
+              />
             </td>
             <td class="p-2">
-              <SuperAdminUserTeamAffiliations :team-members="user.teamMembers" :users="users" />
+              <SuperAdminUserPortfolioAffiliations
+                :portfolio-members="user.portfolioMembers"
+                :users="users"
+              />
             </td>
             <td class="p-2">
               {{ formatDate(user.lastActive ?? undefined) }}
@@ -48,9 +68,18 @@
               {{ formatDate(user.createdAt ?? undefined) }}
             </td>
             <td class="p-2">
-              <UDropdownMenu :items="actions" :content="{ align: 'end', side: 'bottom', sideOffset: 0 }">
-                <UButton icon="i-lucide-ellipsis" variant="ghost" color="neutral" class="text-neutral-500"
-                  :loading="loadingUserId === user.id" @click="selectedUser = user" />
+              <UDropdownMenu
+                :items="actions"
+                :content="{ align: 'end', side: 'bottom', sideOffset: 0 }"
+              >
+                <UButton
+                  icon="i-lucide-ellipsis"
+                  variant="ghost"
+                  color="orange"
+                  class="text-neutral-500"
+                  :loading="loadingUserId === user.id"
+                  @click="selectedUser = user"
+                />
               </UDropdownMenu>
             </td>
           </tr>
@@ -59,22 +88,42 @@
     </div>
 
     <!-- Modals -->
-    <UModal v-model:open="newUserModal" title="Create a new user" description="Invite a new user to the platform">
+    <UModal
+      v-model:open="newUserModal"
+      title="Create a new user"
+      description="Invite a new user to the platform"
+    >
       <template #body>
         <SuperAdminNewUserForm @user-created="handleUserCreated" />
       </template>
     </UModal>
 
-    <UModal v-model:open="banUserModal" title="Ban User" description="Ban a user from the platform">
+    <UModal
+      v-model:open="banUserModal"
+      title="Ban User"
+      description="Ban a user from the platform"
+    >
       <template #body>
-        <SuperAdminBanUserForm v-if="selectedUser" :user="selectedUser" @user-banned="handleUserBanned" />
+        <SuperAdminBanUserForm
+          v-if="selectedUser"
+          :user="selectedUser"
+          @user-banned="handleUserBanned"
+        />
       </template>
     </UModal>
 
-    <UModal v-model:open="showDeleteUserConfirmation" title="Delete User" description="This action is irreversible">
+    <UModal
+      v-model:open="showDeleteUserConfirmation"
+      title="Delete User"
+      description="This action is irreversible"
+    >
       <template #body>
-        <SuperAdminDeleteUserForm v-if="selectedUser" :user="selectedUser" :users="users"
-          @user-deleted="handleUserDeleted" @cancel="showDeleteUserConfirmation = false" />
+        <SuperAdminDeleteUserForm
+          v-if="selectedUser"
+          :user="selectedUser"
+          @user-deleted="handleUserDeleted"
+          @cancel="showDeleteUserConfirmation = false"
+        />
       </template>
     </UModal>
   </AppContainer>
@@ -84,14 +133,14 @@
 import { useDateFormat } from '@vueuse/core'
 import type { User, OAuthAccounts } from '@@/types/database'
 
-interface TeamMember {
+interface PortfolioMember {
   id: string
-  teamId: string
+  portfolioId: string
   userId: string
   role: string
   createdAt: string
   updatedAt: string
-  team: {
+  portfolio: {
     id: string
     name: string
     ownerId: string
@@ -104,7 +153,7 @@ interface TeamMember {
 
 interface UserWithOAuthAccounts extends User {
   oauthAccounts: OAuthAccounts[]
-  teamMembers?: TeamMember[]
+  portfolioMembers?: PortfolioMember[]
 }
 const { fetch: refreshUserSession } = useUserSession()
 const newUserModal = ref(false)
@@ -125,7 +174,7 @@ const columns = [
   'Verified',
   'Banned',
   'Linked Accounts',
-  'Team Affiliations',
+  'Portfolio Affiliations',
   'Last Active',
   'Created',
   '',
@@ -253,7 +302,6 @@ const maskEmail = (email: string) => {
     .map(() => '•')
     .join('')}@${domain}`
 }
-
 
 const maskEmails = () => {
   isEmailsMasked.value = !isEmailsMasked.value

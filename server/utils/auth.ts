@@ -12,10 +12,7 @@ export type SanitizedUser = Omit<
   'hashedPassword' | 'createdAt' | 'updatedAt' | 'lastActive' | 'phoneNumber'
 >
 
-export const sanitizeUser = (
-  user: InsertUser,
-  showBannedData = false,
-) => {
+export const sanitizeUser = (user: InsertUser, showBannedData = false) => {
   if (!showBannedData) {
     delete user.banned
     delete user.bannedReason

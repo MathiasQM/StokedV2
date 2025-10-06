@@ -8,7 +8,6 @@ export async function validateBody<T extends z.ZodType>(
   const result = await readValidatedBody(event, (body) =>
     schema.safeParse(body),
   )
-
   if (!result.success) {
     throw createError({
       statusCode: 400,

@@ -8,7 +8,13 @@ import {
 import { consola } from 'consola'
 
 export default defineEventHandler(async (_event) => {
-  const stripe = new Stripe(env.NUXT_STRIPE_SECRET_KEY)
+  const cfg = useRuntimeConfig()
+  const secretKey =
+    cfg.public.buildEnv === 'production'
+      ? cfg.nuxtStripeSecretKey
+      : cfg.nuxtStripeTestSecretKey
+  const stripe = new Stripe(secretKey)
+
   consola.start('Syncing Stripe products and prices...')
   try {
     // First, clear all existing data
@@ -47,8 +53,8 @@ export default defineEventHandler(async (_event) => {
 
     // Filter out prices for products that no longer exist
     const validPrices = prices.data.filter((price) => {
-      const productId
-        = typeof price.product === 'string' ? price.product : price.product.id
+      const productId =
+        typeof price.product === 'string' ? price.product : price.product.id
       return activeProductIds.has(productId)
     })
 
@@ -56,8 +62,8 @@ export default defineEventHandler(async (_event) => {
 
     // Create all valid prices
     for (const price of validPrices) {
-      const productId
-        = typeof price.product === 'string' ? price.product : price.product.id
+      const productId =
+        typeof price.product === 'string' ? price.product : price.product.id
       await createStripePrice({
         id: price.id,
         type: price.type,

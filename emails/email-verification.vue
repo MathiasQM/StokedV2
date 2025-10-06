@@ -123,8 +123,8 @@ const code = {
             target="_blank"
             :style="{ ...link, color: '#898989' }"
           >
-            {{ env.APP_NAME }}
-          </Link>, {{ env.APP_DESCRIPTION }}
+            {{ env.APP_NAME }} </Link
+          >, {{ env.APP_DESCRIPTION }}
         </Text>
       </Container>
     </Body>

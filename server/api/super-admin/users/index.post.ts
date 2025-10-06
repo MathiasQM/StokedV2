@@ -39,7 +39,6 @@ export default defineEventHandler(async (event) => {
 
   // Validate the request body
   const data = await validateBody(event, schema)
-
   // Check if user already exists
   const existingUser = await findUserByEmail(data.email)
   if (existingUser) {
@@ -65,7 +64,6 @@ export default defineEventHandler(async (event) => {
   // If email verification is not auto-enabled, send verification email
   if (!data.emailVerified) {
     const emailVerificationCode = generateAlphaNumericCode(32)
-
     await saveEmailVerificationCode({
       userId: newUser.id,
       code: emailVerificationCode,

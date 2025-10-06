@@ -5,11 +5,11 @@
       :size="avatarSize"
       icon="i-lucide-upload"
       :ui="{ icon: 'text-lg' }"
-      class="ring-1 ring-neutral-200 dark:ring-neutral-800"
+      class="ring-neutral-200 dark:ring-neutral-800 ring-1"
     />
     <UButton
       type="button"
-      color="neutral"
+      color="orange"
       variant="soft"
       :label="model ? 'Change' : 'Upload'"
       size="xs"

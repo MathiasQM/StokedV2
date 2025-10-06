@@ -4,32 +4,34 @@
       <UAvatar :src="user.avatarUrl || undefined" :alt="user.name" size="lg" />
       <div>
         <p class="text-sm font-bold">{{ user.name }}</p>
-        <p class="text-sm text-neutral-500">{{ user.email }}</p>
+        <p class="text-gray-500 text-sm">{{ user.email }}</p>
       </div>
     </div>
-    <div class="space-y-4 rounded-md bg-neutral-100 p-4 dark:bg-neutral-950">
-      <p class="text-sm text-neutral-500">
+    <div class="bg-neutral-100 dark:bg-neutral-950 space-y-4 rounded-md p-4">
+      <p class="text-neutral-500 text-sm">
         This action will delete the user from the platform and all associated
-        data. {{ user.name }} is a part of the following teams:
+        data. {{ user.name }} is a part of the following portfolios:
       </p>
       <div
-        v-for="teamMember in user.teamMembers"
-        :key="teamMember.id"
+        v-for="portfolioMember in user.portfolioMembers"
+        :key="portfolioMember.id"
         class="flex items-center gap-3"
       >
         <UAvatar
-          :src="teamMember.team.logo || undefined"
+          :src="portfolioMember.portfolio.logo || undefined"
           size="sm"
-          :alt="teamMember.team.name + ' logo'"
+          :alt="portfolioMember.portfolio.name + ' logo'"
         />
         <div>
-          <p class="text-sm font-medium">{{ teamMember.team.name }}</p>
-          <p class="text-xs text-neutral-500">
-            <span class="capitalize">{{ teamMember.role }}</span>
+          <p class="text-sm font-medium">
+            {{ portfolioMember.portfolio.name }}
+          </p>
+          <p class="text-neutral-500 text-xs">
+            <span class="capitalize">{{ portfolioMember.role }}</span>
             {{
-              teamMember.role === 'owner'
+              portfolioMember.role === 'owner'
                 ? ''
-                : `(Owner: ${getTeamOwnerName(teamMember.team.ownerId)})`
+                : `(Owner: ${getPortfolioOwnerName(portfolioMember.portfolio.ownerId)})`
             }}
           </p>
         </div>
@@ -39,7 +41,7 @@
     <div class="flex w-full justify-end gap-2">
       <UButton
         variant="soft"
-        color="neutral"
+        color="orange"
         label="Cancel"
         @click="$emit('cancel')"
       />
@@ -58,14 +60,14 @@
 import type { OAuthAccounts, User } from '@@/types/database'
 import type { SanitizedUser } from '@@/server/utils/auth'
 
-interface TeamMember {
+interface PortfolioMember {
   id: string
-  teamId: string
+  portfolioId: string
   userId: string
   role: string
   createdAt: string
   updatedAt: string
-  team: {
+  portfolio: {
     id: string
     name: string
     ownerId: string
@@ -78,7 +80,7 @@ interface TeamMember {
 
 interface ExtendedUser extends User {
   oauthAccounts?: OAuthAccounts[]
-  teamMembers?: TeamMember[]
+  portfolioMembers?: PortfolioMember[]
 }
 
 const props = defineProps<{
@@ -90,7 +92,7 @@ const emit = defineEmits(['user-deleted', 'cancel'])
 const loading = ref(false)
 const toast = useToast()
 
-function getTeamOwnerName(ownerId: string): string {
+const getPortfolioOwnerName = (ownerId: string) => {
   if (!ownerId || !props.users?.length) return 'Unknown'
   const owner = props.users.find((user) => user.id === ownerId)
   return owner?.name || 'Unknown'

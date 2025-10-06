@@ -1,11 +1,11 @@
 <template>
   <main class="flex min-h-screen items-center justify-center">
     <div class="mx-auto w-full max-w-sm space-y-4">
-      <img src="/logo.png" alt="logo" class="mx-auto h-10 w-auto">
+      <img src="/logo.png" alt="logo" class="mx-auto h-10 w-auto" />
       <template v-if="mode === 'phone'">
         <div class="text-center">
           <p class="text-lg font-bold">Sign in with phone number</p>
-          <p class="text-sm text-neutral-500">
+          <p class="text-neutral-500 text-sm">
             Enter your phone number to receive a verification code
           </p>
         </div>
@@ -29,7 +29,7 @@
             type="submit"
             :loading="loading"
             block
-            color="neutral"
+            color="orange"
             class="cursor-pointer"
             size="lg"
           >
@@ -40,7 +40,7 @@
       <div v-else>
         <div class="text-center">
           <p class="text-lg font-bold">Enter verification code</p>
-          <p class="text-sm text-neutral-500">
+          <p class="text-neutral-500 text-sm">
             We've sent a 6-digit code to your phone
           </p>
         </div>
@@ -64,7 +64,7 @@
           <UButton
             type="submit"
             :loading="loading"
-            color="neutral"
+            color="orange"
             class="cursor-pointer"
             size="lg"
             block
@@ -82,6 +82,10 @@ import { z } from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 
 import { phoneSchema } from '@@/shared/validations/auth'
+
+definePageMeta({
+  layout: false,
+})
 
 const toast = useToast()
 const { fetch: refreshSession } = useUserSession()

@@ -1,21 +1,21 @@
 import { stripeService } from '@@/server/services/stripe'
-import { validateTeamOwnership } from '@@/server/utils/teamValidation.ts'
-import { getCustomerByTeamId } from '@@/server/database/queries/customers'
+import { validatePortfolioOwnership } from '@@/server/utils/portfolioValidation.ts'
+import { getCustomerByUserId } from '@@/server/database/queries/customers'
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody<{ teamId: string }>(event)
+    const body = await readBody<{ userId: string }>(event)
 
-    if (!body.teamId) {
+    if (!body.userId) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Team ID is required',
+        statusMessage: 'User ID is required',
       })
     }
 
-    await validateTeamOwnership(event, body.teamId)
+    // await validatePortfolioOwnership(event, body.userId)
 
-    const customer = await getCustomerByTeamId(body.teamId)
+    const customer = await getCustomerByUserId(body.userId)
     if (!customer) {
       throw createError({
         statusCode: 404,

@@ -1,34 +1,27 @@
 <template>
-  <header
-    class="sticky top-0 z-40 flex h-12 items-center gap-2 bg-white px-4 dark:bg-neutral-900"
+  <div
+    class="relative min-h-[100dvh] pb-28 pt-5 lg:pt-5"
+    :class="{ 'px-5': !disablePaddingx }"
   >
-    <UButton
-      icon="i-lucide-panel-left"
-      color="neutral"
-      variant="ghost"
-      class="flex lg:hidden"
-      @click="mobileMenu = !mobileMenu"
-    />
-    <div class="min-w-0 flex-1">
-      <h1 class="flex-1 truncate font-bold">{{ title }}</h1>
+    <div
+      v-if="hasActions"
+      class="mb-5 flex h-14 w-full rounded-md border border-black-200 bg-black-100 p-3 dark:border-black-600 dark:bg-black-800"
+    >
+      <slot name="actions" />
     </div>
-    <slot name="actions" />
-  </header>
-  <div :class="{ 'p-4': padding }">
     <slot />
   </div>
 </template>
 
-<script lang="ts" setup>
-const mobileMenu = useState('mobileMenu')
-withDefaults(
+<script setup lang="ts">
+const props = withDefaults(
   defineProps<{
-    title: string
-    description?: string
-    padding?: boolean
+    disablePaddingx?: boolean
   }>(),
   {
-    padding: true,
+    disablePaddingx: false,
   },
 )
+const slots = useSlots()
+const hasActions = computed(() => !!slots.actions)
 </script>

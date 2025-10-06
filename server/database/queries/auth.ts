@@ -1,3 +1,4 @@
+import { eq, count, lt, and } from 'drizzle-orm'
 import type {
   InsertEmailVerificationCodes,
   InsertOneTimePasswords,
@@ -21,11 +22,10 @@ export const saveEmailVerificationCode = async (
   payload: InsertEmailVerificationCodes,
 ) => {
   try {
-    const record = await useDB()
+    const [record] = await useDB()
       .insert(tables.emailVerificationCodes)
       .values(payload)
       .returning()
-      .get()
     return record
   } catch (error) {
     console.error(error)
@@ -35,11 +35,10 @@ export const saveEmailVerificationCode = async (
 
 export const saveOneTimePassword = async (payload: InsertOneTimePasswords) => {
   try {
-    const record = await useDB()
+    const [record] = await useDB()
       .insert(tables.oneTimePasswords)
       .values(payload)
       .returning()
-      .get()
     return record
   } catch (error) {
     console.error(error)
@@ -117,7 +116,7 @@ export const deleteOneTimePassword = async (code: string) => {
 export const createPasswordResetToken = async (userId: string) => {
   try {
     const token = generateAlphaNumericCode(32)
-    const record = await useDB()
+    const [record] = await useDB()
       .insert(tables.passwordResetTokens)
       .values({
         userId,
@@ -125,7 +124,6 @@ export const createPasswordResetToken = async (userId: string) => {
         expiresAt: new Date(Date.now() + 1000 * 60 * 30), // 30 minutes
       })
       .returning()
-      .get()
     return record
   } catch (error) {
     console.error(error)

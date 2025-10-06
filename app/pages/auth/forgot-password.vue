@@ -1,10 +1,10 @@
 <template>
   <main class="flex min-h-screen items-center justify-center">
     <div class="mx-auto w-full max-w-sm space-y-4">
-      <img src="/logo.png" alt="logo" class="mx-auto h-10 w-auto">
+      <img src="/logo.png" alt="logo" class="mx-auto h-10 w-auto" />
       <div class="text-center">
         <p class="text-lg font-bold">Reset your password</p>
-        <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+        <p class="text-neutral-500 dark:text-neutral-400 mt-1 text-sm">
           Enter your email below to reset your password.
         </p>
       </div>
@@ -22,12 +22,21 @@
           type="submit"
           :loading="loading"
           block
-          color="neutral"
+          color="orange"
           class="cursor-pointer"
           size="lg"
         >
           Send reset instructions
         </UButton>
+        <UButton
+          variant="link"
+          to="/auth/login"
+          label="Back to login"
+          size="md"
+          color="orange"
+          class="text-neutral-500"
+          tabindex="3"
+        />
       </UForm>
     </div>
   </main>

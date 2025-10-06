@@ -23,17 +23,17 @@ export type OneTimePasswords = typeof tables.oneTimePasswords.$inferSelect
 export type InsertOneTimePasswords = typeof tables.oneTimePasswords.$inferInsert
 export type Image = typeof tables.images.$inferSelect
 export type InsertImage = typeof tables.images.$inferInsert
-export type Team = typeof tables.teams.$inferSelect
-export type InsertTeam = typeof tables.teams.$inferInsert
-export type TeamMember = typeof tables.teamMembers.$inferSelect
-export type InsertTeamMember = typeof tables.teamMembers.$inferInsert
+export type Portfolio = typeof tables.portfolios.$inferSelect
+export type InsertPortfolio = typeof tables.portfolios.$inferInsert
+export type PortfolioMember = typeof tables.portfolioMembers.$inferSelect
+export type InsertPortfolioMember = typeof tables.portfolioMembers.$inferInsert
 export type Passkey = typeof tables.webAuthnCredentials.$inferSelect
 export type InsertPasskey = typeof tables.webAuthnCredentials.$inferInsert
 export type WebAuthnChallenge = typeof tables.webAuthnChallenges.$inferSelect
 export type InsertWebAuthnChallenge =
   typeof tables.webAuthnChallenges.$inferInsert
-export type TeamInvite = typeof tables.teamInvites.$inferSelect
-export type InsertTeamInvite = typeof tables.teamInvites.$inferInsert
+export type PortfolioInvite = typeof tables.portfolioInvites.$inferSelect
+export type InsertPortfolioInvite = typeof tables.portfolioInvites.$inferInsert
 export type Product = typeof tables.products.$inferSelect
 export type InsertProduct = typeof tables.products.$inferInsert
 export type Price = typeof tables.prices.$inferSelect
@@ -87,11 +87,15 @@ export const selectOneTimePasswordsSchema = createSelectSchema(
 export const insertImageSchema = createInsertSchema(tables.images)
 export const selectImageSchema = createSelectSchema(tables.images)
 
-export const insertTeamSchema = createInsertSchema(tables.teams)
-export const selectTeamSchema = createSelectSchema(tables.teams)
+export const insertPortfolioSchema = createInsertSchema(tables.portfolios)
+export const selectPortfolioSchema = createSelectSchema(tables.portfolios)
 
-export const insertTeamInviteSchema = createInsertSchema(tables.teamInvites)
-export const selectTeamInviteSchema = createSelectSchema(tables.teamInvites)
+export const insertPortfolioInviteSchema = createInsertSchema(
+  tables.portfolioInvites,
+)
+export const selectPortfolioInviteSchema = createSelectSchema(
+  tables.portfolioInvites,
+)
 
 export const insertPasskeySchema = createInsertSchema(
   tables.webAuthnCredentials,
@@ -119,5 +123,9 @@ export const selectCustomerSchema = createSelectSchema(tables.customers)
 export const insertSubscriptionSchema = createInsertSchema(tables.subscriptions)
 export const selectSubscriptionSchema = createSelectSchema(tables.subscriptions)
 
-export const insertTeamMemberSchema = createInsertSchema(tables.teamMembers)
-export const selectTeamMemberSchema = createSelectSchema(tables.teamMembers)
+export const insertPortfolioMemberSchema = createInsertSchema(
+  tables.portfolioMembers,
+)
+export const selectPortfolioMemberSchema = createSelectSchema(
+  tables.portfolioMembers,
+)

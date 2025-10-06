@@ -2,11 +2,11 @@
   <AppDemoCard :title="title" :description="description">
     <div class="flex items-end gap-3">
       <p class="text-2xl font-bold sm:text-4xl">{{ value }}</p>
-      <span v-if="down" class="flex items-center gap-1 text-rose-500">
+      <span v-if="down" class="text-rose-500 flex items-center gap-1">
         <UIcon name="i-lucide-arrow-down" />
         <span>{{ down }}</span>
       </span>
-      <span v-if="up" class="flex items-center gap-1 text-emerald-500">
+      <span v-if="up" class="text-emerald-500 flex items-center gap-1">
         <UIcon name="i-lucide-arrow-up" />
         <span>{{ up }}</span>
       </span>

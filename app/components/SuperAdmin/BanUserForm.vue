@@ -5,7 +5,7 @@
         <UAvatar :src="user.avatarUrl" size="lg" />
         <div>
           <p class="text-smfont-bold">{{ user.name }}</p>
-          <p class="text-sm text-neutral-500">{{ user.email }}</p>
+          <p class="text-gray-500 text-sm">{{ user.email }}</p>
         </div>
       </div>
       <UFormField label="Reason" name="reason" required>
@@ -48,14 +48,14 @@ import { z } from 'zod'
 import type { User, OAuthAccounts } from '@@/types/database'
 import { useDateFormat } from '@vueuse/core'
 
-interface TeamMember {
+interface PortfolioMember {
   id: string
-  teamId: string
+  portfolioId: string
   userId: string
   role: string
   createdAt: string
   updatedAt: string
-  team: {
+  portfolio: {
     id: string
     name: string
     ownerId: string
@@ -68,7 +68,7 @@ interface TeamMember {
 
 interface ExtendedUser extends User {
   oauthAccounts?: OAuthAccounts[]
-  teamMembers?: TeamMember[]
+  portfolioMembers?: PortfolioMember[]
 }
 
 const props = defineProps<{

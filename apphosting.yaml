@@ -1,0 +1,157 @@
+# Settings for Backend (on Cloud Run).
+# See https://firebase.google.com/docs/app-hosting/configure#cloud-run
+runConfig:
+  minInstances: 0
+  # maxInstances: 100
+  # concurrency: 80
+  # cpu: 1
+  # memoryMiB: 512
+
+  # Environment variables and secrets.
+  # env:
+  # Configure environment variables.
+  # See https://firebase.google.com/docs/app-hosting/configure#user-defined-environment
+  # - variable: MESSAGE
+  #   value: Hello world!
+  #   availability:
+  #     - BUILD
+  #     - RUNTIME
+
+  # Grant access to secrets in Cloud Secret Manager.
+  # See https://firebase.google.com/docs/app-hosting/configure#secret-parameters
+  # - variable: MY_SECRET
+  #   secret: mySecretRef
+env:
+  # Public, BUILD-time only
+  - variable: BASE_URL
+    value: https://your-app.example.com
+    availability:
+      - BUILD
+
+  - variable: APP_NAME
+    value: YourAppName
+    availability:
+      - BUILD
+
+  - variable: APP_DESCRIPTION
+    value: 'Striive is your AI-powered investment assistant. Get personalized
+      insights, daily briefings in text and podcast form, and backtest your
+      strategies with real data. Stay ahead of the markets — smarter, faster.'
+    availability:
+      - BUILD
+
+  - variable: LOGO_URL
+    value: https://cdn.example.com/logo.png
+    availability:
+      - BUILD
+
+  - variable: MOCK_EMAIL
+    value: mock@example.com
+    availability:
+      - BUILD
+
+  - variable: EMAIL_PROVIDER
+    value: resend
+    availability:
+      - BUILD
+
+  - variable: PAYMENT_PROVIDER
+    value: stripe
+    availability:
+      - BUILD
+
+  - variable: PLAID_ENVIRONMENT
+    value: sandbox
+    availability:
+      - BUILD
+
+  - variable: PLAID_CLIENT_ID
+    value: your-plaid-client-id
+    availability:
+      - BUILD
+
+  - variable: SUPABASE_URL
+    value: https://xyzcompany.supabase.co
+    availability:
+      - BUILD
+
+  # Secrets, available at BUILD (for CLI/config) and RUNTIME (for SSR/functions)
+  - variable: RESEND_API_TOKEN
+    secret: RESEND_API_TOKEN
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: FROM_EMAIL
+    secret: FROM_EMAIL
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NUXT_SESSION_PASSWORD
+    secret: NUXT_SESSION_PASSWORD
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NUXT_STRIPE_SECRET_KEY
+    secret: NUXT_STRIPE_SECRET_KEY
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NUXT_STRIPE_WEBHOOK_SECRET
+    secret: NUXT_STRIPE_WEBHOOK_SECRET
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: PLAID_SANDBOX_SECRET
+    secret: PLAID_SANDBOX_SECRET
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: PLAID_ENC_KEY
+    secret: PLAID_ENC_KEY
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: POSTGRES_URL
+    secret: POSTGRES_URL
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: SUPABASE_KEY
+    secret: SUPABASE_KEY
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NUXT_STRIPE_TEST_SECRET_KEY
+    secret: NUXT_STRIPE_TEST_SECRET_KEY
+  - variable: NUXT_STRIPE_TEST_WEBHOOK_SECRET
+    secret: NUXT_STRIPE_TEST_WEBHOOK_SECRET
+  - variable: NUXT_OAUTH_GOOGLE_CLIENT_ID
+    secret: NUXT_OAUTH_GOOGLE_CLIENT_ID
+  - variable: NUXT_OAUTH_GOOGLE_CLIENT_SECRET
+    secret: NUXT_OAUTH_GOOGLE_CLIENT_SECRET
+  - variable: NUXT_STRIPE_TEST_PUBLISHABLE_KEY
+    secret: NUXT_STRIPE_TEST_PUBLISHABLE_KEY
+  - variable: EOD_BASE_URL
+    secret: EOD_BASE_URL
+  - variable: EOD_API_KEY
+    secret: EOD_API_KEY
+  - variable: OPENAI_API_KEY
+    secret: OPENAI_API_KEY
+  - variable: STORAGE_BUCKET_FIREBASE
+    secret: FIREBASE_STORAGE_BUCKET
+  - variable: ELEVENLABS_API_KEY
+    secret: ELEVENLABS_API_KEY
+  - variable: ELEVENLABS_VOICE_ID_NARRATOR
+    secret: ELEVENLABS_VOICE_ID_NARRATOR
+  - variable: ELEVENLABS_MODEL_ID
+    secret: ELEVENLABS_MODEL_ID
+  - variable: SUPABASE_SERVICE_KEY
+    secret: SUPABASE_SERVICE_KEY

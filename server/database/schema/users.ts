@@ -1,44 +1,67 @@
-import { nanoid } from 'nanoid'
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
+import { pgTable, text, boolean, timestamp, uuid } from 'drizzle-orm/pg-core'
+import { relations, sql } from 'drizzle-orm'
 import { oauthAccounts } from './auth'
-import { teamMembers } from './teams'
-import { relations } from 'drizzle-orm'
+import { portfolioMembers } from './portfolios'
+import { subscriptions } from './subscriptions'
+import { pgPolicy } from 'drizzle-orm/pg-core'
+import { authenticatedRole } from 'drizzle-orm/supabase'
 
-export const users = sqliteTable('users', {
-  id: text('id')
-    .primaryKey()
-    .notNull()
-    .$default(() => nanoid()),
-  email: text('email').notNull().unique(),
-  name: text('name').notNull(),
-  avatarUrl: text('avatarUrl').default(''),
-  hashedPassword: text('hashedPassword'),
-  banned: integer('banned', { mode: 'boolean' }).notNull().default(false),
-  bannedReason: text('bannedReason'),
-  emailVerified: integer('emailVerified', { mode: 'boolean' })
-    .notNull()
-    .default(false),
-  superAdmin: integer('superAdmin', { mode: 'boolean' })
-    .notNull()
-    .default(false),
-  phoneNumber: text('phoneNumber'),
-  bannedUntil: integer('bannedUntil', { mode: 'timestamp' }),
-  onboarded: integer('onboarded', { mode: 'boolean' }).notNull().default(false),
-  proAccount: integer('proAccount', { mode: 'boolean' })
-    .notNull()
-    .default(false),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$default(
-    () => new Date(),
-  ),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().$onUpdate(
-    () => new Date(),
-  ),
-  lastActive: integer('last_active', { mode: 'timestamp' }).$onUpdate(
-    () => new Date(),
-  ),
-})
+// --- Reusable SQL Fragment ---
+const isSuperAdminCondition = `EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u."superAdmin" = true)`
+
+export const users = pgTable(
+  'users',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    email: text('email').notNull().unique(),
+    name: text('name').notNull(),
+    country: text('country').default('Unknown'),
+    avatarUrl: text('avatarUrl').default(''),
+    hashedPassword: text('hashedPassword'),
+    banned: boolean('banned').notNull().default(false),
+    bannedReason: text('bannedReason'),
+    emailVerified: boolean('emailVerified').notNull().default(false),
+    superAdmin: boolean('superAdmin').notNull().default(false),
+    phoneNumber: text('phoneNumber'),
+    bannedUntil: timestamp('bannedUntil'),
+    onboarded: boolean('onboarded').notNull().default(false),
+    proAccount: boolean('proAccount').notNull().default(false),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+    lastActive: timestamp('last_active').defaultNow(),
+  },
+  (table) => {
+    const isSelfCondition = `auth.uid() = id`
+    const selfOrSuperAdmin = `(${isSelfCondition}) OR (${isSuperAdminCondition})`
+
+    return [
+      pgPolicy('select_users', {
+        for: 'select',
+        to: authenticatedRole,
+        using: sql.raw(selfOrSuperAdmin),
+      }),
+      pgPolicy('update_users', {
+        for: 'update',
+        to: authenticatedRole,
+        using: sql.raw(selfOrSuperAdmin),
+        withCheck: sql.raw(selfOrSuperAdmin),
+      }),
+      pgPolicy('delete_users', {
+        for: 'delete',
+        to: authenticatedRole,
+        using: sql.raw(isSuperAdminCondition),
+      }),
+      pgPolicy('no_client_insert_users', {
+        for: 'insert',
+        to: authenticatedRole,
+        withCheck: sql`false`,
+      }),
+    ]
+  },
+)
 
 export const usersRelations = relations(users, ({ many }) => ({
   oauthAccounts: many(oauthAccounts),
-  teamMembers: many(teamMembers),
+  portfolioMembers: many(portfolioMembers),
+  subscriptions: many(subscriptions),
 }))

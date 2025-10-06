@@ -6,7 +6,7 @@
           <h2 class="font-medium">Passkey Manager</h2>
           <UButton
             size="lg"
-            color="neutral"
+            color="orange"
             :loading="creating"
             :disabled="creating"
             @click="modal = true"
@@ -14,7 +14,7 @@
             Add Passkey
           </UButton>
         </div>
-        <p class="mt-1 text-sm text-neutral-500">
+        <p class="text-neutral-500 mt-1 text-sm">
           Add and manage your passkeys here
         </p>
       </template>
@@ -24,12 +24,12 @@
       <div v-else-if="status === 'success'">
         <div
           v-if="passkeys && passkeys.length === 0"
-          class="flex flex-col items-center justify-center gap-4 rounded bg-neutral-100 p-4 text-sm dark:bg-neutral-800"
+          class="bg-neutral-100 dark:bg-neutral-800 flex flex-col items-center justify-center gap-4 rounded p-4 text-sm"
         >
           <UIcon name="i-lucide-fingerprint" class="h-6 w-6" />
           <p>No fingerprints or face IDs linked to your account.</p>
         </div>
-        <ul class="divide-y divide-neutral-100 dark:divide-neutral-800">
+        <ul class="divide-neutral-100 dark:divide-neutral-800 divide-y">
           <li
             v-for="passkey in passkeys"
             :key="passkey.id"
@@ -38,16 +38,39 @@
             <div class="flex items-center gap-2">
               <UIcon name="i-lucide-fingerprint" class="h-6 w-6" />
               {{ passkey.name }}
+              <Badge
+                variant="secondary"
+                :class="
+                  passkey.revokedAt
+                    ? 'bg-red-500/20 text-red-500'
+                    : 'bg-green-500/20 text-green-500'
+                "
+                size="sm"
+              >
+                {{ passkey.revokedAt === null ? 'Active' : 'Revoked' }}
+              </Badge>
             </div>
             <UButton
-              color="error"
+              v-if="!passkey.revokedAt"
+              class="bg-red-500/20 text-red-500 hover:bg-red-500/30 disabled:hover:bg-red-500/30"
               variant="soft"
               icon="i-ph-trash"
               :loading="deleting === passkey.id"
               :disabled="deleting === passkey.id"
               @click="deletePasskey(passkey.id)"
             >
-              Delete
+              delete
+            </UButton>
+            <UButton
+              v-else
+              color="orange"
+              variant="soft"
+              icon="i-ph-trash"
+              :loading="deleting === passkey.id"
+              :disabled="deleting === passkey.id"
+              @click="invokePasskey(passkey.id)"
+            >
+              Invoke
             </UButton>
           </li>
         </ul>
@@ -80,7 +103,7 @@
             label="Create Passkey"
             block
             size="lg"
-            color="neutral"
+            color="orange"
           />
         </UForm>
       </template>
@@ -91,10 +114,18 @@
 <script setup lang="ts">
 import { z } from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
+import { Badge } from '@/components/ui/badge'
 
 const modal = ref(false)
-const { passkeys, status, creating, deleting, createPasskey, deletePasskey }
-  = usePasskeys()
+const {
+  passkeys,
+  status,
+  creating,
+  deleting,
+  createPasskey,
+  deletePasskey,
+  invokePasskey,
+} = usePasskeys()
 
 const { user } = useUserSession()
 const schema = z.object({

@@ -1,0 +1,84 @@
+<template>
+  <header class="relative z-50 flex w-full flex-col justify-end px-5 pt-5">
+    <div class="flex w-full items-end justify-between">
+      <TransitionGroup tag="div" name="nav" class="flex items-center gap-3">
+        <!-- Back button ─ fades away -->
+        <UButton
+          v-if="showBackButton"
+          key="back"
+          variant="ghost"
+          class="bg-black-800 aspect-square flex-shrink-0 rounded-full p-1 text-white"
+          @click="router.back()"
+        >
+          <UIcon name="i-lucide-chevron-left" class="size-5" />
+        </UButton>
+
+        <!-- Dropdown ─ always rendered -->
+        <AppPortfolioDropdown key="portfolio" />
+      </TransitionGroup>
+
+      <div>
+        <slot name="actions" />
+      </div>
+
+      <div class="flex items-center gap-2">
+        <PwaInstallPrompt />
+        <AppUserDropdown />
+      </div>
+    </div>
+
+    <div v-if="isSuperAdminRoute" key="super-admin">
+      <AppSidebarSuperAdmin />
+    </div>
+    <!-- To cover statusbar/safearea -->
+    <!-- <span class="dark:bg-black-950 absolute left-0 bottom-12 -z-10 h-52 w-full bg-white"></span> -->
+  </header>
+
+  <main>
+    <slot />
+  </main>
+
+  <footer class="fixed bottom-0 w-full">
+    <AppMobileNav />
+  </footer>
+</template>
+
+<script lang="ts" setup>
+const route = useRoute()
+const router = useRouter()
+
+const baseRoutes = ['/dashboard', '/market', '/news']
+const hasPreviousHistory = computed(() => {
+  if (import.meta.client) {
+    const st = window.history.state
+    return !!st && st.back !== null
+  }
+})
+const showBackButton = computed(
+  () => hasPreviousHistory?.value && !baseRoutes.includes(route.path),
+)
+
+const isSuperAdminRoute = computed(() => {
+  return route.path.startsWith('/dashboard/super-admin')
+})
+</script>
+
+<style scoped>
+.nav-enter-active,
+.nav-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.nav-enter-from,
+.nav-leave-to {
+  opacity: 0;
+}
+
+.nav-move {
+  transition: transform 0.25s ease;
+}
+
+.nav-leave-active {
+  position: absolute;
+}
+</style>

@@ -1,29 +1,34 @@
-import type { Team } from '@@/types/database'
-import { getInvite } from '~~/server/database/queries/teams'
+import type { Portfolio } from '@@/types/database'
+import { getInvite } from '~~/server/database/queries/portfolios'
+import { usePortfolio } from '@/composables/usePortfolio'
 
 export default defineNuxtRouteMiddleware(async (to, _from) => {
-  const paramSlug
-    = (Array.isArray(to.params.team) ? to.params.team[0] : to.params.team) || ''
+  const paramSlug =
+    (Array.isArray(to.params.portfolio)
+      ? to.params.portfolio[0]
+      : to.params.portfolio) || ''
   const toast = useToast()
   const { loggedIn } = useUserSession()
-  const teams = useState<Team[]>('teams', () => [])
-  const teamSlug = useState<string>('teamSlug')
+  const portfolios = useState<Portfolio[]>('portfolios', () => [])
+  const portfolioSlug = useState<string>('portfolioSlug')
 
-  function handleTeamRedirect() {
-    const { getLastUsedTeam, setLastUsedTeam } = useTeamPreferences()
-    // Redirect to onboarding if no teams
-    const memberships = teams.value
-    const firstTeam = memberships[0]
-    if (!firstTeam) {
-      return navigateTo('/dashboard/onboard')
+  function handlePortfolioRedirect() {
+    const { getLastUsedPortfolio, setLastUsedPortfolio } =
+      usePortfolioPreferences()
+    // Redirect to onboarding if no portfolios
+    const memberships = portfolios.value
+    const firstPortfolio = memberships[0]
+    if (!firstPortfolio) {
+      return navigateTo('/market')
     }
-    const lastTeamSlug = getLastUsedTeam()
-    const targetTeam
-      = memberships.find((team) => team.slug === lastTeamSlug) || firstTeam
+    const lastPortfolioSlug = getLastUsedPortfolio()
+    const targetPortfolio =
+      memberships.find((portfolio) => portfolio.slug === lastPortfolioSlug) ||
+      firstPortfolio
 
-    // Update last used team and redirect
-    setLastUsedTeam(targetTeam.slug)
-    return navigateTo(`/dashboard/${targetTeam.slug}`)
+    // Update last used portfolio and redirect
+    setLastUsedPortfolio(targetPortfolio.slug)
+    return navigateTo(`/dashboard/${targetPortfolio.slug}`)
   }
 
   // Redirect to login if not logged in
@@ -32,9 +37,9 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
       title: 'You must be logged in to access this page',
       color: 'error',
     })
-    if (teamSlug.value) teamSlug.value = ''
-    if (teams.value.length) teams.value = []
-    return await navigateTo('/auth/login')
+    if (portfolioSlug.value) portfolioSlug.value = ''
+    if (portfolios.value.length) portfolios.value = []
+    return navigateTo('/auth/login')
   }
 
   // Check for invite token, this means the user was not logged in or did not have an account when they clicked the verification link,
@@ -49,42 +54,44 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
     // Redirect if token still valid
     try {
       await getInvite(inviteTokenStr)
-      return await navigateTo(`/api/teams/verify-invite?token=${inviteTokenStr}`)
+      return navigateTo(`/api/portfolios/verify-invite?token=${inviteTokenStr}`)
     } catch {
       // Invalid token means user already verified it upon submitting registration
     }
   }
 
-  // If teams aren't loaded yet, fetch them
-  if (!teams.value.length) {
-    teams.value = await useTeam().getMemberships()
+  // If portfolios aren't loaded yet, fetch them
+  if (!portfolios.value?.length) {
+    portfolios.value = await usePortfolio().getMemberships()
 
-    // If there are teams and we're coming from registration via invite, skip onboarding
     const fromInvite = useCookie('from-invite')
-    if (fromInvite.value === 'true' && teams.value.length) {
+    if (fromInvite.value === 'true' && portfolios.value.length) {
       fromInvite.value = null
-      // User has teams from accepting invite, redirect to the team page
-      return handleTeamRedirect()
+      // User has portfolios from accepting invite, redirect to the portfolio page
+      return handlePortfolioRedirect()
     }
 
-    if ((paramSlug || teamSlug.value) && !teams.value.length) {
-      return await handleTeamRedirect()
+    if ((paramSlug || portfolioSlug.value) && !portfolios.value.length) {
+      return handlePortfolioRedirect()
     }
   }
 
-  // Redirect to onboarding or first available team
+  // Redirect to onboarding or first available portfolio
   if (
-    to.fullPath === '/dashboard'
-    || to.fullPath === '/dashboard/'
-    || (teams.value.length && to.fullPath === '/dashboard/onboard')
+    to.fullPath === '/dashboard' ||
+    to.fullPath === '/dashboard' ||
+    (portfolios.value.length && to.fullPath === '/dashboard/onboard')
   ) {
-    return await handleTeamRedirect()
+    return handlePortfolioRedirect()
   }
 
-  // Validate that the team in the slug belongs to the user
-  if (paramSlug && !teams.value.find((team) => team.slug === paramSlug)) {
-    return await handleTeamRedirect()
+  // Validate that the portfolio in the slug belongs to the user
+  if (
+    paramSlug &&
+    !portfolios.value.find((portfolio) => portfolio.slug === paramSlug)
+  ) {
+    return handlePortfolioRedirect()
   } else if (paramSlug) {
-    teamSlug.value = paramSlug
+    portfolioSlug.value = paramSlug
   }
 })

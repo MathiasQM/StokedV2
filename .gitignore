@@ -24,4 +24,13 @@ logs
 .env.*
 !.env.example
 
+# Github Actions - Since its only needed for the NuxtHub deployment
+.github
+
+# Dev certificates
+localhost.pem
+localhost-key.pem
+
+# Or if you store them in a folder:
+cert/
 /server/database/migrations/**

@@ -1,10 +1,10 @@
 <template>
   <div>
-    <header class="px-2">
+    <header class="hidden px-2 md:block">
       <p class="font-bold">Super Admin</p>
     </header>
     <AppSidebarContent class="mt-2">
-      <AppSidebarGroup>
+      <AppSidebarGroup class="flex md:flex-col">
         <AppSidebarLink v-for="link in links" :key="link.to" v-bind="link" />
       </AppSidebarGroup>
     </AppSidebarContent>
@@ -14,19 +14,19 @@
 <script lang="ts" setup>
 const links = [
   {
-    label: 'Back to Dashboard',
+    label: 'Exit',
     icon: 'i-lucide-chevron-left',
-    to: '/dashboard',
+    to: `/dashboard`,
   },
   {
     label: 'Users',
     icon: 'i-lucide-users',
-    to: '/dashboard/super-admin',
+    to: `/dashboard/super-admin`,
   },
   {
-    label: 'Teams',
+    label: 'Portfolios',
     icon: 'i-lucide-users',
-    to: '/dashboard/super-admin/teams',
+    to: `/dashboard/super-admin/portfolios`,
   },
   {
     label: 'Stripe Plans',

@@ -1,6 +1,7 @@
 <template>
   <UDropdownMenu
-    :items="items as DropdownMenuItem[]"
+    class="hover:bg-none"
+    :items="items"
     :ui="{
       content: 'w-[240px]',
     }"
@@ -10,9 +11,8 @@
   >
     <UButton
       block
-      color="neutral"
       variant="ghost"
-      class="w-full justify-normal text-left hover:bg-zinc-200/80 dark:hover:bg-white/10"
+      class="w-auto justify-normal text-left hover:bg-zinc-200/80 hover:bg-none md:w-full dark:hover:bg-white/10"
     >
       <UAvatar
         :src="user?.avatarUrl || ''"
@@ -20,10 +20,10 @@
         size="xs"
         class="ring-2 ring-neutral-200 dark:ring-white/10"
       />
-      <div class="flex flex-1 items-center gap-2">
-        <p class="text-sm">{{ user?.name }}</p>
+      <div class="hidden flex-1 items-center gap-2 md:flex">
+        <p class="text-sm text-white">{{ user?.name }}</p>
       </div>
-      <UIcon name="i-lucide-chevron-up" />
+      <UIcon class="hidden text-white md:flex" name="i-lucide-chevron-up" />
     </UButton>
     <template #profile>
       <div class="flex items-center gap-2">
@@ -57,24 +57,31 @@
 
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
+import { useBreakpoints, breakpointsTailwind } from '@vueuse/core'
+import { usePortfolio } from '@/composables/usePortfolio'
 
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const smallerThanMd = breakpoints.smaller('md')
 const { user } = useUserSession()
 const { logout } = useAuth()
 const mobileMenu = useState('mobileMenu')
 const isSuperAdmin = computed(() => user.value?.superAdmin)
 const feedbackModal = ref(false)
+
+const { currentPortfolio, portfolios, isPortfolioOwner } = usePortfolio()
+
 async function signOut() {
   await logout()
-  await navigateTo('/')
+  await navigateTo('/auth/login')
 }
-const items = ref([
+const items = computed(() => [
   [
     {
       slot: 'profile',
-      label: user.value?.name,
+      label: user?.value?.name,
       avatar: {
-        src: user.value?.avatarUrl || '',
-        alt: user.value?.name,
+        src: user?.value?.avatarUrl || '',
+        alt: user?.value?.name,
       },
       type: 'label',
       onSelect: () => {
@@ -86,7 +93,15 @@ const items = ref([
     {
       label: 'Account Settings',
       icon: 'i-lucide-user-cog',
-      to: '/dashboard/account-settings',
+      to: '/account-settings',
+      onSelect: () => {
+        mobileMenu.value = false
+      },
+    },
+    {
+      label: 'Membership',
+      icon: 'i-lucide-id-card',
+      to: `/membership`,
       onSelect: () => {
         mobileMenu.value = false
       },
@@ -128,6 +143,28 @@ const items = ref([
       ],
     },
   ],
+  ...(smallerThanMd.value && portfolios.value.length > 0 && isPortfolioOwner
+    ? [
+        [
+          {
+            label: 'Portfolio Settings',
+            icon: 'i-lucide-settings-2',
+            to: `/dashboard/${currentPortfolio.value.slug}/settings`,
+            onSelect: () => {
+              mobileMenu.value = false
+            },
+          },
+          {
+            label: 'Portfolio Members',
+            icon: 'i-lucide-users',
+            to: `/dashboard/${currentPortfolio.value.slug}/settings/members`,
+            onSelect: () => {
+              mobileMenu.value = false
+            },
+          },
+        ],
+      ]
+    : []),
   [
     {
       label: 'Support',
@@ -136,10 +173,6 @@ const items = ref([
         feedbackModal.value = true
         mobileMenu.value = false
       },
-    },
-    {
-      label: 'Docs',
-      icon: 'i-lucide-cloud',
     },
   ],
   ...(isSuperAdmin.value

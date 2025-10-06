@@ -29,8 +29,8 @@ import { validateBody } from '@@/server/utils/bodyValidation'
 import {
   getInvite,
   updateInviteStatus,
-  acceptTeamInvite,
-} from '@@/server/database/queries/teams'
+  acceptPortfolioInvite,
+} from '@@/server/database/queries/portfolios'
 
 export default defineEventHandler(async (event) => {
   // 1. Validate body
@@ -59,10 +59,21 @@ export default defineEventHandler(async (event) => {
   // 3. Hash the password
   const hashedPassword = await hashPassword(data.password)
 
+  // EXTRA: Get user location
+  let country = event.context.cf?.country
+
+  if (!country) {
+    const countryCode = getRequestHeader(event, 'x-country-code')
+    if (countryCode) {
+      country = countryCode // This will be a two-letter code like 'US', 'DK', etc.
+    }
+  }
+
   // 4. Create user
   const user = await createUserWithPassword({
     email: data.email,
     name: data.name,
+    country: country || 'Unknown',
     hashedPassword,
   })
   const sanitizedUser = sanitizeUser(user)
@@ -73,7 +84,7 @@ export default defineEventHandler(async (event) => {
       const invite = await getInvite(data.inviteToken) // Verify invitation code to prevent verification bypass
       await verifyUser(user.id)
       sanitizedUser.emailVerified = true
-      await acceptTeamInvite(invite, user.id)
+      await acceptPortfolioInvite(invite, user.id)
       await updateInviteStatus(invite.id, 'accepted')
       deleteCookie(event, 'invite-token')
       deleteCookie(event, 'invite-email')

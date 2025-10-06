@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
       statusMessage: 'You are not authorized to access this resource',
     })
   }
-  const teams = await useDB().query.teams.findMany({
+  const portfolios = await useDB().query.portfolios.findMany({
     with: {
       owner: true,
       subscription: {
@@ -31,9 +31,9 @@ export default defineEventHandler(async (event) => {
         },
       },
     },
-    orderBy: (teams, { desc }) => [desc(teams.createdAt)],
+    orderBy: (portfolios, { desc }) => [desc(portfolios.createdAt)],
     limit: 20,
     offset: 0,
   })
-  return teams
+  return portfolios
 })

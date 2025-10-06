@@ -6,17 +6,17 @@
         <UButton
           label="Link Account"
           variant="subtle"
-          color="neutral"
+          color="orange"
           @click="linkAccountModal = true"
         />
       </div>
-      <p class="mt-1 text-sm text-neutral-500">
+      <p class="text-neutral-500 mt-1 text-sm">
         Link a new OAuth provider to your account.
       </p>
     </template>
     <ul
       v-if="linkedAccounts"
-      class="divide-y divide-neutral-200 dark:divide-white/10"
+      class="divide-neutral-200 dark:divide-white/10 divide-y"
     >
       <li
         v-for="account in linkedAccounts"
@@ -24,13 +24,13 @@
         class="flex items-center gap-3 py-4"
       >
         <div
-          class="flex h-12 w-12 items-center justify-center rounded-md bg-neutral-100 dark:bg-white/10"
+          class="bg-neutral-100 dark:bg-white/10 flex h-12 w-12 items-center justify-center rounded-md"
         >
           <UIcon :name="getProviderIcon(account.provider)" class="text-xl" />
         </div>
         <div class="flex-1">
           <p>{{ getProviderName(account.provider) }}</p>
-          <p class="text-xs text-neutral-500">
+          <p class="text-neutral-500 text-xs">
             Connected on
             {{
               account.createdAt
@@ -89,21 +89,21 @@ const availableProviders = [
     name: 'Google',
     icon: 'i-logos-google-icon',
   },
-  {
-    id: 'github',
-    name: 'Github',
-    icon: 'i-mdi-github',
-  },
-  {
-    id: 'discord',
-    name: 'Discord',
-    icon: 'i-logos-discord-icon',
-  },
-  {
-    id: 'spotify',
-    name: 'Spotify',
-    icon: 'i-logos-spotify-icon',
-  },
+  // {
+  //   id: 'github',
+  //   name: 'Github',
+  //   icon: 'i-mdi-github',
+  // },
+  // {
+  //   id: 'discord',
+  //   name: 'Discord',
+  //   icon: 'i-logos-discord-icon',
+  // },
+  // {
+  //   id: 'spotify',
+  //   name: 'Spotify',
+  //   icon: 'i-logos-spotify-icon',
+  // },
 ]
 
 const getProviderIcon = (providerId: string) => {

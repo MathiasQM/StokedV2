@@ -96,8 +96,8 @@ const footer = {
           </Link>
         </Text>
         <Text :style="text">
-          Thanks,<br>
-          {{ env.APP_NAME }} team
+          Thanks,<br />
+          {{ env.APP_NAME }} portfolio
         </Text>
         <Img :src="env.LOGO_URL" width="32" alt="Logo" />
         <Text :style="footer">
@@ -106,8 +106,8 @@ const footer = {
             target="_blank"
             :style="{ ...link, color: '#898989' }"
           >
-            {{ env.APP_NAME }}
-          </Link>, {{ env.APP_DESCRIPTION }}
+            {{ env.APP_NAME }} </Link
+          >, {{ env.APP_DESCRIPTION }}
         </Text>
       </Container>
     </Body>

@@ -1,6 +1,5 @@
 <template>
-  <main class="fixed inset-0 flex overflow-hidden">
-    <AppSidebar v-if="!isOnboardRoute" />
+  <main class="flex overflow-hidden">
     <div class="w-full min-w-0 flex-1 overflow-y-auto">
       <SuperAdminImpersonationBanner v-if="user?._impersonated" :user="user" />
       <NuxtPage />
@@ -14,8 +13,4 @@ definePageMeta({
 })
 
 const { user } = useUserSession()
-const route = useRoute()
-const isOnboardRoute = computed(() =>
-  route.path.startsWith('/dashboard/onboard'),
-)
 </script>

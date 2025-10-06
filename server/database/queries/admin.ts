@@ -4,12 +4,13 @@ import type {
   InsertSubscriber,
 } from '@@/types/database'
 
+import { desc, eq } from 'drizzle-orm'
+
 export const createFeedback = async (payload: InsertFeedback) => {
   const feedback = await useDB()
     .insert(tables.feedback)
     .values(payload)
     .returning()
-    .get()
   return feedback
 }
 
@@ -36,7 +37,6 @@ export const updateFeedback = async (
     .set(payload)
     .where(eq(tables.feedback.id, id))
     .returning()
-    .get()
   return feedback
 }
 
@@ -69,7 +69,6 @@ export const insertSubscriber = async (payload: InsertSubscriber) => {
     .insert(tables.subscribers)
     .values(payload)
     .returning()
-    .get()
   return subscriber
 }
 

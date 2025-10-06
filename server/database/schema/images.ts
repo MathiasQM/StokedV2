@@ -1,22 +1,35 @@
-import { nanoid } from 'nanoid'
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
+import { pgTable, text, timestamp, integer, uuid } from 'drizzle-orm/pg-core'
 import { users } from './users'
+import { sql } from 'drizzle-orm'
+import { pgPolicy } from 'drizzle-orm/pg-core'
+import { authenticatedRole } from 'drizzle-orm/supabase'
 
-export const images = sqliteTable('images', {
-  id: text('id')
-    .primaryKey()
-    .$default(() => nanoid()),
-  userId: text('userId')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  contentType: text('contentType'),
-  pathname: text('pathname').notNull(),
-  size: integer('size'),
-  uploadedAt: integer('uploaded_at', { mode: 'timestamp' }),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$default(
-    () => new Date(),
-  ),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().$onUpdate(
-    () => new Date(),
-  ),
-})
+// --- Reusable SQL Fragments ---
+const isSuperAdmin = sql`EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u."superAdmin" = true)`
+const isOwnerOrSuperAdmin = sql`"userId" = auth.uid() OR ${isSuperAdmin}`
+
+export const images = pgTable(
+  'images',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('userId')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    contentType: text('contentType'),
+    pathname: text('pathname').notNull(),
+    size: integer('size'),
+    uploadedAt: timestamp('uploaded_at'),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+  },
+  (table) => [
+    // This single policy allows users to perform all actions (select, insert, update, delete)
+    // on their own images. Super admins can perform all actions on any image.
+    pgPolicy('images_owner_or_superadmin_access', {
+      for: 'all',
+      to: authenticatedRole,
+      using: isOwnerOrSuperAdmin,
+      withCheck: isOwnerOrSuperAdmin,
+    }),
+  ],
+)

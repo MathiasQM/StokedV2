@@ -1,3 +1,5 @@
+import { ensureBlob } from '@@/server/utils/ensureBlob'
+import { env } from '~~/env'
 export default defineEventHandler(async (event) => {
   await requireUserSession(event)
   const form = await readFormData(event)
@@ -16,9 +18,8 @@ export default defineEventHandler(async (event) => {
       statusMessage: (error as Error).message || (error as string),
     })
   }
+  const key = `uploads/${Date.now()}-${image.name}`
 
-  const file = await hubBlob().put(image.name, image, {
-    addRandomSuffix: true,
-  })
-  return file.pathname
+  await useStorage('s3Storage').setItemRaw(key, image)
+  return `${env.S3_PUBLIC_ENDPOINT}/${key}`
 })

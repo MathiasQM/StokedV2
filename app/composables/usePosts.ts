@@ -2,9 +2,10 @@ import { z } from 'zod'
 import { ref, reactive } from 'vue'
 import { FetchError } from 'ofetch'
 import type { Post, InsertPost } from '@@/types/database'
+import { usePortfolio } from '@/composables/usePortfolio'
 
 export const usePosts = async () => {
-  const { currentTeam } = useTeam()
+  const { currentPortfolio } = usePortfolio()
   const toast = useToast()
   const loading = ref(false)
   const deletingPostId = ref<string | null>(null)
@@ -42,9 +43,9 @@ export const usePosts = async () => {
   type Schema = z.output<typeof schema>
 
   const { data: posts, refresh } = await useFetch<Post[]>(
-    () => `/api/teams/${currentTeam.value.id}/posts`,
+    () => `/api/portfolios/${currentPortfolio.value?.id}/posts`,
     {
-      watch: [currentTeam],
+      watch: [currentPortfolio],
       default: () => [],
     },
   )
@@ -64,7 +65,8 @@ export const usePosts = async () => {
       toast.add({
         title: 'Failed to upload image',
         description:
-          (error instanceof FetchError ? error.data?.message : null) || 'An error occurred while uploading the image',
+          (error instanceof FetchError ? error.data?.message : null) ||
+          'An error occurred while uploading the image',
         color: 'error',
       })
       throw createError('Failed to upload image')
@@ -74,7 +76,7 @@ export const usePosts = async () => {
   const createPost = async (post: Partial<InsertPost>) => {
     try {
       const { data, error } = await useFetch<Post>(
-        `/api/teams/${currentTeam.value.id}/posts`,
+        `/api/portfolios/${currentPortfolio.value?.id}/posts`,
         {
           method: 'POST',
           body: post,
@@ -90,7 +92,8 @@ export const usePosts = async () => {
       toast.add({
         title: 'Failed to create post',
         description:
-          (error instanceof FetchError ? error.data?.message : null) || 'An error occurred while creating the post',
+          (error instanceof FetchError ? error.data?.message : null) ||
+          'An error occurred while creating the post',
         color: 'error',
       })
       throw error
@@ -100,7 +103,7 @@ export const usePosts = async () => {
   const updatePost = async (id: string, post: Partial<Post>) => {
     try {
       const updatedPost = await $fetch<Post>(
-        `/api/teams/${currentTeam.value.id}/posts/${id}`,
+        `/api/portfolios/${currentPortfolio.value?.id}/posts/${id}`,
         {
           method: 'PATCH',
           body: post,
@@ -111,7 +114,8 @@ export const usePosts = async () => {
       toast.add({
         title: 'Failed to update post',
         description:
-          (error instanceof FetchError ? error.data?.message : null) || 'An error occurred while updating the post',
+          (error instanceof FetchError ? error.data?.message : null) ||
+          'An error occurred while updating the post',
         color: 'error',
       })
       throw error
@@ -122,7 +126,7 @@ export const usePosts = async () => {
     try {
       deletingPostId.value = id
       return await $fetch<Post>(
-        `/api/teams/${currentTeam.value.id}/posts/${id}`,
+        `/api/portfolios/${currentPortfolio.value?.id}/posts/${id}`,
         {
           method: 'DELETE',
         },
@@ -131,7 +135,8 @@ export const usePosts = async () => {
       toast.add({
         title: 'Failed to delete post',
         description:
-          (error instanceof FetchError ? error.data?.message : null) || 'An error occurred while deleting the post',
+          (error instanceof FetchError ? error.data?.message : null) ||
+          'An error occurred while deleting the post',
         color: 'error',
       })
       throw error

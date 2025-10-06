@@ -113,14 +113,14 @@ const columns: TableColumn<Invoice>[] = [
     cell: ({ row }) => {
       return h('div', { class: 'flex gap-2' }, [
         h(resolveComponent('UButton'), {
-          color: 'neutral',
+          color: 'orange',
           variant: 'soft',
           icon: 'i-lucide-eye',
           size: 'sm',
           onClick: () => window.open(row.original.invoiceUrl, '_blank'),
         }),
         h(resolveComponent('UButton'), {
-          color: 'neutral',
+          color: 'orange',
           variant: 'soft',
           icon: 'i-lucide-download',
           size: 'sm',
@@ -136,6 +136,6 @@ const columns: TableColumn<Invoice>[] = [
   <UTable
     :data="data"
     :columns="columns"
-    class="mt-2 flex-1 rounded-lg border border-neutral-200 dark:border-white/10"
+    class="border-neutral-200 dark:border-white/10 mt-2 flex-1 rounded-lg border"
   />
 </template>

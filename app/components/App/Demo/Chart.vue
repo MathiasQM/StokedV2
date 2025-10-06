@@ -9,13 +9,13 @@
         >
           <UTooltip :delay-duration="0" :text="item.value.toString()">
             <div
-              class="w-full min-w-6 cursor-pointer rounded bg-neutral-200 ring-1 ring-neutral-300 transition-all duration-300 hover:-translate-y-1 dark:bg-neutral-800 dark:ring-white/10"
+              class="bg-neutral-200 ring-neutral-300 dark:bg-neutral-800 dark:ring-white/10 w-full min-w-6 cursor-pointer rounded ring-1 transition-all duration-300 hover:-translate-y-1"
               :style="{
                 height: `${Math.max((item.value / maxValue) * 200, 1)}px`,
               }"
             />
           </UTooltip>
-          <div class="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+          <div class="text-neutral-600 dark:text-neutral-400 mt-2 text-xs">
             {{ formatDate(item.date) }}
           </div>
         </div>

@@ -1,19 +1,21 @@
 <template>
-  <main class="flex min-h-screen items-center justify-center">
+  <main class="flex h-full items-center justify-center p-5">
     <div class="mx-auto w-full max-w-sm space-y-4">
-      <img src="/logo.png" alt="logo" class="mx-auto h-10 w-auto">
+      <img src="/logo.png" alt="logo" class="mx-auto h-10 w-auto" />
       <div class="text-center">
-        <p class="text-lg font-bold">Sign in to Supersaas</p>
+        <p class="text-lg font-bold text-black dark:text-white">
+          Sign in to Striive
+        </p>
         <p class="text-sm text-neutral-500">
           Dont have an account?
           <UButton
             padding="none"
             trailing-icon="i-lucide-arrow-right"
-            color="neutral"
+            color="orange"
             to="/auth/register"
             variant="link"
             label="Get Started"
-            class="font-normal"
+            class="font-normal text-orange-500"
             :ui="{
               trailingIcon: 'size-4',
             }"
@@ -28,7 +30,12 @@
         @submit="onSubmit"
       >
         <UFormField label="Email" name="email">
-          <UInput v-model="state.email" class="w-full" size="lg" tabindex="1" />
+          <UInput
+            v-model="state.email"
+            class="w-full lowercase"
+            size="lg"
+            tabindex="1"
+          />
         </UFormField>
 
         <UFormField label="Password" name="password">
@@ -45,7 +52,7 @@
               to="/auth/forgot-password"
               label="Forgot password?"
               size="xs"
-              color="neutral"
+              color="orange"
               class="text-neutral-500"
               tabindex="3"
             />
@@ -56,24 +63,19 @@
           type="submit"
           :loading="loading"
           block
-          color="neutral"
-          class="cursor-pointer"
+          color="orange"
+          class="cursor-pointer bg-orange-500 text-white hover:bg-orange-400"
           size="lg"
         >
           Submit
         </UButton>
       </UForm>
       <USeparator label="OR" />
-      <div class="grid grid-cols-2 gap-2">
+      <div class="grid grid-cols-1 gap-2">
         <AuthSocialLoginButton
           label="Google"
           icon="i-logos-google-icon"
           provider="google"
-        />
-        <AuthSocialLoginButton
-          label="Github"
-          icon="i-mdi-github"
-          provider="github"
         />
       </div>
     </div>
@@ -81,13 +83,13 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  middleware: ['invite-email'],
+  layout: false,
+})
 import type { z } from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 import { loginUserSchema } from '@@/shared/validations/auth'
-
-definePageMeta({
-  middleware: ['invite-email'],
-})
 type Schema = z.output<typeof loginUserSchema>
 
 const loading = ref(false)

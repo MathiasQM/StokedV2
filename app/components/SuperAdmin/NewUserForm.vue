@@ -18,7 +18,7 @@
         <template #trailing>
           <UTooltip text="Generate Password" :content="{ side: 'right' }">
             <UButton
-              color="neutral"
+              color="orange"
               variant="link"
               size="sm"
               icon="i-lucide-sparkles"
@@ -28,24 +28,9 @@
         </template>
       </UInput>
     </UFormField>
-    <UFormField label="Phone Number" name="phoneNumber">
-      <UInput
-        v-model="state.phoneNumber"
-        class="w-full"
-        size="lg"
-        placeholder="+12123456789"
-      />
-    </UFormField>
-    <UFormField label="Avatar" name="avatar">
-      <AppAvatarUploader
-        v-model="state.avatarUrl"
-        :avatar-size="'md'"
-        @file-selected="handleFileSelected"
-      />
-    </UFormField>
     <UCheckbox
-      v-model="state.emailVerified"
       size="lg"
+      v-model="state.emailVerified"
       label="Auto verify user"
       description="If checked, the user will be automatically verified after registration."
     />
@@ -70,14 +55,6 @@ const schema = z.object({
   email: z.string().email('Invalid email'),
   password: z.string().min(8, 'Must be at least 8 characters'),
   emailVerified: z.boolean().optional(),
-  avatarUrl: z.string().optional(),
-  phoneNumber: z
-    .string()
-    .regex(
-      /^\+[1-9]\d{1,14}$/,
-      'Phone number must be in E.164 format (e.g. +12125551234)',
-    )
-    .optional(),
 })
 
 type Schema = z.output<typeof schema>
@@ -85,10 +62,8 @@ type Schema = z.output<typeof schema>
 const state = reactive<Partial<Schema>>({
   name: undefined,
   email: undefined,
-  phoneNumber: undefined,
   password: undefined,
   emailVerified: false,
-  avatarUrl: undefined,
 })
 
 const toast = useToast()
@@ -102,7 +77,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     }
     const payload = {
       ...event.data,
-      avatarUrl: filePath || state.avatarUrl,
+      avatarUrl: filePath || '',
     }
     const response = await $fetch('/api/super-admin/users', {
       method: 'POST',
@@ -121,7 +96,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     // Emit event to notify parent component
     emit('user-created', response)
   } catch (error) {
-    const errorMessage = (error instanceof FetchError ? error.data?.message : null) || 'Failed to create user'
+    const errorMessage =
+      (error instanceof FetchError ? error.data?.message : null) ||
+      'Failed to create user'
     toast.add({
       title: 'Error',
       description: errorMessage,
@@ -137,10 +114,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 function resetForm() {
   state.name = undefined
   state.email = undefined
-  state.phoneNumber = undefined
   state.password = undefined
   state.emailVerified = false
-  state.avatarUrl = undefined
   selectedFile.value = null
 }
 
@@ -167,13 +142,6 @@ const uploadAvatar = async () => {
     return `/images/${filePath}`
   } catch {
     throw new Error('Failed to upload avatar')
-  }
-}
-
-const handleFileSelected = (file: File | null) => {
-  selectedFile.value = file
-  if (!file) {
-    state.avatarUrl = ''
   }
 }
 </script>

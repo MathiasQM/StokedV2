@@ -1,11 +1,11 @@
 <template>
   <main class="flex min-h-screen items-center justify-center">
     <div class="mx-auto w-full max-w-sm space-y-4">
-      <img src="/logo.png" alt="logo" class="mx-auto h-10 w-auto">
+      <img src="/logo.png" alt="logo" class="mx-auto h-10 w-auto" />
       <template v-if="mode === 'login'">
         <div class="text-center">
           <p class="text-lg font-bold">Sign in to your account</p>
-          <p class="text-sm text-neutral-500">
+          <p class="text-neutral-500 text-sm">
             Welcome back! Please sign in to continue.
           </p>
         </div>
@@ -23,7 +23,7 @@
             type="submit"
             :loading="loading"
             block
-            color="neutral"
+            color="orange"
             class="cursor-pointer"
             size="lg"
           >
@@ -34,7 +34,7 @@
       <div v-else>
         <div class="text-center">
           <p class="text-lg font-bold">We've sent you a 6-digit code</p>
-          <p class="text-sm text-neutral-500">
+          <p class="text-neutral-500 text-sm">
             Please check your email for the code and enter it below.
           </p>
         </div>
@@ -58,7 +58,7 @@
           <UButton
             type="submit"
             :loading="loading"
-            color="neutral"
+            color="orange"
             class="cursor-pointer"
             size="lg"
             block
@@ -78,6 +78,10 @@ import { emailSchema, otpLoginSchema } from '@@/shared/validations/auth'
 
 type LoginSchema = z.output<typeof emailSchema>
 type OtpSchema = z.output<typeof otpLoginSchema>
+
+definePageMeta({
+  layout: false,
+})
 
 const toast = useToast()
 const { fetch: refreshSession } = useUserSession()

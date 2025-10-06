@@ -12,17 +12,25 @@ export default defineEventHandler(async (event) => {
       statusMessage: 'Missing required user information',
     })
   }
+  // 1. Try to get location from Cloudflare headers first
+  let city = event.context.cf?.city
+  let country = event.context.cf?.country
 
-  // Get location information from Cloudflare headers if available
-  const city = event.context.cf.city
-  const country = event.context.cf.country
+  // 2. If no country info, check for Google's header
+  // 'x-country-code' is added by Google Cloud Run / Firebase App Hosting
+  if (!country) {
+    const countryCode = getRequestHeader(event, 'x-country-code')
+    if (countryCode) {
+      country = countryCode // This will be a two-letter code like 'US', 'DK', etc.
+    }
+  }
 
   // Only send email if we have location information
   try {
     const htmlTemplate = await render(LoginNotification, {
       userName: user.name,
-      city,
-      country,
+      city: city || 'Unknown City',
+      country: country || user.country || 'Unknown Country',
     })
 
     if (!env.MOCK_EMAIL) {

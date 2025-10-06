@@ -2,7 +2,7 @@
   <UCard>
     <template #header>
       <h3 class="font-medium">Security</h3>
-      <p class="mt-1 text-sm text-neutral-500">
+      <p class="text-neutral-500 mt-1 text-sm">
         Your credentials are encrypted and stored securely.
       </p>
     </template>
@@ -22,7 +22,7 @@
         />
       </UFormField>
       <UButton
-        color="neutral"
+        color="orange"
         :loading="loading"
         :disabled="loading"
         type="submit"
