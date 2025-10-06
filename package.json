@@ -12,7 +12,13 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "eslint . --fix",
-    "db:generate": "drizzle-kit generate"
+    "stripe:listen": "./stripe-listen.sh",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:pull": "drizzle-kit pull",
+    "db:studio": "drizzle-kit studio",
+    "db:status": "drizzle-kit migrate:status"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.45",

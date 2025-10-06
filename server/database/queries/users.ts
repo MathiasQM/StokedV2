@@ -34,6 +34,24 @@ export const createUserWithPasskey = async (
   }
 }
 
+export const createUserWithOTP = async (
+  payload: Pick<InsertUser, 'email' | 'name'> & Partial<InsertUser>,
+): Promise<User> => {
+  try {
+    const [record] = await useDB()
+      .insert(tables.users)
+      .values(payload)
+      .returning()
+    return record
+  } catch (error) {
+    console.error('Error creating user:', error)
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to create user',
+    })
+  }
+}
+
 export const createUserWithPassword = async (payload: InsertUser) => {
   try {
     const [record] = await useDB()
