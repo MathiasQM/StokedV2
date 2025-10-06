@@ -17,7 +17,7 @@ export default defineWebAuthnRegisterEventHandler({
 
     return {
       rpID: config.public.webauthn.rpID,
-      expectedOrigin: config.public.webauthn.origin,
+      ...({ expectedOrigin: config.public.webauthn.origin } as any),
       authenticatorSelection: {
         authenticatorAttachment: 'platform',
         requireResidentKey: true,

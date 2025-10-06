@@ -10,12 +10,12 @@
       </div>
 
       <!-- <UInput
-          id="username"
-          name="username"
-          placeholder="Username"
-          autocomplete="username webauthn"
-          class="mb-4"
-        /> -->
+      id="username"
+      name="username"
+      placeholder="Username"
+      autocomplete="username webauthn"
+      class="mb-4"
+      /> -->
       <UButton
         :loading="loading"
         block
@@ -35,6 +35,10 @@
           provider="google"
         />
       </div>
+      <p class="text-sm text-neutral-500">
+        Don't have an account?
+        <UButton to="/auth/register" variant="link" label="Sign up" />
+      </p>
     </div>
   </main>
 </template>
@@ -84,10 +88,10 @@ onMounted(async () => {
     return navigateTo('/auth/magic-link')
   }
 
-  // const success = await authenticateWithPasskey()
-  // if (success) {
-  //   await handleLoginSuccess()
-  // }
+  const success = await authenticateWithPasskey()
+  if (success) {
+    await handleLoginSuccess()
+  }
   loading.value = false
 })
 </script>
