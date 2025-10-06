@@ -2,15 +2,13 @@
   <NuxtRouteAnnouncer />
   <NuxtPwaManifest />
   <div ref="wrapperRef" class="main-wrapper padding-env-top h-screen">
-    <UApp :toaster="{ position: 'top-center' }">
-      <NuxtLayout>
-        <NuxtPage />
-      </NuxtLayout>
-      <!-- MOVE TO LAYOUTS AS AUTH ROUTE ARE NOT AUTHENTICATED -->
-      <!-- <AppPopupsChoosePortfolios  /> -->
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
+    <!-- MOVE TO LAYOUTS AS AUTH ROUTE ARE NOT AUTHENTICATED -->
+    <!-- <AppPopupsChoosePortfolios  /> -->
 
-      <AppPortfolioCountryProviderDropdown />
-    </UApp>
+    <AppPortfolioCountryProviderDropdown />
   </div>
 
   <!-- IOS Haptic Feedback workaround -->

@@ -56,10 +56,10 @@
               variant="soft"
               icon="i-ph-trash"
               :loading="deleting === passkey.id"
-              :disabled="deleting === passkey.id"
-              @click="deletePasskey(passkey.id)"
+              :disabled="activePasskeyCount <= 1 || deleting === passkey.id"
+              @click="revokePasskey(passkey.id)"
             >
-              delete
+              Revoke
             </UButton>
             <UButton
               v-else
@@ -123,7 +123,7 @@ const {
   creating,
   deleting,
   createPasskey,
-  deletePasskey,
+  revokePasskey,
   invokePasskey,
 } = usePasskeys()
 
@@ -134,7 +134,13 @@ const schema = z.object({
 const state = reactive({
   name: undefined,
 })
+
 type Schema = z.output<typeof schema>
+
+const activePasskeyCount = computed(() => {
+  if (!passkeys.value) return 0
+  return passkeys.value.filter((p) => !p.revokedAt).length
+})
 
 async function handleCreatePasskey(event: FormSubmitEvent<Schema>) {
   if (!user.value) return

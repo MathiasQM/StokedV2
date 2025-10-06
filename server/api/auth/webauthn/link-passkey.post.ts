@@ -7,6 +7,16 @@ import type { InsertPasskey } from '@@/types/database'
 import { linkPasskeySchema } from '@@/shared/validations/auth'
 
 export default defineWebAuthnRegisterEventHandler({
+  async getOptions(event, body) {
+    return {
+      authenticatorSelection: {
+        authenticatorAttachment: 'platform',
+        requireResidentKey: true,
+        userVerification: 'required',
+      },
+    }
+  },
+
   async validateUser(userBody, event) {
     const session = await getUserSession(event)
     if (session.user?.email && session.user.email !== userBody.userName) {
@@ -30,6 +40,7 @@ export default defineWebAuthnRegisterEventHandler({
   },
 
   async onSuccess(event, { credential, user }) {
+    console.log('hit register event handler')
     const { user: sessionUser } = await requireUserSession(event)
     const passkey: InsertPasskey = {
       id: credential.id,

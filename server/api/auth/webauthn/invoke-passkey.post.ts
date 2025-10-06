@@ -2,6 +2,7 @@ import { z } from 'zod'
 import {
   findCredentialById,
   findCredentialByUserId,
+  invokeCredential,
 } from '@@/server/database/queries/passkeys'
 
 export default defineEventHandler(async (event) => {
@@ -15,7 +16,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Passkey not found' })
   }
 
-  await findCredentialByUserId(user.id)
+  await invokeCredential(user.id, id)
 
   return { ok: true, invokedAt: new Date().toISOString() }
 })

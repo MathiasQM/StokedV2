@@ -36,6 +36,6 @@ const onPortfolioCreated = (portfolio: Portfolio) => {
 
 async function signOut() {
   await logout()
-  await navigateTo('/auth/login', { replace: true })
+  await navigateTo('/', { replace: true })
 }
 </script>

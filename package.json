@@ -64,6 +64,7 @@
     "nuxt-auth-utils": "0.5.20",
     "nuxt-charts": "^0.2.4",
     "nuxthub-ratelimit": "^1.0.4",
+    "prettier": "^3.6.2",
     "shadcn-nuxt": "^2.3.1",
     "simple-git-hooks": "^2.13.0",
     "typescript": "^5.8.3",
