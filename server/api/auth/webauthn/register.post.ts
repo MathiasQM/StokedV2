@@ -13,12 +13,20 @@ import { sanitizeUser } from '@@/server/utils/auth'
 
 export default defineWebAuthnRegisterEventHandler({
   async getOptions(event, body) {
+    const config = useRuntimeConfig(event)
+
     return {
-      // These are the options we want the browser to use
+      rpID: config.public.webauthn.rpID,
+      expectedOrigin: config.public.webauthn.origin,
       authenticatorSelection: {
         authenticatorAttachment: 'platform',
         requireResidentKey: true,
         userVerification: 'required',
+      },
+      user: {
+        id: body.user.userName,
+        name: body.user.userName,
+        displayName: body.user.userName,
       },
     }
   },

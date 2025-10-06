@@ -33,6 +33,20 @@ interface CredentialWithUser extends WebAuthnCredential {
 }
 
 export default defineWebAuthnAuthenticateEventHandler({
+  async getOptions(event, body) {
+    const config = useRuntimeConfig(event)
+
+    return {
+      rpID: config.public.webauthn.rpID,
+      expectedOrigin: config.public.webauthn.origin,
+      authenticatorSelection: {
+        authenticatorAttachment: 'platform',
+        requireResidentKey: true,
+        userVerification: 'required',
+      },
+    }
+  },
+
   async storeChallenge(event: H3Event, challenge: string, attemptId: string) {
     await storeWebAuthnChallenge(attemptId, challenge)
   },
