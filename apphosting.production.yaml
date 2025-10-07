@@ -119,6 +119,12 @@ env:
       - BUILD
       - RUNTIME
 
+  - variable: NUXT_STRIPE_TEST_PUBLISHABLE_KEY
+    secret: NUXT_STRIPE_TEST_PUBLISHABLE_KEY
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: PLAID_SANDBOX_SECRET
     secret: PLAID_SANDBOX_SECRET
     availability:
@@ -151,12 +157,6 @@ env:
 
   - variable: NUXT_OAUTH_GOOGLE_CLIENT_SECRET
     secret: NUXT_OAUTH_GOOGLE_CLIENT_SECRET
-    availability:
-      - BUILD
-      - RUNTIME
-
-  - variable: NUXT_STRIPE_TEST_PUBLISHABLE_KEY
-    secret: NUXT_STRIPE_TEST_PUBLISHABLE_KEY
     availability:
       - BUILD
       - RUNTIME
