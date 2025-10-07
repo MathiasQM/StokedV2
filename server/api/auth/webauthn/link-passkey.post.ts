@@ -9,13 +9,15 @@ import { linkPasskeySchema } from '@@/shared/validations/auth'
 export default defineWebAuthnRegisterEventHandler({
   async getOptions(event, body) {
     const config = useRuntimeConfig(event)
+    const expectedOrigin = getRequestURL(event).origin
+
     console.log({
       rpID: config.public.webauthn.rpID,
-      expectedOrigin: config.public.webauthn.origin,
+      expectedOrigin,
     })
     return {
       rpID: config.public.webauthn.rpID,
-      expectedOrigin: config.public.webauthn.origin,
+      expectedOrigin,
       authenticatorSelection: {
         authenticatorAttachment: 'platform',
         requireResidentKey: true,

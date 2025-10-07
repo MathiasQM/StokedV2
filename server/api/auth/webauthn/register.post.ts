@@ -14,13 +14,15 @@ import { sanitizeUser } from '@@/server/utils/auth'
 export default defineWebAuthnRegisterEventHandler({
   async getOptions(event, body) {
     const config = useRuntimeConfig(event)
+    const expectedOrigin = getRequestURL(event).origin
+
     console.log({
       rpID: config.public.webauthn.rpID,
-      ...({ expectedOrigin: config.public.webauthn.origin } as any),
+      expectedOrigin,
     })
     return {
       rpID: config.public.webauthn.rpID,
-      ...({ expectedOrigin: config.public.webauthn.origin } as any),
+      expectedOrigin,
       authenticatorSelection: {
         authenticatorAttachment: 'platform',
         requireResidentKey: true,
