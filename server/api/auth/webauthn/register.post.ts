@@ -9,7 +9,10 @@ import {
   getAndDeleteChallenge,
   createCredential,
 } from '@@/server/database/queries/passkeys'
-import { findUserByEmail, createUser } from '@@/server/database/queries/users'
+import {
+  findUserByEmail,
+  createUserWithPasskey,
+} from '@@/server/database/queries/users'
 import type { InsertPasskey } from '@@/types/database'
 import { emailSchema } from '@@/shared/validations/auth'
 import { sanitizeUser } from '@@/server/utils/auth'
@@ -77,7 +80,7 @@ export default defineEventHandler(async (event) => {
   const { credentialID, credentialPublicKey, counter } = registrationInfo
 
   // --- Step 3: Create user and save credential (onSuccess logic) ---
-  const newUser = await createUser({
+  const newUser = await createUserWithPasskey({
     email: body.userName,
     name: body.userName.split('@')[0],
     emailVerified: true,
