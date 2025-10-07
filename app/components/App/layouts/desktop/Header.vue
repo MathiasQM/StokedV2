@@ -9,7 +9,6 @@
         @click="emit('openSidebar')"
       />
       <slot name="actions" />
-      <PwaInstallPrompt class="self-end" />
     </header>
     <slot />
   </div>

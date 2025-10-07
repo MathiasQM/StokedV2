@@ -347,11 +347,10 @@ function getWebAuthnConfig() {
       }
     case 'staging':
       return {
-        rpID: 'striive-staging--striive-8eb17.europe-west4.hosted.app',
-        origin:
-          'https://striive-staging--striive-8eb17.europe-west4.hosted.app',
+        rpID: 'striiveai.com',
+        origin: 'https://staging.striiveai.com',
       }
-    default: // Handles development or any other case
+    default:
       return {
         rpID: 'localhost',
         origin: 'http://localhost:3000',

@@ -1,6 +1,7 @@
 <template>
   <NuxtRouteAnnouncer />
   <NuxtPwaManifest />
+  <PwaInstallPrompt />
   <div ref="wrapperRef" class="main-wrapper padding-env-top h-screen">
     <NuxtLayout>
       <NuxtPage />
