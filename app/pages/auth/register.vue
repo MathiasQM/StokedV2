@@ -81,6 +81,7 @@
 import { z } from 'zod'
 import { emailSchema } from '@@/shared/validations/auth'
 import type { FormSubmitEvent } from '#ui/types'
+import { startRegistration } from '@simplewebauthn/browser'
 
 definePageMeta({ layout: false })
 
@@ -110,8 +111,24 @@ const onSubmit = async (event: FormSubmitEvent<{ email: string }>) => {
   loading.value = true
   try {
     if (isSupported.value) {
-      const success = await registerWithPasskey(event.data.email)
-      if (success) await handleRegisterSuccess()
+      const options = await $fetch('/api/auth/webauthn/register', {
+        method: 'POST',
+        body: { email: event.data.email }, // Send email directly
+      })
+
+      // 2. Prompt the user with the browser's native UI
+      const regResponse = await startRegistration(options)
+
+      // 3. Send the browser's response back to the server for verification
+      await $fetch('/api/auth/webauthn/register', {
+        method: 'POST',
+        body: {
+          email: event.data.email, // Send email again for context
+          response: regResponse,
+        },
+      })
+
+      await handleRegisterSuccess()
     } else {
       await $fetch('/api/auth/magic-link/register-request', {
         method: 'POST',
