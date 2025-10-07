@@ -3,7 +3,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node .output/server/index.mjs",
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
@@ -40,6 +39,7 @@
     "dayjs": "^1.11.18",
     "drizzle-orm": "0.44.1",
     "drizzle-zod": "^0.8.2",
+    "firebase-functions": "^6.4.0",
     "lucide-vue-next": "^0.544.0",
     "nanoid": "5.1.5",
     "nuxt": "^3.17.4",
