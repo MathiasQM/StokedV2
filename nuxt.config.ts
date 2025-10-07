@@ -285,6 +285,10 @@ export default defineNuxtConfig({
   },
   middleware: ['~/server/middleware/rateLimit'],
   nitro: {
+    firebase: {
+      gen: 2, // Use the latest generation of Firebase Functions
+    },
+    preset: "firebase",
     prerender: {
       routes: ['/'],
     },
