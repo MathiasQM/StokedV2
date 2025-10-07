@@ -1,64 +1,90 @@
+// File: server/api/auth/webauthn/link-passkey.post.ts
+
+import {
+  generateRegistrationOptions,
+  verifyRegistrationResponse,
+} from '@simplewebauthn/server'
 import {
   storeWebAuthnChallenge,
   getAndDeleteChallenge,
   createCredential,
 } from '@@/server/database/queries/passkeys'
 import type { InsertPasskey } from '@@/types/database'
-import { linkPasskeySchema } from '@@/shared/validations/auth'
 
-export default defineWebAuthnRegisterEventHandler({
-  async getOptions(event, body) {
-    const config = useRuntimeConfig(event)
-    const expectedOrigin = getRequestURL(event).origin
+export default defineEventHandler(async (event) => {
+  const config = useRuntimeConfig(event)
+  const body = await readBody(event)
 
-    console.log({
+  // Security Check: User must be logged in to link a key.
+  const { user: sessionUser } = await requireUserSession(event)
+
+  // --- Step 1: Generate and send challenge options ---
+  if (!body.response) {
+    // Verify the email from the request body matches the session user.
+    if (!body.userName || body.userName !== sessionUser.email) {
+      throw createError({
+        statusCode: 401,
+        message: 'Email does not match session.',
+      })
+    }
+
+    const options = await generateRegistrationOptions({
+      rpName: 'Striive',
       rpID: config.public.webauthn.rpID,
-      expectedOrigin,
-    })
-    return {
-      rpID: config.public.webauthn.rpID,
-      expectedOrigin,
+      userName: sessionUser.email,
+      userDisplayName: body.displayName || sessionUser.email,
+      attestationType: 'none',
       authenticatorSelection: {
         authenticatorAttachment: 'platform',
         requireResidentKey: true,
         userVerification: 'required',
       },
-      user: {
-        id: body.user.userName,
-        name: body.user.userName,
-        displayName: body.user.userName,
-      },
-    }
-  },
+    })
 
-  async validateUser(userBody, event) {
-    const session = await getUserSession(event)
-    return linkPasskeySchema.parse(userBody)
-  },
+    await storeWebAuthnChallenge(options.challenge, options.challenge)
 
-  async storeChallenge(event, challenge, attemptId) {
-    await storeWebAuthnChallenge(attemptId, challenge)
-  },
+    return options
+  }
 
-  async getChallenge(event, attemptId) {
-    const challenge = await getAndDeleteChallenge(attemptId)
-    if (!challenge)
-      throw createError({ statusCode: 404, message: 'Challenge not found' })
-    return challenge
-  },
+  // --- Step 2: Verify the browser's response ---
+  const response = body.response
+  const expectedChallenge = await getAndDeleteChallenge(response.id)
 
-  async onSuccess(event, { credential, user }) {
-    console.log('hit register event handler')
-    const { user: sessionUser } = await requireUserSession(event)
-    const passkey: InsertPasskey = {
-      id: credential.id,
-      name: user.displayName || 'Default Passkey',
-      userId: sessionUser.id,
-      publicKey: credential.publicKey,
-      counter: credential.counter,
-      backedUp: credential.backedUp,
-      transports: credential.transports,
-    }
-    await createCredential(passkey)
-  },
+  if (!expectedChallenge) {
+    throw createError({
+      statusCode: 404,
+      message: 'Challenge not found or expired.',
+    })
+  }
+
+  const verification = await verifyRegistrationResponse({
+    response,
+    expectedChallenge,
+    expectedOrigin: config.public.webauthn.origin,
+    requireUserVerification: true,
+  })
+
+  if (!verification.verified || !verification.registrationInfo) {
+    throw createError({
+      statusCode: 400,
+      message: 'Could not verify passkey registration.',
+    })
+  }
+
+  // --- Step 3: Link was successful, save the new credential ---
+  const { registrationInfo } = verification
+  const { credentialID, credentialPublicKey, counter } = registrationInfo
+
+  const passkey: InsertPasskey = {
+    id: Buffer.from(credentialID).toString('base64'),
+    userId: sessionUser.id, // Use the ID from the active session
+    name: body.displayName || 'Unnamed Passkey',
+    publicKey: Buffer.from(credentialPublicKey).toString('base64'),
+    counter,
+    backedUp: response.response.transports?.includes('internal') ?? false,
+    transports: response.response.transports?.join(',') ?? '',
+  }
+  await createCredential(passkey)
+
+  return { ok: true }
 })

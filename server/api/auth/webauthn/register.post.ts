@@ -1,111 +1,108 @@
+// File: server/api/auth/webauthn/register.post.ts
+
+import {
+  generateRegistrationOptions,
+  verifyRegistrationResponse,
+} from '@simplewebauthn/server'
 import {
   storeWebAuthnChallenge,
   getAndDeleteChallenge,
   createCredential,
 } from '@@/server/database/queries/passkeys'
-import {
-  findUserByEmail,
-  createUserWithPasskey,
-} from '@@/server/database/queries/users' // We'll assume you have a createUser function
+import { findUserByEmail, createUser } from '@@/server/database/queries/users'
 import type { InsertPasskey } from '@@/types/database'
 import { emailSchema } from '@@/shared/validations/auth'
 import { sanitizeUser } from '@@/server/utils/auth'
 
-export default defineWebAuthnRegisterEventHandler({
-  async getOptions(event, body) {
-    const config = useRuntimeConfig(event)
-    const expectedOrigin = getRequestURL(event).origin
+export default defineEventHandler(async (event) => {
+  const config = useRuntimeConfig(event)
+  const body = await readBody(event)
 
-    console.log({
+  // --- Step 1: Generate and send challenge options ---
+  if (!body.response) {
+    const { email } = emailSchema.parse({ email: body.userName })
+
+    const existingUser = await findUserByEmail(email)
+    if (existingUser) {
+      throw createError({
+        statusCode: 409,
+        message: 'An account with this email already exists.',
+      })
+    }
+
+    const options = await generateRegistrationOptions({
+      rpName: 'Striive',
       rpID: config.public.webauthn.rpID,
-      expectedOrigin,
-    })
-    return {
-      rpID: config.public.webauthn.rpID,
-      expectedOrigin,
+      userName: email,
+      userDisplayName: email,
+      attestationType: 'none',
       authenticatorSelection: {
         authenticatorAttachment: 'platform',
         requireResidentKey: true,
         userVerification: 'required',
       },
-      user: {
-        id: body.user.userName,
-        name: body.user.userName,
-        displayName: body.user.userName,
-      },
-    }
-  },
-
-  // 1. Validate the user input (just the email)
-  async validateUser(userBody) {
-    const { userName } = userBody
-    const validation = emailSchema.safeParse({ email: userName })
-    if (!validation.success) {
-      throw createError({ statusCode: 400, message: 'Invalid email format' })
-    }
-
-    const existingUser = await findUserByEmail(validation.data.email)
-    if (existingUser) {
-      throw createError({
-        statusCode: 409, // 409 Conflict is a good choice here
-        message: 'An account with this email already exists.',
-      })
-    }
-
-    // Pass the validated email along
-    return {
-      userName: validation.data.email,
-      displayName: validation.data.email, // Use email as displayName for the passkey
-    }
-  },
-
-  // 2. Store and retrieve the challenge (this logic remains the same)
-  async storeChallenge(event, challenge, attemptId) {
-    await storeWebAuthnChallenge(attemptId, challenge)
-  },
-
-  async getChallenge(event, attemptId) {
-    const challenge = await getAndDeleteChallenge(attemptId)
-    if (!challenge) {
-      throw createError({
-        statusCode: 404,
-        message: 'Challenge not found or expired.',
-      })
-    }
-    return challenge
-  },
-
-  // 3. On successful passkey creation, create the user and the credential
-  async onSuccess(event, { credential, user }) {
-    // Create the user in the database.
-    // We'll set the name to be the email initially. They can change it later.
-    const newUser = await createUserWithPasskey({
-      email: user.userName,
-      name: user.userName.split('@')[0], // A sensible default for the name
-      emailVerified: true, // Passkey registration implies email control
     })
 
-    if (!newUser) {
-      throw createError({
-        statusCode: 500,
-        message: 'Failed to create user account.',
-      })
-    }
+    await storeWebAuthnChallenge(options.challenge, options.challenge)
 
-    // Now, create the passkey credential linked to this new user
-    const passkey: InsertPasskey = {
-      id: credential.id,
-      name: 'Initial Passkey', // Give a default name for the first passkey
-      userId: newUser.id,
-      publicKey: credential.publicKey,
-      counter: credential.counter,
-      backedUp: credential.backedUp,
-      transports: credential.transports,
-    }
-    await createCredential(passkey)
+    return options
+  }
 
-    // 4. Log the user in by setting the session
-    const transformedUser = sanitizeUser(newUser)
-    await setUserSession(event, { user: transformedUser })
-  },
+  // --- Step 2: Verify the browser's response ---
+  const response = body.response
+  const expectedChallenge = await getAndDeleteChallenge(response.id)
+
+  if (!expectedChallenge) {
+    throw createError({
+      statusCode: 404,
+      message: 'Challenge not found or expired.',
+    })
+  }
+
+  const verification = await verifyRegistrationResponse({
+    response,
+    expectedChallenge,
+    expectedOrigin: config.public.webauthn.origin, // <-- This is the critical line
+    requireUserVerification: true,
+  })
+
+  if (!verification.verified || !verification.registrationInfo) {
+    throw createError({
+      statusCode: 400,
+      message: 'Could not verify passkey registration.',
+    })
+  }
+
+  const { registrationInfo } = verification
+  const { credentialID, credentialPublicKey, counter } = registrationInfo
+
+  // --- Step 3: Create user and save credential (onSuccess logic) ---
+  const newUser = await createUser({
+    email: body.userName,
+    name: body.userName.split('@')[0],
+    emailVerified: true,
+  })
+
+  if (!newUser) {
+    throw createError({
+      statusCode: 500,
+      message: 'Failed to create user account.',
+    })
+  }
+
+  const passkey: InsertPasskey = {
+    id: Buffer.from(credentialID).toString('base64'),
+    userId: newUser.id,
+    name: 'Initial Passkey',
+    publicKey: Buffer.from(credentialPublicKey).toString('base64'),
+    counter,
+    backedUp: response.response.transports?.includes('internal') ?? false,
+    transports: response.response.transports?.join(',') ?? '',
+  }
+  await createCredential(passkey)
+
+  const transformedUser = sanitizeUser(newUser)
+  await setUserSession(event, { user: transformedUser })
+
+  return { ok: true }
 })

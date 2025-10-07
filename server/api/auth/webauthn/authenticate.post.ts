@@ -1,131 +1,95 @@
-// flow
-// 1. Store challenge for authentication attempt (@method storeWebAuthnChallenge)
-// 2. Retrieve and validate challenge (@method getAndDeleteChallenge)
-// 3. Get allowed credentials for user (@method findUserByEmail, findCredentialByUserId)
-// 4. Validate credential (@method findCredentialById)
-// 5. On successful authentication:
-//    - Find user (@method findUserById)
-//    - Update last active timestamp (@method updateLastActiveTimestamp)
-//    - Sanitize user data (@method sanitizeUser)
-//    - Set user session
+// File: server/api/auth/webauthn/authenticate.post.ts
 
-// Used in:
-// - app/pages/auth/login-passkey.vue
-
-import type { H3Event } from 'h3'
-import type { WebAuthnCredential } from '#auth-utils'
+import {
+  generateAuthenticationOptions,
+  verifyAuthenticationResponse,
+} from '@simplewebauthn/server'
 import {
   storeWebAuthnChallenge,
-  findCredentialByUserId,
-  findCredentialById,
   getAndDeleteChallenge,
+  findCredentialById,
   updateCredentialCounter,
 } from '@@/server/database/queries/passkeys'
 import {
-  findUserByEmail,
   findUserById,
   updateLastActiveTimestamp,
 } from '@@/server/database/queries/users'
 import { sanitizeUser, sendLoginNotification } from '@@/server/utils/auth'
 
-interface CredentialWithUser extends WebAuthnCredential {
-  userId: string
-}
+export default defineEventHandler(async (event) => {
+  const config = useRuntimeConfig(event)
+  const body = await readBody(event)
 
-export default defineWebAuthnAuthenticateEventHandler({
-  async getOptions(event, body) {
-    const config = useRuntimeConfig(event)
-
-    return {
+  // --- Step 1: Generate and send challenge options ---
+  if (!body.response) {
+    const options = await generateAuthenticationOptions({
       rpID: config.public.webauthn.rpID,
-      expectedOrigin: config.public.webauthn.origin,
-      authenticatorSelection: {
-        authenticatorAttachment: 'platform',
-        requireResidentKey: true,
-        userVerification: 'required',
-      },
-    }
-  },
-
-  async storeChallenge(event: H3Event, challenge: string, attemptId: string) {
-    await storeWebAuthnChallenge(attemptId, challenge)
-  },
-
-  async getChallenge(event: H3Event, attemptId: string) {
-    const challenge = await getAndDeleteChallenge(attemptId)
-    if (!challenge) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Challenge not found or expired',
-      })
-    }
-    return challenge
-  },
-
-  async allowCredentials(event: H3Event, email: string) {
-    if (!email) {
-      return []
-    }
-
-    const user = await findUserByEmail(email)
-    if (!user) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: 'User not found',
-      })
-    }
-    const credentials = await findCredentialByUserId(user.id)
-    return credentials || []
-  },
-
-  async getCredential(event: H3Event, credentialId: string) {
-    const credential = await findCredentialById(credentialId)
-    if (!credential) {
-      throw createError({
-        statusCode: 404,
-        statusMessage:
-          'No passkeys registered. You can register one in your account settings.',
-      })
-    }
-
-    if (credential.revokedAt) {
-      throw createError({
-        statusCode: 403,
-        statusMessage: 'This passkey has been revoked and cannot be used.',
-      })
-    }
-
-    return credential
-  },
-
-  async onSuccess(event: H3Event, data) {
-    const credential = data.credential as CredentialWithUser
-    const authenticationInfo = data.authenticationInfo
-
-    const user = await findUserById(credential.userId)
-    if (!user) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: 'User not found',
-      })
-    }
-
-    if (user.banned && user.bannedUntil && user.bannedUntil > new Date()) {
-      throw createError({
-        statusCode: 403,
-        statusMessage: 'You account has been banned',
-      })
-    }
-
-    await updateCredentialCounter(credential.id, authenticationInfo.newCounter)
-    await updateLastActiveTimestamp(user.id)
-    const transformedUser = sanitizeUser(user)
-    await setUserSession(event, { user: transformedUser })
-
-    // Send login notification
-    await sendLoginNotification({
-      name: user.name,
-      email: user.email,
+      userVerification: 'required',
     })
-  },
+
+    await storeWebAuthnChallenge(options.challenge, options.challenge)
+
+    return options
+  }
+
+  // --- Step 2: Verify the browser's response ---
+  const response = body.response
+  const expectedChallenge = await getAndDeleteChallenge(response.id)
+
+  if (!expectedChallenge) {
+    throw createError({
+      statusCode: 404,
+      message: 'Challenge not found or expired.',
+    })
+  }
+
+  const credential = await findCredentialById(response.id)
+  if (!credential) {
+    throw createError({ statusCode: 404, message: 'Passkey not registered.' })
+  }
+
+  if (credential.revokedAt) {
+    throw createError({
+      statusCode: 403,
+      message: 'This passkey has been revoked.',
+    })
+  }
+
+  const verification = await verifyAuthenticationResponse({
+    response,
+    expectedChallenge,
+    expectedOrigin: config.public.webauthn.origin,
+    expectedRPID: config.public.webauthn.rpID,
+    authenticator: {
+      credentialID: Buffer.from(credential.id, 'base64'),
+      credentialPublicKey: Buffer.from(credential.publicKey, 'base64'),
+      counter: credential.counter,
+      transports: credential.transports?.split(','),
+    },
+    requireUserVerification: true,
+  })
+
+  if (!verification.verified) {
+    throw createError({
+      statusCode: 401,
+      message: 'Could not verify passkey authentication.',
+    })
+  }
+
+  // --- Step 3: Login was successful, update counter and set session ---
+  const { newCounter } = verification.authenticationInfo
+  await updateCredentialCounter(credential.id, newCounter)
+
+  const user = await findUserById(credential.userId)
+  if (!user) {
+    throw createError({ statusCode: 404, message: 'User not found.' })
+  }
+
+  await updateLastActiveTimestamp(user.id)
+  const transformedUser = sanitizeUser(user)
+  await setUserSession(event, { user: transformedUser })
+
+  await sendLoginNotification({ name: user.name, email: user.email })
+
+  return { ok: true }
 })
