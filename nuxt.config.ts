@@ -240,6 +240,7 @@ export default defineNuxtConfig({
     plaidEncKey: process.env.PLAID_ENC_KEY,
     postgresUrl: process.env.POSTGRES_URL,
     supabaseKey: process.env.SUPABASE_KEY,
+    supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY,
     elevenLabsApiKey: process.env.ELEVENLABS_API_KEY,
     elevenLabsVoiceId: process.env.ELEVENLABS_VOICE_ID_NARRATOR,
     elevenLabsModelId: process.env.ELEVENLABS_MODEL_ID,
