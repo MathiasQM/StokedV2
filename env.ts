@@ -19,8 +19,9 @@ export const env = createEnv({
     NUXT_OAUTH_GOOGLE_CLIENT_ID: z.string().min(1),
     NUXT_OAUTH_GOOGLE_CLIENT_SECRET: z.string().min(1),
     NUXT_SESSION_PASSWORD: z.string().min(32),
-    NUXT_STRIPE_TEST_SECRET_KEY: z.string().min(1),
-    NUXT_STRIPE_TEST_WEBHOOK_SECRET: z.string().min(1),
+    NUXT_STRIPE_TEST_SECRET_KEY: z.string().min(1).optional(),
+    NUXT_STRIPE_TEST_WEBHOOK_SECRET: z.string().min(1).optional(),
+
     // S3_ACCESS_KEY_ID: z.string().min(1).optional(),
     // S3_SECRET_ACCESS_KEY: z.string().min(1).optional(),
     // S3_BUCKET: z.string().min(1).optional(),
