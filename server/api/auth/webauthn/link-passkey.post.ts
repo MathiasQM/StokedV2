@@ -9,6 +9,10 @@ import { linkPasskeySchema } from '@@/shared/validations/auth'
 export default defineWebAuthnRegisterEventHandler({
   async getOptions(event, body) {
     const config = useRuntimeConfig(event)
+    console.log({
+      rpID: config.public.webauthn.rpID,
+      expectedOrigin: config.public.webauthn.origin,
+    })
     return {
       rpID: config.public.webauthn.rpID,
       expectedOrigin: config.public.webauthn.origin,
@@ -27,12 +31,6 @@ export default defineWebAuthnRegisterEventHandler({
 
   async validateUser(userBody, event) {
     const session = await getUserSession(event)
-    if (session.user?.email && session.user.email !== userBody.userName) {
-      throw createError({
-        statusCode: 400,
-        message: 'Email not matching curent session',
-      })
-    }
     return linkPasskeySchema.parse(userBody)
   },
 
