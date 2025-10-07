@@ -25,6 +25,8 @@ export default defineEventHandler(async (event) => {
   if (!body.response) {
     const { email } = emailSchema.parse({ email: body.userName })
 
+    console.log('Registering new user with email:', email)
+
     const existingUser = await findUserByEmail(email)
     if (existingUser) {
       throw createError({
@@ -81,8 +83,8 @@ export default defineEventHandler(async (event) => {
 
   // --- Step 3: Create user and save credential (onSuccess logic) ---
   const newUser = await createUserWithPasskey({
-    email: body.userName,
-    name: body.userName.split('@')[0],
+    email: body.email,
+    name: body.email.split('@')[0],
     emailVerified: true,
   })
 
