@@ -12,7 +12,13 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "eslint . --fix",
-    "db:generate": "drizzle-kit generate"
+    "stripe:listen": "./stripe-listen.sh",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:pull": "drizzle-kit pull",
+    "db:studio": "drizzle-kit studio",
+    "db:status": "drizzle-kit migrate:status"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.45",
@@ -33,6 +39,7 @@
     "dayjs": "^1.11.18",
     "drizzle-orm": "0.44.1",
     "drizzle-zod": "^0.8.2",
+    "firebase-functions": "^6.4.0",
     "lucide-vue-next": "^0.544.0",
     "nanoid": "5.1.5",
     "nuxt": "^3.17.4",
@@ -64,6 +71,7 @@
     "nuxt-auth-utils": "0.5.20",
     "nuxt-charts": "^0.2.4",
     "nuxthub-ratelimit": "^1.0.4",
+    "prettier": "^3.6.2",
     "shadcn-nuxt": "^2.3.1",
     "simple-git-hooks": "^2.13.0",
     "typescript": "^5.8.3",

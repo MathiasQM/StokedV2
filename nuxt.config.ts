@@ -240,11 +240,13 @@ export default defineNuxtConfig({
     plaidEncKey: process.env.PLAID_ENC_KEY,
     postgresUrl: process.env.POSTGRES_URL,
     supabaseKey: process.env.SUPABASE_KEY,
+    supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY,
     elevenLabsApiKey: process.env.ELEVENLABS_API_KEY,
     elevenLabsVoiceId: process.env.ELEVENLABS_VOICE_ID_NARRATOR,
     elevenLabsModelId: process.env.ELEVENLABS_MODEL_ID,
     openaiApiKey: process.env.OPENAI_API_KEY,
     public: {
+      webauthn: getWebAuthnConfig(),
       yodleeFastlinkUrl: process.env.YODLEE_FASTLINK_URL,
       eodBase: process.env.EOD_BASE_URL,
       stripePublicKey: process.env.NUXT_STRIPE_TEST_PUBLISHABLE_KEY,
@@ -333,3 +335,25 @@ export default defineNuxtConfig({
     },
   },
 })
+
+function getWebAuthnConfig() {
+  const buildEnv = process.env.BUILD_ENV
+
+  switch (buildEnv) {
+    case 'production':
+      return {
+        rpID: 'striiveai.com',
+        origin: 'https://app.striiveai.com',
+      }
+    case 'staging':
+      return {
+        rpID: 'striiveai.com',
+        origin: 'https://staging.striiveai.com',
+      }
+    default:
+      return {
+        rpID: 'localhost',
+        origin: 'http://localhost:3000',
+      }
+  }
+}

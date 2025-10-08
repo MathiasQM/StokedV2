@@ -23,67 +23,80 @@ runConfig:
   #   secret: mySecretRef
 env:
   # Public, BUILD-time only
-  - variable: BASE_URL
-    value: https://your-app.example.com
+  - variable: BUILD_ENV
+    value: production
     availability:
       - BUILD
+      - RUNTIME
+
+  - variable: BASE_URL
+    value: https://app.striiveai.com/
+    availability:
+      - BUILD
+      - RUNTIME
 
   - variable: APP_NAME
-    value: YourAppName
+    value: Striive
     availability:
       - BUILD
+      - RUNTIME
 
   - variable: APP_DESCRIPTION
-    value: 'Striive is your AI-powered investment assistant. Get personalized
-      insights, daily briefings in text and podcast form, and backtest your
-      strategies with real data. Stay ahead of the markets — smarter, faster.'
+    value: 'Striive is your AI-powered investment assistant. Get personalized insights, daily briefings in text and podcast form, and backtest your strategies with real data. Stay ahead of the markets — smarter, faster.'
     availability:
       - BUILD
+      - RUNTIME
 
   - variable: LOGO_URL
-    value: https://cdn.example.com/logo.png
-    availability:
-      - BUILD
-
-  - variable: MOCK_EMAIL
-    value: mock@example.com
-    availability:
-      - BUILD
-
-  - variable: EMAIL_PROVIDER
-    value: resend
-    availability:
-      - BUILD
-
-  - variable: PAYMENT_PROVIDER
-    value: stripe
-    availability:
-      - BUILD
-
-  - variable: PLAID_ENVIRONMENT
-    value: sandbox
-    availability:
-      - BUILD
-
-  - variable: PLAID_CLIENT_ID
-    value: your-plaid-client-id
-    availability:
-      - BUILD
-
-  - variable: SUPABASE_URL
-    value: https://xyzcompany.supabase.co
-    availability:
-      - BUILD
-
-  # Secrets, available at BUILD (for CLI/config) and RUNTIME (for SSR/functions)
-  - variable: RESEND_API_TOKEN
-    secret: RESEND_API_TOKEN
+    value: https://app.striiveai.com/logo.png
     availability:
       - BUILD
       - RUNTIME
 
   - variable: FROM_EMAIL
-    secret: FROM_EMAIL
+    value: staging@develop.striiveai.com
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: MOCK_EMAIL
+    value: true
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: EMAIL_PROVIDER
+    value: resend
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: PAYMENT_PROVIDER
+    value: stripe
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: PLAID_ENVIRONMENT
+    value: false # Change to productiion for production
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: PLAID_CLIENT_ID
+    secret: PLAID_CLIENT_ID
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: SUPABASE_URL
+    secret: SUPABASE_URL
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: RESEND_API_TOKEN
+    secret: RESEND_API_TOKEN
     availability:
       - BUILD
       - RUNTIME
@@ -129,29 +142,68 @@ env:
     availability:
       - BUILD
       - RUNTIME
-  - variable: NUXT_STRIPE_TEST_SECRET_KEY
-    secret: NUXT_STRIPE_TEST_SECRET_KEY
-  - variable: NUXT_STRIPE_TEST_WEBHOOK_SECRET
-    secret: NUXT_STRIPE_TEST_WEBHOOK_SECRET
+
   - variable: NUXT_OAUTH_GOOGLE_CLIENT_ID
     secret: NUXT_OAUTH_GOOGLE_CLIENT_ID
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: NUXT_OAUTH_GOOGLE_CLIENT_SECRET
     secret: NUXT_OAUTH_GOOGLE_CLIENT_SECRET
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: NUXT_STRIPE_TEST_PUBLISHABLE_KEY
     secret: NUXT_STRIPE_TEST_PUBLISHABLE_KEY
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: EOD_BASE_URL
     secret: EOD_BASE_URL
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: EOD_API_KEY
     secret: EOD_API_KEY
+    availability:
+      - BUILD
+      - RUNTIME
   - variable: OPENAI_API_KEY
     secret: OPENAI_API_KEY
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: STORAGE_BUCKET_FIREBASE
     secret: FIREBASE_STORAGE_BUCKET
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: ELEVENLABS_API_KEY
     secret: ELEVENLABS_API_KEY
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: ELEVENLABS_VOICE_ID_NARRATOR
     secret: ELEVENLABS_VOICE_ID_NARRATOR
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: ELEVENLABS_MODEL_ID
     secret: ELEVENLABS_MODEL_ID
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: SUPABASE_SERVICE_KEY
     secret: SUPABASE_SERVICE_KEY
+    availability:
+      - BUILD
+      - RUNTIME

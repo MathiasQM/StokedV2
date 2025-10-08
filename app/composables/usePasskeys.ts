@@ -5,9 +5,23 @@ export const usePasskeys = () => {
   const creating = ref(false)
   const deleting = ref<string | null>(null)
 
-  const { register, authenticate } = useWebAuthn({
+  // --- This is for LINKING a key to an EXISTING, logged-in user ---
+  const webAuthnLink = useWebAuthn({
     registerEndpoint: '/api/auth/webauthn/link-passkey',
+  })
+
+  // --- This is for REGISTERING a NEW user ---
+  const webAuthnRegister = useWebAuthn({
+    registerEndpoint: '/api/auth/webauthn/register',
+  })
+
+  // --- These are for AUTHENTICATION (signing in) ---
+  const webAuthnAuthenticate = useWebAuthn({
     authenticateEndpoint: '/api/auth/webauthn/authenticate',
+  })
+  const webAuthnAutofill = useWebAuthn({
+    authenticateEndpoint: '/api/auth/webauthn/authenticate',
+    useBrowserAutofill: true,
   })
 
   const {
@@ -20,9 +34,14 @@ export const usePasskeys = () => {
   })
 
   const createPasskey = async (userName: string, displayName: string) => {
+    console.log('Adding a passkey to user:', {
+      userName: userName,
+      displayName: displayName,
+    })
     try {
       creating.value = true
-      await register({ userName, displayName })
+      console.log(userName, displayName)
+      await webAuthnLink.register({ userName, displayName })
       await refresh()
       toast.add({
         title: 'Passkey added successfully',
@@ -41,11 +60,35 @@ export const usePasskeys = () => {
     }
   }
 
-  const deletePasskey = async (id: string) => {
+  const registerWithPasskey = async (email: string) => {
+    try {
+      console.log('Registering with passkey for email:', {
+        userName: email,
+        displayName: email,
+      })
+      await webAuthnRegister.register({
+        userName: email,
+        displayName: email,
+      })
+      return true
+    } catch (error) {
+      toast.add({
+        title: 'Registration Failed',
+        description:
+          error instanceof FetchError
+            ? error.data?.message
+            : 'An unknown error occurred.',
+        color: 'error',
+      })
+      return false // Failure
+    }
+  }
+
+  const revokePasskey = async (id: string) => {
     try {
       deleting.value = id
-      await $fetch('/api/auth/webauthn/delete-passkey', {
-        method: 'DELETE',
+      await $fetch('/api/auth/webauthn/revoke-passkey', {
+        method: 'POST',
         body: { id },
       })
       await refresh()
@@ -56,7 +99,7 @@ export const usePasskeys = () => {
       return true
     } catch (error: any) {
       toast.add({
-        title: 'Failed to delete passkey',
+        title: 'Failed to revoke passkey',
         description: error instanceof FetchError ? error.data?.message : null,
         color: 'error',
       })
@@ -91,9 +134,9 @@ export const usePasskeys = () => {
     }
   }
 
-  const authenticateWithPasskey = async (email: string) => {
+  const authenticateWithPasskey = async (email?: string) => {
     try {
-      await authenticate(email)
+      await webAuthnAuthenticate.authenticate(email)
       return true
     } catch (error) {
       toast.add({
@@ -110,8 +153,9 @@ export const usePasskeys = () => {
     status,
     creating,
     deleting,
+    registerWithPasskey,
     createPasskey,
-    deletePasskey,
+    revokePasskey,
     invokePasskey,
     authenticateWithPasskey,
   }

@@ -30,7 +30,7 @@ env:
       - RUNTIME
 
   - variable: BASE_URL
-    value: https://strive-staging--striive-8eb17.europe-west4.hosted.app/
+    value: https://striive-staging--striive-8eb17.europe-west4.hosted.app/
     availability:
       - BUILD
       - RUNTIME
@@ -90,7 +90,7 @@ env:
       - RUNTIME
 
   - variable: SUPABASE_URL
-    value: https://xyzcompany.supabase.co
+    secret: SUPABASE_URL
     availability:
       - BUILD
       - RUNTIME
@@ -142,25 +142,68 @@ env:
     availability:
       - BUILD
       - RUNTIME
+
   - variable: NUXT_OAUTH_GOOGLE_CLIENT_ID
     secret: NUXT_OAUTH_GOOGLE_CLIENT_ID
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: NUXT_OAUTH_GOOGLE_CLIENT_SECRET
     secret: NUXT_OAUTH_GOOGLE_CLIENT_SECRET
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: NUXT_STRIPE_TEST_PUBLISHABLE_KEY
     secret: NUXT_STRIPE_TEST_PUBLISHABLE_KEY
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: EOD_BASE_URL
     secret: EOD_BASE_URL
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: EOD_API_KEY
     secret: EOD_API_KEY
+    availability:
+      - BUILD
+      - RUNTIME
   - variable: OPENAI_API_KEY
     secret: OPENAI_API_KEY
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: STORAGE_BUCKET_FIREBASE
     secret: FIREBASE_STORAGE_BUCKET
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: ELEVENLABS_API_KEY
     secret: ELEVENLABS_API_KEY
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: ELEVENLABS_VOICE_ID_NARRATOR
     secret: ELEVENLABS_VOICE_ID_NARRATOR
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: ELEVENLABS_MODEL_ID
     secret: ELEVENLABS_MODEL_ID
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: SUPABASE_SERVICE_KEY
     secret: SUPABASE_SERVICE_KEY
+    availability:
+      - BUILD
+      - RUNTIME

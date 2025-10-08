@@ -39,7 +39,7 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
     })
     if (portfolioSlug.value) portfolioSlug.value = ''
     if (portfolios.value.length) portfolios.value = []
-    return navigateTo('/auth/login')
+    return navigateTo('/auth/login-passkey')
   }
 
   // Check for invite token, this means the user was not logged in or did not have an account when they clicked the verification link,

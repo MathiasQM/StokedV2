@@ -7,14 +7,28 @@ import type { InsertPasskey } from '@@/types/database'
 import { linkPasskeySchema } from '@@/shared/validations/auth'
 
 export default defineWebAuthnRegisterEventHandler({
+  async getOptions(event, body) {
+    const config = useRuntimeConfig(event)
+    const expectedOrigin = getRequestURL(event).origin
+
+    return {
+      rpID: config.public.webauthn.rpID,
+      expectedOrigin,
+      authenticatorSelection: {
+        authenticatorAttachment: 'platform',
+        requireResidentKey: true,
+        userVerification: 'required',
+      },
+      user: {
+        id: body.user.userName,
+        name: body.user.userName,
+        displayName: body.user.userName,
+      },
+    }
+  },
+
   async validateUser(userBody, event) {
     const session = await getUserSession(event)
-    if (session.user?.email && session.user.email !== userBody.userName) {
-      throw createError({
-        statusCode: 400,
-        message: 'Email not matching curent session',
-      })
-    }
     return linkPasskeySchema.parse(userBody)
   },
 
@@ -30,6 +44,7 @@ export default defineWebAuthnRegisterEventHandler({
   },
 
   async onSuccess(event, { credential, user }) {
+    console.log('hit register event handler')
     const { user: sessionUser } = await requireUserSession(event)
     const passkey: InsertPasskey = {
       id: credential.id,

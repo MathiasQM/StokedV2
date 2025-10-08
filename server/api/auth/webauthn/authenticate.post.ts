@@ -13,11 +13,13 @@
 // - app/pages/auth/login-passkey.vue
 
 import type { H3Event } from 'h3'
+import type { WebAuthnCredential } from '#auth-utils'
 import {
   storeWebAuthnChallenge,
   findCredentialByUserId,
   findCredentialById,
   getAndDeleteChallenge,
+  updateCredentialCounter,
 } from '@@/server/database/queries/passkeys'
 import {
   findUserByEmail,
@@ -26,7 +28,25 @@ import {
 } from '@@/server/database/queries/users'
 import { sanitizeUser, sendLoginNotification } from '@@/server/utils/auth'
 
+interface CredentialWithUser extends WebAuthnCredential {
+  userId: string
+}
+
 export default defineWebAuthnAuthenticateEventHandler({
+  async getOptions(event, body) {
+    const config = useRuntimeConfig(event)
+
+    return {
+      rpID: config.public.webauthn.rpID,
+      expectedOrigin: getRequestURL(event).origin,
+      authenticatorSelection: {
+        authenticatorAttachment: 'platform',
+        requireResidentKey: true,
+        userVerification: 'required',
+      },
+    }
+  },
+
   async storeChallenge(event: H3Event, challenge: string, attemptId: string) {
     await storeWebAuthnChallenge(attemptId, challenge)
   },
@@ -43,6 +63,10 @@ export default defineWebAuthnAuthenticateEventHandler({
   },
 
   async allowCredentials(event: H3Event, email: string) {
+    if (!email) {
+      return []
+    }
+
     const user = await findUserByEmail(email)
     if (!user) {
       throw createError({
@@ -63,13 +87,21 @@ export default defineWebAuthnAuthenticateEventHandler({
           'No passkeys registered. You can register one in your account settings.',
       })
     }
+
+    if (credential.revokedAt) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'This passkey has been revoked and cannot be used.',
+      })
+    }
+
     return credential
   },
 
-  async onSuccess(
-    event: H3Event,
-    { credential }: { credential: { userId: string } },
-  ) {
+  async onSuccess(event: H3Event, data) {
+    const credential = data.credential as CredentialWithUser
+    const authenticationInfo = data.authenticationInfo
+
     const user = await findUserById(credential.userId)
     if (!user) {
       throw createError({
@@ -85,6 +117,7 @@ export default defineWebAuthnAuthenticateEventHandler({
       })
     }
 
+    await updateCredentialCounter(credential.id, authenticationInfo.newCounter)
     await updateLastActiveTimestamp(user.id)
     const transformedUser = sanitizeUser(user)
     await setUserSession(event, { user: transformedUser })

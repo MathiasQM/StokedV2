@@ -96,13 +96,14 @@ export const findCredentialById = async (
   }
 }
 
-export const deleteCredential = async (
+export const revokeCredential = async (
   userId: string,
   credentialId: string,
 ): Promise<void> => {
   try {
     await useDB()
-      .delete(tables.webAuthnCredentials)
+      .update(tables.webAuthnCredentials)
+      .set({ revokedAt: new Date() })
       .where(
         and(
           eq(tables.webAuthnCredentials.userId, userId),
@@ -111,6 +112,41 @@ export const deleteCredential = async (
       )
   } catch (error) {
     console.error(error)
-    throw new Error(`Failed to delete credential: ${error}`)
+    throw new Error(`Failed to revoke credential: ${error}`)
+  }
+}
+
+export const invokeCredential = async (
+  userId: string,
+  credentialId: string,
+): Promise<void> => {
+  try {
+    await useDB()
+      .update(tables.webAuthnCredentials)
+      .set({ revokedAt: null })
+      .where(
+        and(
+          eq(tables.webAuthnCredentials.userId, userId),
+          eq(tables.webAuthnCredentials.id, credentialId),
+        ),
+      )
+  } catch (error) {
+    console.error(error)
+    throw new Error(`Failed to invoke credential: ${error}`)
+  }
+}
+
+export const updateCredentialCounter = async (
+  credentialId: string,
+  newCounter: number,
+): Promise<void> => {
+  try {
+    await useDB()
+      .update(tables.webAuthnCredentials)
+      .set({ counter: newCounter })
+      .where(eq(tables.webAuthnCredentials.id, credentialId))
+  } catch (error) {
+    console.error(error)
+    throw new Error(`Failed to update credential counter: ${error}`)
   }
 }

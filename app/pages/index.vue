@@ -25,7 +25,7 @@
               <UButton
                 color="neutral"
                 variant="soft"
-                to="/auth/login"
+                to="/auth/login-passkey"
                 label="Login"
               />
               <UDropdownMenu
@@ -183,31 +183,31 @@ definePageMeta({ layout: false })
 
 const { loggedIn } = useUserSession()
 const authOptions = ref([
-  {
-    label: 'Login (Email/Password)',
-    to: '/auth/login',
-    icon: 'i-lucide-key-square',
-  },
-  {
-    label: 'Login with Magic Link',
-    to: '/auth/magic-link',
-    icon: 'i-lucide-mail',
-  },
+  // {
+  //   label: 'Login (Email/Password)',
+  //   to: '/auth/login',
+  //   icon: 'i-lucide-key-square',
+  // },
+  // {
+  //   label: 'Login with Magic Link',
+  //   to: '/auth/magic-link',
+  //   icon: 'i-lucide-mail',
+  // },
   {
     label: 'Login with Passkey',
     to: '/auth/login-passkey',
     icon: 'i-lucide-fingerprint',
   },
-  {
-    label: 'Social Login',
-    to: '/auth/social-login',
-    icon: 'i-lucide-twitter',
-  },
-  {
-    label: 'Phone Number Login',
-    to: '/auth/login-phone',
-    icon: 'i-lucide-phone',
-  },
+  // {
+  //   label: 'Social Login',
+  //   to: '/auth/social-login',
+  //   icon: 'i-lucide-twitter',
+  // },
+  // {
+  //   label: 'Phone Number Login',
+  //   to: '/auth/login-phone',
+  //   icon: 'i-lucide-phone',
+  // },
   {
     label: 'Register',
     to: '/auth/register',

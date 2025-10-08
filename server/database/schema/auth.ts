@@ -140,9 +140,7 @@ export const oneTimePasswords = pgTable(
   'one_time_passwords',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    userId: uuid('userId')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
+    userId: uuid('userId').references(() => users.id, { onDelete: 'cascade' }),
     identifier: text('identifier').notNull(),
     code: varchar('code', { length: 6 }).notNull(),
     type: text('type').notNull().default(OneTimePasswordTypes.signup),

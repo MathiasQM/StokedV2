@@ -8,41 +8,51 @@
           Welcome back! Please sign in to continue.
         </p>
       </div>
-      <UForm
-        :schema="emailSchema"
-        :state="state"
-        class="mt-8 space-y-4"
-        @submit="onSubmit"
-      >
-        <UFormField label="Email" name="email">
-          <UInput v-model="state.email" class="w-full" size="lg" />
-        </UFormField>
 
-        <UButton
-          type="submit"
-          :loading="loading"
-          block
-          color="orange"
-          class="cursor-pointer"
-          size="lg"
-          icon="i-lucide-fingerprint"
-        >
-          Sign in with Passkey
-        </UButton>
-      </UForm>
+      <!-- <UInput
+      id="username"
+      name="username"
+      placeholder="Username"
+      autocomplete="username webauthn"
+      class="mb-4"
+      /> -->
+      <UButton
+        :loading="loading"
+        block
+        color="orange"
+        class="cursor-pointer mt-8"
+        size="lg"
+        icon="i-lucide-fingerprint"
+        @click="handleManualLogin"
+      >
+        Sign in with Passkey
+      </UButton>
+      <USeparator label="OR" />
+      <div class="grid grid-cols-1 gap-2">
+        <AuthSocialLoginButton
+          label="Google"
+          icon="i-logos-google-icon"
+          provider="google"
+        />
+      </div>
+      <p class="text-sm text-neutral-500">
+        Don't have an account?
+        <UButton to="/auth/register" variant="link" label="Sign up" />
+      </p>
     </div>
   </main>
 </template>
 
 <script setup lang="ts">
 import type { z } from 'zod'
-import type { FormSubmitEvent } from '#ui/types'
 import { emailSchema } from '@@/shared/validations/auth'
 
 definePageMeta({
   layout: false,
 })
 
+const { isSupported } = useWebAuthn()
+const passkeysAreSupported = ref(true)
 const toast = useToast()
 const { fetch: refreshSession } = useUserSession()
 const { authenticateWithPasskey } = usePasskeys()
@@ -53,17 +63,35 @@ const state = reactive<Partial<LoginSchema>>({
   email: undefined,
 })
 
-const onSubmit = async (event: FormSubmitEvent<LoginSchema>): Promise<void> => {
+const handleLoginSuccess = async () => {
+  await refreshSession()
+  toast.add({
+    title: 'Logged in successfully',
+    color: 'success',
+  })
+  await navigateTo('/dashboard', { replace: true })
+}
+
+const handleManualLogin = async () => {
   loading.value = true
-  const success = await authenticateWithPasskey(event.data.email)
+  const success = await authenticateWithPasskey()
   if (success) {
-    await refreshSession()
-    toast.add({
-      title: 'Logged in successfully',
-      color: 'success',
-    })
-    await navigateTo('/dashboard')
+    await handleLoginSuccess()
   }
   loading.value = false
 }
+
+onMounted(async () => {
+  passkeysAreSupported.value = isSupported.value
+  loading.value = true
+  if (!passkeysAreSupported.value) {
+    return navigateTo('/auth/magic-link')
+  }
+
+  const success = await authenticateWithPasskey()
+  if (success) {
+    await handleLoginSuccess()
+  }
+  loading.value = false
+})
 </script>

@@ -30,6 +30,14 @@
             Submit
           </UButton>
         </UForm>
+        <USeparator label="OR" />
+        <div class="grid grid-cols-1 gap-2">
+          <AuthSocialLoginButton
+            label="Google"
+            icon="i-logos-google-icon"
+            provider="google"
+          />
+        </div>
       </template>
       <div v-else>
         <div class="text-center">
@@ -81,6 +89,17 @@ type OtpSchema = z.output<typeof otpLoginSchema>
 
 definePageMeta({
   layout: false,
+})
+
+const { isSupported } = useWebAuthn()
+const passkeysAreSupported = ref(true)
+
+onMounted(async () => {
+  passkeysAreSupported.value = isSupported.value
+  console.log('passkeysAreSupported', passkeysAreSupported.value)
+  if (passkeysAreSupported.value) {
+    return navigateTo('/auth/login-passkey')
+  }
 })
 
 const toast = useToast()

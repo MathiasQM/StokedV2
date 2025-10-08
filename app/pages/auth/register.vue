@@ -1,151 +1,151 @@
 <template>
   <main class="relative flex min-h-screen items-center justify-center">
     <div class="mx-auto w-full max-w-sm space-y-4">
-      <template v-if="!registered">
-        <img src="/logo.png" alt="logo" class="mx-auto h-10 w-auto" />
+      <img src="/logo.png" alt="logo" class="mx-auto h-10 w-auto" />
+
+      <template v-if="mode === 'email'">
         <div class="text-center">
-          <p class="text-lg font-bold">Get Started with Striive</p>
+          <p class="text-lg font-bold">Create your account</p>
           <p class="text-sm text-neutral-500">
             Already have an account?
-            <UButton
-              padding="none"
-              trailing-icon="i-lucide-arrow-right"
-              color="orange"
-              to="/auth/login"
-              variant="link"
-              label="Login"
-              class="font-normal"
-              :ui="{
-                trailingIcon: 'size-4',
-              }"
-              square
-            />
+            <UButton to="/auth/login-passkey" variant="link" label="Sign In" />
           </p>
         </div>
         <UForm
-          :schema="registerUserSchema"
+          :schema="emailSchema"
           :state="state"
           class="mt-8 space-y-4"
           @submit="onSubmit"
         >
-          <UFormField label="Name" name="name">
-            <UInput
-              v-model="state.name"
-              class="w-full"
-              size="lg"
-              autocomplete="given-name"
-            />
-          </UFormField>
           <UFormField label="Email" name="email">
             <UInput
               v-model="state.email"
+              placeholder="you@example.com"
+              size="xl"
               class="w-full"
-              size="lg"
-              autocomplete="email"
             />
           </UFormField>
-
-          <UFormField label="Password" name="password">
-            <UInput
-              v-model="state.password"
-              type="password"
-              class="w-full"
-              size="lg"
-              autocomplete="new-password"
-            />
-          </UFormField>
-
           <UButton
             type="submit"
             :loading="loading"
             block
             color="orange"
-            class="cursor-pointer"
             size="lg"
           >
-            Submit
+            {{
+              isSupported ? 'Sign Up with Passkey' : 'Sign Up with Email Code'
+            }}
           </UButton>
         </UForm>
-        <USeparator label="OR" />
-        <div class="grid grid-cols-2 gap-2">
-          <AuthSocialLoginButton
-            label="Google"
-            icon="i-logos-google-icon"
-            provider="google"
-          />
-        </div>
       </template>
-      <UCard v-else>
-        <UIcon name="i-lucide-mail-check" class="h-5 w-5" />
-        <p class="mt-4 text-lg font-bold">Check your email</p>
-        <p class="mt-1 text-sm text-neutral-500">
-          We've sent you an email to verify your account.
-        </p>
-      </UCard>
-    </div>
-    <div class="absolute bottom-2 left-1/2 -translate-x-1/2">
-      <!-- <NuxtLink to="/auth/all-auth-options" class="text-sm text-neutral-500"
-        >All auth options</NuxtLink -->
-      >
+
+      <template v-else>
+        <div class="text-center">
+          <p class="text-lg font-bold">Check your email</p>
+          <p class="text-sm text-neutral-500">
+            We've sent a 6-digit code to {{ state.email }}.
+          </p>
+        </div>
+        <UForm
+          :schema="otpSchema"
+          :state="state"
+          class="mt-8 space-y-4"
+          @submit="onOtpSubmit"
+        >
+          <UFormField name="code">
+            <UPinInput
+              v-model="otpCode"
+              :length="6"
+              size="lg"
+              otp
+              placeholder="○"
+              class="justify-center w-full"
+            />
+          </UFormField>
+          <UButton
+            type="submit"
+            :loading="loading"
+            block
+            color="orange"
+            size="lg"
+          >
+            Verify & Create Account
+          </UButton>
+        </UForm>
+      </template>
     </div>
   </main>
 </template>
 
 <script setup lang="ts">
-import middleware from '@@/app/middleware/invite-email'
-definePageMeta({
-  middleware: [middleware],
-  layout: false,
-})
-
-import type { z } from 'zod'
+import { z } from 'zod'
+import { emailSchema } from '@@/shared/validations/auth'
 import type { FormSubmitEvent } from '#ui/types'
-import { registerUserSchema } from '@@/shared/validations/auth'
-type Schema = z.output<typeof registerUserSchema>
 
-const registered = ref(false)
+definePageMeta({ layout: false })
+
+const { isSupported } = useWebAuthn()
+const { registerWithPasskey } = usePasskeys()
+const { fetch: refreshSession } = useUserSession()
+const toast = useToast()
+
+const mode = ref<'email' | 'otp'>('email')
 const loading = ref(false)
-const sentemail = ref(false)
-const { register } = useAuth()
-const inviteEmail = useState<string>('inviteEmail')
-const inviteToken = useState<string>('inviteToken')
+const state = reactive({ email: '', code: '' })
+const otpSchema = z.object({ code: z.string().length(6) })
 
-const state = reactive<Partial<Schema>>({
-  email: inviteEmail.value || '',
-  password: undefined,
-  name: undefined,
+const otpCode = computed({
+  get: () => state.code.split(''),
+  set: (value: string[]) => {
+    state.code = value.join('')
+  },
 })
 
-async function onSubmit(event: FormSubmitEvent<Schema>) {
+const handleRegisterSuccess = async () => {
+  await refreshSession()
+  await navigateTo('/dashboard', { external: true })
+}
+
+const onSubmit = async (event: FormSubmitEvent<{ email: string }>) => {
   loading.value = true
   try {
-    const { error, emailVerified } = await register({
-      ...event.data,
-      inviteToken: inviteToken.value,
-    })
-    if (emailVerified && !error) {
-      // If this registration was from an invite, set a cookie to track that
-      if (inviteToken.value) {
-        const fromInviteCookie = useCookie('from-invite', {
-          maxAge: 60 * 60, // 1 hour
-          secure: true,
-          sameSite: 'lax',
-        })
-        fromInviteCookie.value = 'true'
-      }
-
-      // Ensure client has session data and navigate to the dashboard
-      // See https://github.com/atinux/nuxt-auth-utils/issues/357
-      await nextTick()
-      await useUserSession().fetch()
-      await navigateTo('/dashboard')
+    if (isSupported.value) {
+      const success = await registerWithPasskey(event.data.email)
+      if (success) await handleRegisterSuccess()
     } else {
-      if (!error) {
-        registered.value = true
-      } else {
-        sentemail.value = true
-      }
+      await $fetch('/api/auth/magic-link/register-request', {
+        method: 'POST',
+        body: { email: event.data.email },
+      })
+      toast.add({ title: 'Verification code sent!', color: 'success' })
+      mode.value = 'otp'
     }
+  } catch (error: any) {
+    toast.add({
+      title: 'Error',
+      description: error.data?.message,
+      color: 'error',
+    })
+  } finally {
+    loading.value = false
+  }
+}
+
+const onOtpSubmit = async (event: FormSubmitEvent<{ code: string }>) => {
+  console.log('onOtpSubmit', event)
+  loading.value = true
+  try {
+    await $fetch('/api/auth/magic-link/register-verify', {
+      method: 'POST',
+      body: { email: state.email, code: state.code },
+    })
+    await handleRegisterSuccess()
+  } catch (error: any) {
+    toast.add({
+      title: 'Error',
+      description: error.data?.message,
+      color: 'error',
+    })
   } finally {
     loading.value = false
   }

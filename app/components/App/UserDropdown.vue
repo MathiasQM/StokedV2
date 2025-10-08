@@ -72,7 +72,7 @@ const { currentPortfolio, portfolios, isPortfolioOwner } = usePortfolio()
 
 async function signOut() {
   await logout()
-  await navigateTo('/auth/login')
+  await navigateTo('/')
 }
 const items = computed(() => [
   [
