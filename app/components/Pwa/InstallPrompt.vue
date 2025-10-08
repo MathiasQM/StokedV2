@@ -86,13 +86,6 @@
           >
             Install Now
           </Button>
-          <Button
-            v-if="isIOS"
-            @click="showShare"
-            class="w-full bg-orange-500 text-white"
-          >
-            Share & Install
-          </Button>
           <DrawerClose as-child>
             <Button variant="outline" class="w-full">Close</Button>
           </DrawerClose>
@@ -264,20 +257,6 @@ function promptInstall() {
     })
   } else if ($pwa?.showInstallPrompt) {
     $pwa!.install()
-  }
-}
-
-async function showShare() {
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: pwaName,
-        text: pwaDescription,
-        url: window.location.href,
-      })
-    } catch (error) {
-      console.error('Sharing failed:', error)
-    }
   }
 }
 </script>

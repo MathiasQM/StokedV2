@@ -12,8 +12,8 @@ export default defineWebAuthnRegisterEventHandler({
     const expectedOrigin = getRequestURL(event).origin
 
     return {
-      rpID: config.public.webauthn.rpID,
-      expectedOrigin,
+      rpID: 'striiveai.com',
+      expectedOrigin: 'https://staging.striiveai.com',
       authenticatorSelection: {
         authenticatorAttachment: 'platform',
         requireResidentKey: true,

@@ -135,10 +135,13 @@ const onOtpSubmit = async (event: FormSubmitEvent<{ code: string }>) => {
   console.log('onOtpSubmit', event)
   loading.value = true
   try {
-    await $fetch('/api/auth/magic-link/register-verify', {
-      method: 'POST',
-      body: { email: state.email, code: state.code },
-    })
+    await $fetch(
+      'https://staging.striiveai.com/api/auth/magic-link/register-verify',
+      {
+        method: 'POST',
+        body: { email: state.email, code: state.code },
+      },
+    )
     await handleRegisterSuccess()
   } catch (error: any) {
     toast.add({
