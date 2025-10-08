@@ -347,7 +347,7 @@ function getWebAuthnConfig() {
       }
     case 'staging':
       return {
-        rpID: 'striiveai.com',
+        rpID: 'staging.striiveai.com',
         origin: 'https://staging.striiveai.com',
       }
     default:
