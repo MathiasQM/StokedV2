@@ -14,31 +14,14 @@ import { sanitizeUser } from '@@/server/utils/auth'
 export default defineWebAuthnRegisterEventHandler({
   async getOptions(event, body) {
     const config = useRuntimeConfig(event)
-    function getRequestOrigin() {
-      const protocol = event.node.req.headers['x-forwarded-proto'] || 'http'
-      const host = event.node.req.headers.host
-      return `${protocol}://${host}`
-    }
-
-    function getRelyingPartyID() {
-      const host = event.node.req.headers.host
-      // Use the host as the RP ID. This ensures it's always the top-level domain.
-      // For 'staging.striiveai.com', this will be 'staging.striiveai.com'
-      // For 'localhost:3000', this will be 'localhost' or 'localhost:3000' depending on your config.
-      // Stripping the port is a good practice for RP ID.
-      return host.split(':')[0]
-    }
-
-    const origin = getRequestOrigin()
-    const rpID = getRelyingPartyID()
 
     console.log({
-      rpID: rpID,
-      expectedOrigin: origin,
+      rpID: config.public.webauthn.rpID,
+      expectedOrigin: config.public.webauthn.origin,
     })
     return {
       rpID: config.public.webauthn.rpID,
-      expectedOrigin: origin,
+      expectedOrigin: config.public.webauthn.origin,
       authenticatorSelection: {
         authenticatorAttachment: 'platform',
         requireResidentKey: true,
