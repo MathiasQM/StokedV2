@@ -81,11 +81,12 @@
 import { z } from 'zod'
 import { emailSchema } from '@@/shared/validations/auth'
 import type { FormSubmitEvent } from '#ui/types'
+import { startRegistration } from '@simplewebauthn/browser'
+
 
 definePageMeta({ layout: false })
 
 const { isSupported } = useWebAuthn()
-const { registerWithPasskey } = usePasskeys()
 const { fetch: refreshSession } = useUserSession()
 const toast = useToast()
 
@@ -110,8 +111,21 @@ const onSubmit = async (event: FormSubmitEvent<{ email: string }>) => {
   loading.value = true
   try {
     if (isSupported.value) {
-      const success = await registerWithPasskey(event.data.email)
-      if (success) await handleRegisterSuccess()
+      const options = await $fetch('/api/auth/webauthn/generate-registration-options', {
+        method: 'POST',
+        body: { email: event.data.email },
+      });
+      
+       const attestation = await startRegistration(options);
+
+      // 3. Send the successful attestation response to the server for verification
+      await $fetch('/api/auth/webauthn/verify-registration', {
+        method: 'POST',
+        body: attestation,
+      });
+      
+      // 4. If verification is successful, handle login and redirect
+      await handleRegisterSuccess();
     } else {
       await $fetch('/api/auth/magic-link/register-request', {
         method: 'POST',
