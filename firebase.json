@@ -8,7 +8,6 @@
       "rewrites": [
         {
           "source": "**",
-          "function": "server",
           "run": { "serviceId": "striive-staging", "region": "europe-west4" }
         }
       ]
