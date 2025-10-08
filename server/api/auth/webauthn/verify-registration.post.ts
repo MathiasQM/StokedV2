@@ -4,7 +4,7 @@ import { verifyRegistrationResponse } from '@simplewebauthn/server';
 import type { VerifiedRegistrationResponse, RegistrationResponseJSON } from '@simplewebauthn/server/dist/esm/types';
 import { getAndDeleteChallenge, createCredential } from '@@/server/database/queries/passkeys';
 import { createUserWithPasskey } from '@@/server/database/queries/users';
-import { sanitizeUser } from ../../server/utils/auth';
+import { sanitizeUser } from '../../server/utils/auth';
 import type { InsertPasskey } from '@@/types/database';
 
 export default defineEventHandler(async (event) => {
