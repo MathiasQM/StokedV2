@@ -1,9 +1,9 @@
 // server/api/auth/webauthn/generate-registration-options.post.ts
 
 import { generateRegistrationOptions } from '@simplewebauthn/server';
-import { findUserByEmail } from '~/server/database/queries/users';
-import { storeWebAuthnChallenge } from '~/server/database/queries/passkeys';
-import { emailSchema } from '~/shared/validations/auth';
+import { findUserByEmail } from '@@/server/database/queries/users';
+import { storeWebAuthnChallenge } from '@@/server/database/queries/passkeys';
+import { emailSchema } from '@@/shared/validations/auth';
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
