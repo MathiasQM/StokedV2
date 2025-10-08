@@ -14,14 +14,20 @@ import { sanitizeUser } from '@@/server/utils/auth'
 export default defineWebAuthnRegisterEventHandler({
   async getOptions(event, body) {
     const config = useRuntimeConfig(event)
+    function getRequestOrigin() {
+      const protocol = event.node.req.headers['x-forwarded-proto'] || 'http'
+      const host = event.node.req.headers.host
+      return `${protocol}://${host}`
+    }
+    const origin = getRequestOrigin()
 
     console.log({
       rpID: config.public.webauthn.rpID,
-      expectedOrigin: config.public.webauthn.origin,
+      expectedOrigin: origin,
     })
     return {
       rpID: config.public.webauthn.rpID,
-      expectedOrigin: config.public.webauthn.origin,
+      expectedOrigin: origin,
       authenticatorSelection: {
         authenticatorAttachment: 'platform',
         requireResidentKey: true,
