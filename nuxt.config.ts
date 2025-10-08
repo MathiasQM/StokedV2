@@ -338,6 +338,7 @@ export default defineNuxtConfig({
 
 function getWebAuthnConfig() {
   const buildEnv = process.env.BUILD_ENV
+  console.log("buildEnv", buildEnv)
 
   switch (buildEnv) {
     case 'production':
