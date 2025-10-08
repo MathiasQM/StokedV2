@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
 
   const config = useRuntimeConfig(event);
   const rpID = config.public.webauthn.rpID;
-  const rpName = 'Your App Name'; // Set your Relying Party name here
+  const rpName = 'Striive'; // Set your Relying Party name here
 
   // 2. Generate registration options
   const options = await generateRegistrationOptions({
