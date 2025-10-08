@@ -15,14 +15,16 @@ export default defineWebAuthnRegisterEventHandler({
   async getOptions(event, body) {
     const config = useRuntimeConfig(event)
     const expectedOrigin = getRequestURL(event).origin
+    const forwardedHost = getRequestHeaders(event)['X-Forwarded-Host']
 
     console.log({
-      rpID: 'striiveai.com',
-      expectedOrigin: 'https://staging.striiveai.com',
+      rpID: config.public.webauthn.rpID,
+      expectedOrigin,
+      forwardedHost,
     })
     return {
-      rpID: 'striiveai.com',
-      expectedOrigin: 'https://staging.striiveai.com',
+      rpID: config.public.webauthn.rpID,
+      expectedOrigin,
       authenticatorSelection: {
         authenticatorAttachment: 'platform',
         requireResidentKey: true,

@@ -286,6 +286,7 @@ export default defineNuxtConfig({
   },
   middleware: ['~/server/middleware/rateLimit'],
   nitro: {
+    xForwardedHost: true,
     prerender: {
       routes: ['/'],
     },
