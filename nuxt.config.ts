@@ -246,10 +246,7 @@ export default defineNuxtConfig({
     elevenLabsModelId: process.env.ELEVENLABS_MODEL_ID,
     openaiApiKey: process.env.OPENAI_API_KEY,
     public: {
-      webauthn: {
-        rpID: 'staging.striiveai.com',
-        origin: 'https://staging.striiveai.com',
-      },
+      webauthn: getWebAuthnConfig(),
       yodleeFastlinkUrl: process.env.YODLEE_FASTLINK_URL,
       eodBase: process.env.EOD_BASE_URL,
       stripePublicKey: process.env.NUXT_STRIPE_TEST_PUBLISHABLE_KEY,
@@ -341,7 +338,7 @@ export default defineNuxtConfig({
 
 function getWebAuthnConfig() {
   const buildEnv = process.env.BUILD_ENV
-  console.log("buildEnv", buildEnv)
+  console.log('buildEnv', buildEnv)
 
   switch (buildEnv) {
     case 'production':

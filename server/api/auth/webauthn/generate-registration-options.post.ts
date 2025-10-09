@@ -1,5 +1,3 @@
-// server/api/auth/webauthn/generate-registration-options.post.ts
-
 import { generateRegistrationOptions } from '@simplewebauthn/server'
 import { findUserByEmail } from '@@/server/database/queries/users'
 import { storeWebAuthnChallenge } from '@@/server/database/queries/passkeys'
@@ -31,7 +29,7 @@ export default defineEventHandler(async (event) => {
   const options = await generateRegistrationOptions({
     rpID,
     rpName,
-    userID: email, // Use email as a temporary, unique user ID for the ceremony
+    userID: new TextEncoder().encode(email),
     userName: email,
     attestationType: 'none',
     authenticatorSelection: {
@@ -43,7 +41,12 @@ export default defineEventHandler(async (event) => {
 
   // 3. Store the challenge for later verification
   // The attemptId can be the challenge itself or a generated UUID
-  await storeWebAuthnChallenge(options.challenge, options.challenge)
+  try {
+    await storeWebAuthnChallenge(options.challenge, options.challenge)
+  } catch (error) {
+    console.error('Error storing challenge:', error)
+  }
+  console.log('done storing')
 
   return options
 })

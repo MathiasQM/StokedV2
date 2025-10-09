@@ -14,16 +14,24 @@ import { sanitizeUser } from '@@/server/utils/auth'
 import type { InsertPasskey } from '@@/types/database'
 
 export default defineEventHandler(async (event) => {
-  const body: RegistrationResponseJSON = await readBody(event)
+  const {
+    attestation,
+    email,
+  }: { attestation: RegistrationResponseJSON; email: string } =
+    await readBody(event)
 
   const config = useRuntimeConfig(event)
   const expectedOrigin = config.public.webauthn.origin // Your custom domain
   const expectedRPID = config.public.webauthn.rpID
 
-  // 1. Get the challenge we stored earlier
-  const expectedChallenge = await getAndDeleteChallenge(
-    body.response.clientDataJSON,
+  const clientData = JSON.parse(
+    Buffer.from(attestation.response.clientDataJSON, 'base64').toString('utf8'),
   )
+  const challengeFromClient = clientData.challenge
+
+  // 1. Get the challenge we stored earlier
+  const expectedChallenge = await getAndDeleteChallenge(challengeFromClient)
+
   if (!expectedChallenge) {
     throw createError({
       statusCode: 404,
@@ -36,7 +44,7 @@ export default defineEventHandler(async (event) => {
     // 2. **CRITICAL STEP**: Verify the authenticator response
     // We explicitly pass `expectedOrigin` and `expectedRPID`.
     verification = await verifyRegistrationResponse({
-      response: body,
+      response: attestation,
       expectedChallenge,
       expectedOrigin,
       expectedRPID,
@@ -50,8 +58,11 @@ export default defineEventHandler(async (event) => {
   const { verified, registrationInfo } = verification
 
   if (verified && registrationInfo) {
-    const { credentialPublicKey, credentialID, counter } = registrationInfo
-    const email = body.response.userHandle // The email we used as userID
+    const {
+      id: credentialID,
+      publicKey: credentialPublicKey,
+      counter,
+    } = registrationInfo.credential
 
     if (!email) {
       throw createError({
@@ -82,7 +93,7 @@ export default defineEventHandler(async (event) => {
       counter,
       name: 'Initial Passkey',
       backedUp: verification.registrationInfo?.credentialBackedUp || false,
-      transports: body.response.transports ?? [],
+      transports: attestation.response.transports ?? [],
     }
     await createCredential(passkey)
 

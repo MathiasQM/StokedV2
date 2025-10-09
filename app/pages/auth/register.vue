@@ -83,7 +83,6 @@ import { emailSchema } from '@@/shared/validations/auth'
 import type { FormSubmitEvent } from '#ui/types'
 import { startRegistration } from '@simplewebauthn/browser'
 
-
 definePageMeta({ layout: false })
 
 const { isSupported } = useWebAuthn()
@@ -111,21 +110,23 @@ const onSubmit = async (event: FormSubmitEvent<{ email: string }>) => {
   loading.value = true
   try {
     if (isSupported.value) {
-      const options = await $fetch('/api/auth/webauthn/generate-registration-options', {
-        method: 'POST',
-        body: { email: event.data.email },
-      });
-      
-       const attestation = await startRegistration(options);
+      const options = await $fetch(
+        '/api/auth/webauthn/generate-registration-options',
+        {
+          method: 'POST',
+          body: { email: event.data.email },
+        },
+      )
 
+      const attestation = await startRegistration(options)
       // 3. Send the successful attestation response to the server for verification
       await $fetch('/api/auth/webauthn/verify-registration', {
         method: 'POST',
-        body: attestation,
-      });
-      
+        body: { attestation, email: event.data.email },
+      })
+
       // 4. If verification is successful, handle login and redirect
-      await handleRegisterSuccess();
+      await handleRegisterSuccess()
     } else {
       await $fetch('/api/auth/magic-link/register-request', {
         method: 'POST',
@@ -135,6 +136,7 @@ const onSubmit = async (event: FormSubmitEvent<{ email: string }>) => {
       mode.value = 'otp'
     }
   } catch (error: any) {
+    console.error('Registration error:', error)
     toast.add({
       title: 'Error',
       description: error.data?.message,
