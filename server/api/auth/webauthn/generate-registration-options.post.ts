@@ -46,7 +46,6 @@ export default defineEventHandler(async (event) => {
   } catch (error) {
     console.error('Error storing challenge:', error)
   }
-  console.log('done storing')
 
   return options
 })
