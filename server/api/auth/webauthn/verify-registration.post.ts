@@ -58,11 +58,10 @@ export default defineEventHandler(async (event) => {
   const { verified, registrationInfo } = verification
 
   if (verified && registrationInfo) {
-    const {
-      id: credentialID,
-      publicKey: credentialPublicKey,
-      counter,
-    } = registrationInfo.credential
+    console.log('Inspecting registrationInfo:', registrationInfo)
+
+    // ✅ STEP 2: Use the correct property names to destructure
+    const { id, publicKey, counter } = registrationInfo.credential
 
     if (!email) {
       throw createError({
@@ -86,15 +85,30 @@ export default defineEventHandler(async (event) => {
     }
 
     // 4. Create the passkey credential linked to the new user
+    function toBase64Url(data: Uint8Array): string {
+      return Buffer.from(data)
+        .toString('base64')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '')
+    }
+
+    // ... inside your registration logic
     const passkey: InsertPasskey = {
-      id: Buffer.from(credentialID).toString('base64'), // Store as base64 string
+      // id is already Base64URL, use it directly.
+      id: id,
       userId: newUser.id,
-      publicKey: Buffer.from(credentialPublicKey), // Store as Buffer/bytea
-      counter,
+      // Correctly encode the publicKey Uint8Array to Base64URL.
+      publicKey: toBase64Url(publicKey),
+      counter: counter,
       name: 'Initial Passkey',
-      backedUp: verification.registrationInfo?.credentialBackedUp || false,
+      backedUp: registrationInfo.credentialBackedUp || false,
+      // The transports array will be handled by Drizzle/Postgres
       transports: attestation.response.transports ?? [],
     }
+
+    console.log('SAVING NEW PASSKEY:', passkey)
+
     await createCredential(passkey)
 
     // 5. Log the user in

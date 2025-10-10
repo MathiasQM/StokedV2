@@ -44,51 +44,88 @@
 </template>
 
 <script setup lang="ts">
-import type { z } from 'zod'
-import { emailSchema } from '@@/shared/validations/auth'
+import { startAuthentication } from '@simplewebauthn/browser'
 
 definePageMeta({
   layout: false,
 })
 
 const { isSupported } = useWebAuthn()
-const passkeysAreSupported = ref(true)
 const toast = useToast()
 const { fetch: refreshSession } = useUserSession()
-const { authenticateWithPasskey } = usePasskeys()
 const loading = ref(false)
 
-type LoginSchema = z.output<typeof emailSchema>
-const state = reactive<Partial<LoginSchema>>({
-  email: undefined,
-})
+// This function will contain the new, two-step authentication logic.
+const loginWithPasskey = async () => {
+  loading.value = true
+  try {
+    // 1. Get authentication options from the server
+    const options = await $fetch(
+      '/api/auth/webauthn/generate-authentication-options',
+      {
+        method: 'POST',
+      },
+    )
+
+    console.log('options', options)
+
+    // 2. Prompt the user to authenticate with their passkey
+    const assertion = await startAuthentication(options)
+
+    console.log('assertion', assertion)
+
+    // 3. Send the successful assertion to the server for verification
+    await $fetch('/api/auth/webauthn/verify-authentication', {
+      method: 'POST',
+      body: assertion,
+    })
+
+    // If verification is successful, the user is logged in.
+    return true
+  } catch (error: any) {
+    // Handle user cancellation gracefully
+    if (error.name === 'NotAllowedError') {
+      toast.add({ title: 'Login cancelled', color: 'info' })
+    } else {
+      toast.add({
+        title: 'Login Failed',
+        description: error.data?.message || 'Could not sign in with passkey.',
+        color: 'error',
+      })
+    }
+    return false
+  } finally {
+    loading.value = false
+  }
+}
 
 const handleLoginSuccess = async () => {
   await refreshSession()
-  toast.add({
-    title: 'Logged in successfully',
-    color: 'success',
-  })
   await navigateTo('/dashboard', { replace: true })
 }
 
 const handleManualLogin = async () => {
-  loading.value = true
-  const success = await authenticateWithPasskey()
+  if (!isSupported.value) {
+    toast.add({
+      title: 'Passkeys are not supported on this device.',
+      color: 'error',
+    })
+    return
+  }
+
+  const success = await loginWithPasskey()
   if (success) {
     await handleLoginSuccess()
   }
-  loading.value = false
 }
 
 onMounted(async () => {
-  passkeysAreSupported.value = isSupported.value
   loading.value = true
-  if (!passkeysAreSupported.value) {
+  if (!isSupported.value) {
     return navigateTo('/auth/magic-link')
   }
 
-  const success = await authenticateWithPasskey()
+  const success = await loginWithPasskey()
   if (success) {
     await handleLoginSuccess()
   }
