@@ -9,7 +9,6 @@ export default defineEventHandler(async (event) => {
   const { user } = await requireUserSession(event)
 
   const userCredentials = await findCredentialByUserId(user.id)
-  console.log(userCredentials)
   if (userCredentials.filter((p) => !p.revokedAt).length <= 1) {
     throw createError({
       statusCode: 400,

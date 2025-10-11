@@ -1,59 +1,119 @@
+import { startAuthentication, startRegistration } from '@simplewebauthn/browser'
 import { FetchError } from 'ofetch'
+
+class PasskeyError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'PasskeyError'
+  }
+}
 
 export const usePasskeys = () => {
   const toast = useToast()
   const creating = ref(false)
   const deleting = ref<string | null>(null)
-
-  // --- This is for LINKING a key to an EXISTING, logged-in user ---
-  const webAuthnLink = useWebAuthn({
-    registerEndpoint: '/api/auth/webauthn/link-passkey',
-  })
-
-  // --- This is for REGISTERING a NEW user ---
-  const webAuthnRegister = useWebAuthn({
-    registerEndpoint: '/api/auth/webauthn/register',
-  })
-
-  // --- These are for AUTHENTICATION (signing in) ---
-  const webAuthnAuthenticate = useWebAuthn({
-    authenticateEndpoint: '/api/auth/webauthn/authenticate',
-  })
-  const webAuthnAutofill = useWebAuthn({
-    authenticateEndpoint: '/api/auth/webauthn/authenticate',
-    useBrowserAutofill: true,
-  })
+  const authenticating = ref(false)
+  const registering = ref(false)
 
   const {
     data: passkeys,
     status,
     refresh,
-  } = useFetch('/api/auth/webauthn/linked-passkeys', {
+  } = useFetch('/api/auth/webauthn/link/linked', {
     server: false,
     lazy: true,
   })
 
-  const createPasskey = async (userName: string, displayName: string) => {
-    console.log('Adding a passkey to user:', {
-      userName: userName,
-      displayName: displayName,
-    })
+  const signInWithPasskey = async (isConditional = false) => {
+    authenticating.value = true
     try {
-      creating.value = true
-      console.log(userName, displayName)
-      await webAuthnLink.register({ userName, displayName })
+      const options = await $fetch(
+        '/api/auth/webauthn/authenticate/generate-options',
+        { method: 'POST' },
+      )
+
+      if (isConditional) {
+        options.mediation = 'conditional'
+      }
+
+      const assertion = await startAuthentication(options)
+
+      await $fetch('/api/auth/webauthn/authenticate/verify', {
+        method: 'POST',
+        body: assertion,
+      })
+
+      return true
+    } catch (error: any) {
+      if (error.name === 'NotAllowedError') {
+        toast.add({
+          title: 'Login Cancelled',
+          description:
+            "You cancelled the passkey sign-in. Try again when you're ready.",
+          color: 'info',
+        })
+      } else if (error instanceof FetchError) {
+        toast.add({
+          title: 'Sign-In Failed',
+          description:
+            error.data?.message || 'An unexpected server error occurred.',
+          color: 'error',
+        })
+      } else {
+        toast.add({
+          title: 'An Error Occurred',
+          description: 'Could not sign in with passkey. Please try again.',
+          color: 'error',
+        })
+      }
+      return false
+    } finally {
+      authenticating.value = false
+    }
+  }
+
+  const createPasskey = async (userName: string, displayName: string) => {
+    creating.value = true
+    try {
+      const options = await $fetch('/api/auth/webauthn/link/generate-options', {
+        method: 'POST',
+        body: { userName, displayName },
+      })
+
+      const attestation = await startRegistration(options)
+
+      await $fetch('/api/auth/webauthn/link/verify', {
+        method: 'POST',
+        body: attestation,
+      })
+
       await refresh()
       toast.add({
-        title: 'Passkey added successfully',
+        title: `Successfully added "${displayName}".`,
         color: 'success',
+        icon: 'i-lucide-check-circle',
       })
       return true
-    } catch (error) {
-      toast.add({
-        title: 'Failed to add passkey',
-        description: error instanceof FetchError ? error.data?.message : null,
-        color: 'error',
-      })
+    } catch (error: any) {
+      if (error.name === 'NotAllowedError') {
+        toast.add({
+          title: 'Cancelled',
+          description: 'You cancelled adding a new passkey.',
+          color: 'info',
+        })
+      } else if (error instanceof FetchError) {
+        toast.add({
+          title: 'Failed to Add Passkey',
+          description: error.data?.message,
+          color: 'error',
+        })
+      } else {
+        toast.add({
+          title: 'An Error Occurred',
+          description: 'Could not add the new passkey.',
+          color: 'error',
+        })
+      }
       return false
     } finally {
       creating.value = false
@@ -61,41 +121,76 @@ export const usePasskeys = () => {
   }
 
   const registerWithPasskey = async (email: string) => {
+    registering.value = true
     try {
-      console.log('Registering with passkey for email:', {
-        userName: email,
-        displayName: email,
+      const options = await $fetch(
+        '/api/auth/webauthn/register/generate-options',
+        {
+          method: 'POST',
+          body: { email },
+        },
+      )
+
+      const attestation = await startRegistration(options)
+
+      await $fetch('/api/auth/webauthn/register/verify', {
+        method: 'POST',
+        body: { attestation, email },
       })
-      await webAuthnRegister.register({
-        userName: email,
-        displayName: email,
-      })
+
       return true
-    } catch (error) {
-      toast.add({
-        title: 'Registration Failed',
-        description:
-          error instanceof FetchError
-            ? error.data?.message
-            : 'An unknown error occurred.',
-        color: 'error',
-      })
-      return false // Failure
+    } catch (error: any) {
+      if (error.name === 'NotAllowedError') {
+        toast.add({
+          title: 'Registration Cancelled',
+          description: 'You cancelled the passkey creation process.',
+          color: 'info',
+        })
+      } else if (error instanceof FetchError) {
+        if (error.statusCode === 409) {
+          toast.add({
+            title: 'Email Already Registered',
+            description:
+              'An account with this email already exists. Please sign in instead.',
+            color: 'orange',
+            icon: 'i-lucide-alert-triangle',
+          })
+        } else {
+          toast.add({
+            title: 'Registration Failed',
+            description:
+              error.data?.message || 'An unexpected server error occurred.',
+            color: 'error',
+          })
+        }
+      } else {
+        toast.add({
+          title: 'An Error Occurred',
+          description: 'Could not create a passkey. Please try again.',
+          color: 'error',
+        })
+      }
+      return false
+    } finally {
+      registering.value = false
     }
   }
 
   const revokePasskey = async (id: string) => {
+    deleting.value = id
+
     try {
-      deleting.value = id
-      await $fetch('/api/auth/webauthn/revoke-passkey', {
+      await $fetch('/api/auth/webauthn/link/revoke', {
         method: 'POST',
         body: { id },
       })
       await refresh()
       toast.add({
-        title: 'Passkey revoked successfully',
+        title: 'Passkey Revoked',
         color: 'success',
+        icon: 'i-lucide-check-circle',
       })
+
       return true
     } catch (error: any) {
       toast.add({
@@ -110,9 +205,9 @@ export const usePasskeys = () => {
   }
 
   const invokePasskey = async (id: string) => {
+    deleting.value = id
     try {
-      deleting.value = id
-      await $fetch('/api/auth/webauthn/invoke-passkey', {
+      await $fetch('/api/auth/webauthn/link/invoke', {
         method: 'POST',
         body: { id },
       })
@@ -134,29 +229,17 @@ export const usePasskeys = () => {
     }
   }
 
-  const authenticateWithPasskey = async (email?: string) => {
-    try {
-      await webAuthnAuthenticate.authenticate(email)
-      return true
-    } catch (error) {
-      toast.add({
-        title: 'Failed to authenticate with passkey',
-        description: error instanceof FetchError ? error.data?.message : null,
-        color: 'error',
-      })
-      return false
-    }
-  }
-
   return {
     passkeys,
     status,
     creating,
     deleting,
+    authenticating,
+    registering,
+    signInWithPasskey,
     registerWithPasskey,
     createPasskey,
     revokePasskey,
     invokePasskey,
-    authenticateWithPasskey,
   }
 }

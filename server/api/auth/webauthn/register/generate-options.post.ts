@@ -7,29 +7,40 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const { email } = body
 
-  // 1. Validate the user input
   const validation = emailSchema.safeParse({ email })
   if (!validation.success) {
     throw createError({ statusCode: 400, message: 'Invalid email format.' })
   }
 
   const existingUser = await findUserByEmail(validation.data.email)
+  if (
+    existingUser?.banned &&
+    existingUser?.bannedUntil &&
+    existingUser?.bannedUntil > new Date()
+  ) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: 'Your account has been banned',
+    })
+  }
+
   if (existingUser) {
     throw createError({
-      statusCode: 409, // Conflict
+      statusCode: 409,
       message: 'An account with this email already exists.',
     })
   }
 
   const config = useRuntimeConfig(event)
   const rpID = config.public.webauthn.rpID
-  const rpName = 'Striive' // Set your Relying Party name here
+  const rpName = 'Striive'
+  const userIDString = crypto.randomUUID()
+  const userID = new TextEncoder().encode(userIDString)
 
-  // 2. Generate registration options
   const options = await generateRegistrationOptions({
     rpID,
     rpName,
-    userID: new TextEncoder().encode(email),
+    userID,
     userName: email,
     attestationType: 'none',
     authenticatorSelection: {
@@ -39,13 +50,13 @@ export default defineEventHandler(async (event) => {
     },
   })
 
-  // 3. Store the challenge for later verification
-  // The attemptId can be the challenge itself or a generated UUID
-  try {
-    await storeWebAuthnChallenge(options.challenge, options.challenge)
-  } catch (error) {
-    console.error('Error storing challenge:', error)
-  }
+  const session = await useSession(event, { password: config.session.password })
+  await session.update({
+    webAuthnChallenge: {
+      challenge: options.challenge,
+      userIDString,
+    },
+  })
 
   return options
 })

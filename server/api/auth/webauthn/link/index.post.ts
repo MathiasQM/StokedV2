@@ -43,7 +43,6 @@ export default defineWebAuthnRegisterEventHandler({
   },
 
   async onSuccess(event, { credential, user }) {
-    console.log('hit register event handler')
     const { user: sessionUser } = await requireUserSession(event)
     const passkey: InsertPasskey = {
       id: credential.id,

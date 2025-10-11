@@ -1,5 +1,14 @@
 <template>
-  <main class="flex min-h-screen items-center justify-center">
+  <main class="flex min-h-screen items-center justify-center p-5">
+    <div
+      v-if="isRedirecting"
+      class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-black/80"
+    >
+      <div class="text-center">
+        <UButton color="orange" loading size="xl" variant="soft" />
+        <p class="mt-4 text-sm font-medium">Setting up your account...</p>
+      </div>
+    </div>
     <div class="mx-auto w-full max-w-sm space-y-4">
       <img src="/logo.png" alt="logo" class="mx-auto h-10 w-auto" />
       <div class="text-center">
@@ -9,15 +18,8 @@
         </p>
       </div>
 
-      <!-- <UInput
-      id="username"
-      name="username"
-      placeholder="Username"
-      autocomplete="username webauthn"
-      class="mb-4"
-      /> -->
       <UButton
-        :loading="loading"
+        :loading="authenticating"
         block
         color="orange"
         class="cursor-pointer mt-8"
@@ -44,62 +46,19 @@
 </template>
 
 <script setup lang="ts">
-import { startAuthentication } from '@simplewebauthn/browser'
-
 definePageMeta({
   layout: false,
 })
 
+const isRedirecting = ref(false)
 const { isSupported } = useWebAuthn()
 const toast = useToast()
-const { fetch: refreshSession } = useUserSession()
-const loading = ref(false)
+const { fetch: refreshSession, loggedIn } = useUserSession()
 
-// This function will contain the new, two-step authentication logic.
-const loginWithPasskey = async () => {
-  loading.value = true
-  try {
-    // 1. Get authentication options from the server
-    const options = await $fetch(
-      '/api/auth/webauthn/generate-authentication-options',
-      {
-        method: 'POST',
-      },
-    )
-
-    console.log('options', options)
-
-    // 2. Prompt the user to authenticate with their passkey
-    const assertion = await startAuthentication(options)
-
-    console.log('assertion', assertion)
-
-    // 3. Send the successful assertion to the server for verification
-    await $fetch('/api/auth/webauthn/verify-authentication', {
-      method: 'POST',
-      body: assertion,
-    })
-
-    // If verification is successful, the user is logged in.
-    return true
-  } catch (error: any) {
-    // Handle user cancellation gracefully
-    if (error.name === 'NotAllowedError') {
-      toast.add({ title: 'Login cancelled', color: 'info' })
-    } else {
-      toast.add({
-        title: 'Login Failed',
-        description: error.data?.message || 'Could not sign in with passkey.',
-        color: 'error',
-      })
-    }
-    return false
-  } finally {
-    loading.value = false
-  }
-}
+const { signInWithPasskey, authenticating } = usePasskeys()
 
 const handleLoginSuccess = async () => {
+  isRedirecting.value = true
   await refreshSession()
   await navigateTo('/dashboard', { replace: true })
 }
@@ -107,28 +66,31 @@ const handleLoginSuccess = async () => {
 const handleManualLogin = async () => {
   if (!isSupported.value) {
     toast.add({
-      title: 'Passkeys are not supported on this device.',
+      title: 'Not Supported',
+      description: 'Passkeys are not supported on this browser or device.',
       color: 'error',
     })
     return
   }
 
-  const success = await loginWithPasskey()
+  const success = await signInWithPasskey()
   if (success) {
     await handleLoginSuccess()
   }
 }
 
 onMounted(async () => {
-  loading.value = true
+  if (loggedIn.value) {
+    return navigateTo('/dashboard')
+  }
+
   if (!isSupported.value) {
     return navigateTo('/auth/magic-link')
   }
 
-  const success = await loginWithPasskey()
+  const success = await signInWithPasskey(true)
   if (success) {
     await handleLoginSuccess()
   }
-  loading.value = false
 })
 </script>
