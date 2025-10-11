@@ -1,5 +1,6 @@
 <template>
   <UDropdownMenu
+    v-if="loggedIn"
     class="hover:bg-none"
     :items="items"
     :ui="{
@@ -44,6 +45,13 @@
       </div>
     </template>
   </UDropdownMenu>
+  <UButton
+    v-else
+    variant="outline"
+    class="rounded-full aspect-square"
+    @click="authStore.openAuthModal('login')"
+    ><Icon name="i-lucide-user"
+  /></UButton>
   <UModal
     v-model:open="feedbackModal"
     title="Need help?"
@@ -59,6 +67,10 @@
 import type { DropdownMenuItem } from '@nuxt/ui'
 import { useBreakpoints, breakpointsTailwind } from '@vueuse/core'
 import { usePortfolio } from '@/composables/usePortfolio'
+import { useAuthModal } from '~~/stores/authModal'
+
+const authStore = useAuthModal()
+const { loggedIn } = useUserSession()
 
 const breakpoints = useBreakpoints(breakpointsTailwind)
 const smallerThanMd = breakpoints.smaller('md')

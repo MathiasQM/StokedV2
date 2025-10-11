@@ -27,13 +27,16 @@
 </template>
 
 <script lang="ts" setup>
-import { useCountryProviderModal } from '@@/stores/countryProviderModal'
+import { useCountryProviderModal } from '~~/stores/countryProviderModal'
 import { usePortfolio } from '@/composables/usePortfolio'
 import { syncViaPlaid } from '@@/services/utilities/helpers'
+import { useAuthModal } from '~~/stores/authModal'
 
 const { triggerHaptic } = useHaptic()
+const { loggedIn } = useUserSession()
 
 const cpModal = useCountryProviderModal()
+const authStore = useAuthModal()
 
 const { portfolios } = usePortfolio()
 
@@ -57,13 +60,10 @@ const mobileMenu = useState('mobileMenu')
 
 const props = defineProps<{
   requirePortfolio?: boolean
-
+  requireAuthentication?: boolean
   to: string
-
   icon: string
-
   label: string
-
   onSelect?: (event: Event) => void
 }>()
 
@@ -78,7 +78,11 @@ function handleClick(e: MouseEvent) {
     props.onSelect(e)
   }
 
-  if (props.requirePortfolio && portfolios.value.length === 0) {
+  if (props.requireAuthentication && !loggedIn.value) {
+    console.log('not logged in')
+    e.preventDefault()
+    authStore.openAuthModal()
+  } else if (props.requirePortfolio && portfolios.value.length === 0) {
     e.preventDefault()
 
     startPortfolioSync()

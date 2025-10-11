@@ -7,14 +7,12 @@
           :key="item.date"
           class="flex flex-1 flex-col items-center"
         >
-          <UTooltip :delay-duration="0" :text="item.value.toString()">
-            <div
-              class="bg-neutral-200 ring-neutral-300 dark:bg-neutral-800 dark:ring-white/10 w-full min-w-6 cursor-pointer rounded ring-1 transition-all duration-300 hover:-translate-y-1"
-              :style="{
-                height: `${Math.max((item.value / maxValue) * 200, 1)}px`,
-              }"
-            />
-          </UTooltip>
+          <div
+            class="bg-neutral-200 ring-neutral-300 dark:bg-neutral-800 dark:ring-white/10 w-full min-w-6 cursor-pointer rounded ring-1 transition-all duration-300 hover:-translate-y-1"
+            :style="{
+              height: `${Math.max((item.value / maxValue) * 200, 1)}px`,
+            }"
+          />
           <div class="text-neutral-600 dark:text-neutral-400 mt-2 text-xs">
             {{ formatDate(item.date) }}
           </div>

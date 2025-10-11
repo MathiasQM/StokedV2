@@ -11,21 +11,35 @@
           </DrawerDescription>
         </DrawerHeader>
 
-        <div v-if="cpModal.step === 1" class="flex flex-col items-center justify-center gap-2 px-4">
-          <div v-for="group in cpModal.providers" :key="group.label" class="w-full space-y-2">
+        <div
+          v-if="cpModal.step === 1"
+          class="flex flex-col items-center justify-center gap-2 px-4"
+        >
+          <div
+            v-for="group in cpModal.providers"
+            :key="group.label"
+            class="w-full space-y-2"
+          >
             <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
               {{ group.label }}
             </p>
 
             <div class="flex flex-wrap justify-center gap-2">
-              <button v-for="country in group.regions" :key="country.code"
-                @click="() => cpModal.chooseCountry(country.code)" :class="[
+              <button
+                v-for="country in group.regions"
+                :key="country.code"
+                @click="() => cpModal.chooseCountry(country.code)"
+                :class="[
                   'flex w-20 items-center gap-2 rounded-md border px-3 py-2 transition',
                   selectedProvider?.country === country.code
                     ? 'border-orange-500 bg-orange-100 dark:border-orange-400 dark:bg-orange-900/20'
                     : 'dark:border-black-700 dark:bg-black-800 border-gray-300',
-                ]">
-                <Icon :name="`i-circle-flags-${country.code.toLowerCase()}`" class="h-5 w-5" />
+                ]"
+              >
+                <Icon
+                  :name="`i-circle-flags-${country.code.toLowerCase()}`"
+                  class="h-5 w-5"
+                />
                 <span class="text-sm">{{ country.code }}</span>
               </button>
             </div>
@@ -33,40 +47,69 @@
         </div>
 
         <!-- STEP 2: Select provider -->
-        <div v-else-if="cpModal.step === 2" class="flex flex-col items-center justify-center gap-2 px-4">
-          <p class="w-full text-sm font-medium text-gray-700 dark:text-gray-300">
+        <div
+          v-else-if="cpModal.step === 2"
+          class="flex flex-col items-center justify-center gap-2 px-4"
+        >
+          <p
+            class="w-full text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
             Your connected institutions
           </p>
-          <div class="p-3 border w-full rounded-lg min-h-20 flex justify-center bg-black-900 border-gray-500">
-            <p v-if="filteredConnections.length === 0" class="text-sm text-gray-400 italic self-center">
+          <div
+            class="p-3 border w-full rounded-lg min-h-20 flex justify-center bg-black-900 border-gray-500"
+          >
+            <p
+              v-if="filteredConnections.length === 0"
+              class="text-sm text-gray-400 italic self-center"
+            >
               You have no active connections in this region.
             </p>
-            <div v-for="institution in filteredConnections" :key="institution.institutionId" class="w-full space-y-2">
-              <button @click="handleInstitutionSelection(institution)" :class="[
-                'w-full rounded-md border px-4 py-2 text-left text-sm transition',
-                selectedProvider?.institutionId === institution.institutionId
-                  ? 'border-orange-500 bg-orange-100 dark:border-orange-400 dark:bg-orange-900/20'
-                  : 'dark:border-black-700 dark:bg-black-800 border-gray-300',
-              ]">
+            <div
+              v-for="institution in filteredConnections"
+              :key="institution.institutionId"
+              class="w-full space-y-2"
+            >
+              <button
+                @click="handleInstitutionSelection(institution)"
+                :class="[
+                  'w-full rounded-md border px-4 py-2 text-left text-sm transition',
+                  selectedProvider?.institutionId === institution.institutionId
+                    ? 'border-orange-500 bg-orange-100 dark:border-orange-400 dark:bg-orange-900/20'
+                    : 'dark:border-black-700 dark:bg-black-800 border-gray-300',
+                ]"
+              >
                 {{ institution.institutionName }}
               </button>
             </div>
           </div>
-
         </div>
 
         <DrawerFooter>
           <div class="flex w-full flex-col gap-2">
-            <Button v-if="cpModal.step === 1" @click="goNext" :disabled="!selectedProvider?.country"
-              class="w-full bg-orange-500">
+            <Button
+              v-if="cpModal.step === 1"
+              @click="goNext"
+              :disabled="!selectedProvider?.country"
+              class="w-full bg-orange-500"
+            >
               Select region
             </Button>
 
-            <Button v-else @click="handleInstitutionSelection()" class="w-full bg-orange-500">
+            <Button
+              v-else
+              @click="handleInstitutionSelection()"
+              class="w-full bg-orange-500"
+            >
               Sync new institution
             </Button>
 
-            <Button v-if="cpModal.step === 2" variant="outline" class="w-full" @click="goBack">
+            <Button
+              v-if="cpModal.step === 2"
+              variant="outline"
+              class="w-full"
+              @click="goBack"
+            >
               Back
             </Button>
 
@@ -81,7 +124,7 @@
 </template>
 
 <script setup lang="ts">
-import { useCountryProviderModal } from '@@/stores/countryProviderModal'
+import { useCountryProviderModal } from '~~/stores/countryProviderModal'
 import {
   Drawer,
   DrawerContent,
@@ -112,12 +155,12 @@ const filteredConnections = computed(() =>
 )
 
 /* Convenience: get the full Country object from its code */
-const selectedCountry = computed(() =>
-  cpModal.allCountries.find(
-    (c) => c.code === selectedProvider.value?.country,
-  ) ?? null,
+const selectedCountry = computed(
+  () =>
+    cpModal.allCountries.find(
+      (c) => c.code === selectedProvider.value?.country,
+    ) ?? null,
 )
-
 
 const header = computed(() => {
   if (cpModal.step === 1) {

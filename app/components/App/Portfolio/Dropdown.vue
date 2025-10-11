@@ -50,12 +50,15 @@
 <script lang="ts" setup>
 import type { Portfolio } from '@@/types/database'
 import { AppPortfolioLimitDropdown } from '#components'
-import { useCountryProviderModal } from '@@/stores/countryProviderModal'
+import { useCountryProviderModal } from '~~/stores/countryProviderModal'
 import { syncViaPlaid } from '@@/services/utilities/helpers'
 import { checkLimit, type PlanId } from '~~/helpers/subscription-limits'
 import type { ExpandedSubscription } from '@/composables/useSubscription'
 import { usePortfolio } from '@/composables/usePortfolio'
+import { useAuthModal } from '~~/stores/authModal'
 
+const authStore = useAuthModal()
+const { loggedIn } = useUserSession()
 const route = useRoute()
 const { activeSubscription, currentPlan, fetchActive } = useSubscription()
 const activeSubExpanded = activeSubscription as Ref<ExpandedSubscription | null>
@@ -75,6 +78,7 @@ const { setLastUsedPortfolio } = usePortfolioPreferences()
 const upradeModal = ref(false)
 
 async function startPortfolioSync() {
+  if (!loggedIn.value) return authStore.openAuthModal()
   const effectivePortfolioCount = ownedPortfolios.length + 1
   const { isAllowed, exceededBy, limit, currentCount, label } = checkLimit(
     activeSubExpanded.value?.price?.product?.id as PlanId,

@@ -38,12 +38,14 @@ const links = computed(() => [
     icon: 'i-lucide-chart-spline',
     to: `/dashboard/${currentPortfolio.value?.slug}` || '',
     requirePortfolio: true,
+    requireAuthentication: true,
   },
   {
     label: 'News',
     icon: 'i-lucide-newspaper',
     to: `/dashboard/${currentPortfolio.value?.slug}/news` || '',
     requirePortfolio: true,
+    requireAuthentication: true,
   },
 ])
 

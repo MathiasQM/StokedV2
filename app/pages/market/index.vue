@@ -28,8 +28,4 @@ const { positions } = storeToRefs(portfolioStore)
 const { user } = useUserSession()
 
 const symbols = computed(() => positions.value.map((p) => p.symbol).sort())
-
-definePageMeta({
-  middleware: ['auth'],
-})
 </script>

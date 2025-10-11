@@ -9,11 +9,17 @@
         <div class="hidden flex-1 items-center justify-center gap-3 md:flex">
           <UButton label="Features" color="neutral" variant="ghost" />
           <UButton label="Pricing" color="neutral" variant="ghost" />
-          <UButton label="Blog" color="neutral" variant="ghost" />
-          <UButton label="Docs" color="neutral" variant="ghost" />
+          <!-- <UButton label="Blog" color="neutral" variant="ghost" />
+          <UButton label="Docs" color="neutral" variant="ghost" /> -->
         </div>
         <div class="flex items-center gap-3">
-          <AuthState v-slot="{ loggedIn: isAuthLoggedIn }">
+          <UButton
+            color="neutral"
+            variant="soft"
+            label="Go to App"
+            to="/dashboard"
+          />
+          <!-- <AuthState v-slot="{ loggedIn: isAuthLoggedIn }">
             <UButton
               v-if="isAuthLoggedIn"
               color="neutral"
@@ -48,7 +54,7 @@
                 />
               </UDropdownMenu>
             </UButtonGroup>
-          </AuthState>
+          </AuthState> -->
           <ThemeToggle />
         </div>
       </WebsiteSection>
@@ -61,12 +67,12 @@
               <p
                 class="text-4xl font-bold tracking-tight text-balance sm:text-6xl"
               >
-                Ship 🏴‍☠️ a fullstack SaaS app faster than ever.
+                Money talks 💸 Let yours speak.
               </p>
               <p class="text-base text-balance text-neutral-500 sm:text-xl">
-                Portfolios, Typescript, Drizzle ORM, NuxtHub, Postgres, Turso,
-                TailwindCSS V4, Nuxt UI V3. All in one package. This is a mock
-                title.
+                Striive connects your investments, analyzes your portfolio, and
+                delivers personalized AI briefings — in text and audio. So
+                you're always one step ahead of the markets.
               </p>
 
               <div class="flex items-center justify-center gap-3">
@@ -80,13 +86,6 @@
                     trailingIcon: 'size-5',
                   }"
                   :to="loggedIn ? '/dashboard' : '/auth/register'"
-                />
-                <UButton
-                  label="Get a demo"
-                  color="neutral"
-                  variant="ghost"
-                  size="xl"
-                  class="rounded-2xl"
                 />
               </div>
             </div>
