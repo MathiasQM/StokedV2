@@ -45,6 +45,7 @@
             size="lg"
             placeholder="○"
             class="justify-center w-full"
+            inputmode="numeric"
           />
         </UFormField>
         <UButton type="submit" :loading="loading" size="lg" block>

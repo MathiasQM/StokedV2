@@ -52,6 +52,7 @@
             size="xl"
             placeholder="○"
             class="justify-center w-full"
+            inputmode="numeric"
           />
         </UFormField>
         <UButton type="submit" :loading="registering" block size="lg">

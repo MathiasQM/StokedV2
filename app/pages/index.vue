@@ -1,5 +1,5 @@
 <template>
-  <main class="px-4">
+  <main class="px-4 mt-3">
     <header>
       <WebsiteSection class="flex w-full items-center justify-between">
         <NuxtLink to="/" class="flex items-center gap-2">
