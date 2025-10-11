@@ -1,9 +1,19 @@
 <template>
-  <AppContainer
-    disablePaddingx
-    :title="`Dashboard`"
-    class="overflow-hidden overscroll-none"
-  >
+  <AppContainer disablePaddingx title="Account Settings">
+    <div
+      class="w-full h-42 flex flex-col justify-center items-center space-y-2"
+    >
+      <h2 class="first-letter:uppercase text-3xl font-semibold">
+        {{ user?.name }}
+      </h2>
+      <h3 class="text-sm font-medium">{{ user?.email }}</h3>
+      <h4 class="text-xs font-normal text-black-400">{{ user?.id }}</h4>
+    </div>
+    <div class="fixed -top-10 inset-0 -z-10 flex justify-center">
+      <div class="linear-gradient-layer absolute -z-1"></div>
+      <div class="linear-gradient-layer-bottom absolute -z-1"></div>
+      <div class="radial-gradient-layer absolute -z-1"></div>
+    </div>
     <div
       class="relative mb-5 pl-5 flex justify-start gap-x-2 w-full rounded-md p-1 overflow-auto"
     >
@@ -33,18 +43,14 @@
     <div ref="swipeContainer" class="overflow-hidden touch-pan-y">
       <div class="flex" :style="containerStyle">
         <div v-for="tab in tabs" :key="tab" class="w-full flex-shrink-0 px-5">
-          <div class="space-y-6">
-            <div v-if="tab === 'overview'">
-              <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
-                <AppDemoKpi title="Followers" value="8551" up="19%" />
-                <AppDemoKpi title="Impressions" value="80.5k" up="16%" />
-                <AppDemoKpi title="Profile Visits" value="930" down="8%" />
-                <AppDemoKpi title="Likes" value="12.5k" up="32%" />
-              </div>
-            </div>
-
-            <AppDemoChart class="no-swipe" :title="`${tab} Overview`" />
-            <AppDemoTable class="no-swipe" />
+          <AppUserSettingsView v-if="tab === 'settings'" />
+          <AppUserSettingsSecurity v-if="tab === 'security'" />
+          <AppUserSettingsBilling v-if="tab === 'billing'" />
+          <div
+            v-if="tab === 'support'"
+            class="bg-neutral-900 p-3 border border-neutral-800 rounded-lg"
+          >
+            <AppFeedbackForm />
           </div>
         </div>
       </div>
@@ -60,7 +66,8 @@ definePageMeta({
   layout: 'default',
 })
 
-const tabs = ['overview', 'news', 'analysis', 'calendar']
+const { user } = useUserSession()
+const tabs = ['settings', 'billing', 'security', 'support']
 const activeTab = ref(tabs[0])
 const activeTabIndex = computed(() => tabs.indexOf(activeTab.value))
 const dragOffset = ref(0)

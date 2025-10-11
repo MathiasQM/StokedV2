@@ -21,9 +21,9 @@
         <slot name="actions" />
       </div>
 
-      <div class="flex items-center gap-2">
+      <!-- <div class="flex items-center gap-2">
         <AppUserDropdown />
-      </div>
+      </div> -->
     </div>
 
     <div v-if="isSuperAdminRoute" key="super-admin">

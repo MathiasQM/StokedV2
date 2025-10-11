@@ -1,6 +1,7 @@
 <template>
   <div
-    class="logo-container flex h-auto w-[clamp(4rem,20vw,12rem)] items-center justify-center"
+    class="logo-container flex items-center justify-center"
+    :class="size ? size : 'h-auto w-[clamp(4rem,20vw,12rem)]'"
   >
     <svg
       viewBox="0 0 347 258"

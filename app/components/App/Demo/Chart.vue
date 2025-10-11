@@ -1,6 +1,6 @@
 <template>
   <AppDemoCard :title="title" :description="description">
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto" style="touch-action: pan-x">
       <div class="flex h-64 min-w-[600px] items-end gap-2 px-1">
         <div
           v-for="item in impressionsChartData"

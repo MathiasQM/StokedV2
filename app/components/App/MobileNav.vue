@@ -35,16 +35,22 @@ const { currentPortfolio, portfolios } = usePortfolio()
 const links = computed(() => [
   {
     label: 'Dashboard',
-    icon: 'i-lucide-chart-spline',
+    icon: 'i-lucide-layout-dashboard',
     to: `/dashboard/${currentPortfolio.value?.slug}` || '',
-    requirePortfolio: true,
     requireAuthentication: true,
-  },
-  {
-    label: 'News',
-    icon: 'i-lucide-newspaper',
-    to: `/dashboard/${currentPortfolio.value?.slug}/news` || '',
     requirePortfolio: true,
+  },
+  // {
+  //   label: 'News',
+  //   icon: 'i-lucide-newspaper',
+  //   to: `/dashboard/${currentPortfolio.value?.slug}/news` || '',
+  //   requirePortfolio: true,
+  //   requireAuthentication: true,
+  // },
+  {
+    label: 'Account',
+    icon: 'i-lucide-circle-user',
+    to: `/account`,
     requireAuthentication: true,
   },
 ])

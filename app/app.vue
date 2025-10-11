@@ -2,22 +2,22 @@
   <NuxtRouteAnnouncer />
   <NuxtPwaManifest />
   <PwaInstallPrompt />
+  <Toaster
+    position="top-center"
+    :toast-options="{
+      classes: {
+        toast:
+          'group toast rounded-[16px] shadow-[0_4px_30px_rgba(0,0,0,0.1)] backdrop-blur-[3px] bg-[rgba(185,185,185,0.39)] dark:bg-[rgba(93,93,93,0.39)] border border-transparent dark:border-neutral-800',
+        title: 'text-black dark:text-white',
+        description: 'text-black/60 dark:text-white/60',
+      },
+    }"
+    class="pt-[env(safe-area-inset-top)] absolute z-[9999]"
+  />
   <div
     ref="wrapperRef"
-    class="main-wrapper padding-env-top h-[calc(100vh-48px)]"
+    class="main-wrapper padding-env-top h-[calc(100vh-48px)] overflow-x-hidden overscroll-x-none"
   >
-    <Toaster
-      position="top-center"
-      :toast-options="{
-        classes: {
-          toast:
-            'group toast rounded-[16px] shadow-[0_4px_30px_rgba(0,0,0,0.1)] backdrop-blur-[3px] bg-[rgba(185,185,185,0.39)] dark:bg-[rgba(93,93,93,0.39)] border border-transparent dark:border-neutral-800',
-          title: 'text-black dark:text-white',
-          description: 'text-black/60 dark:text-white/60',
-        },
-      }"
-      class="pt-[env(safe-area-inset-top)]"
-    />
     <!-- <button
       @click="
         () => {
@@ -37,8 +37,9 @@
     <!-- MOVE TO LAYOUTS AS AUTH ROUTE ARE NOT AUTHENTICATED -->
     <!-- <AppPopupsChoosePortfolios  /> -->
 
-    <AppPortfolioCountryProviderDropdown />
+    <!-- <AppPortfolioCountryProviderDropdown /> -->
     <AuthDrawer />
+    <AppPortfolioSetupDrawer />
   </div>
 
   <!-- IOS Haptic Feedback workaround -->

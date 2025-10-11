@@ -105,7 +105,7 @@ const items = computed(() => [
     {
       label: 'Account Settings',
       icon: 'i-lucide-user-cog',
-      to: '/account-settings',
+      to: '/account',
       onSelect: () => {
         mobileMenu.value = false
       },

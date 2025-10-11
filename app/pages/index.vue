@@ -17,7 +17,7 @@
             color="neutral"
             variant="soft"
             label="Go to App"
-            to="/dashboard"
+            to="/market"
           />
           <!-- <AuthState v-slot="{ loggedIn: isAuthLoggedIn }">
             <UButton

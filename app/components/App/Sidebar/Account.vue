@@ -7,11 +7,7 @@
           icon="i-lucide-chevron-left"
           label="Dashboard"
         />
-        <AppSidebarLink
-          to="/dashboard/account-settings"
-          icon="i-lucide-user"
-          label="Account"
-        />
+        <AppSidebarLink to="/account" icon="i-lucide-user" label="Account" />
         <AppSidebarLink
           to="/dashboard/account-security"
           icon="i-lucide-lock"
