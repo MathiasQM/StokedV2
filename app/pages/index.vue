@@ -85,7 +85,7 @@
                   :ui="{
                     trailingIcon: 'size-5',
                   }"
-                  :to="loggedIn ? '/dashboard' : '/auth/register'"
+                  :to="'/dashboard'"
                 />
               </div>
             </div>

@@ -1,9 +1,5 @@
 <template>
-  <AppContainer
-    disablePaddingx
-    :title="`Dashboard`"
-    class="overflow-hidden overscroll-none"
-  >
+  <AppContainer disablePaddingx :title="`Dashboard`">
     <div
       class="relative mb-5 pl-5 flex justify-start gap-x-2 w-full rounded-md p-1 overflow-auto"
     >
@@ -30,7 +26,7 @@
       </button>
     </div>
 
-    <div ref="swipeContainer" class="overflow-hidden touch-pan-y">
+    <div ref="swipeContainer" class="overflow-hidden">
       <div class="flex" :style="containerStyle">
         <div v-for="tab in tabs" :key="tab" class="w-full flex-shrink-0 px-5">
           <div class="space-y-6">

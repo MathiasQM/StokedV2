@@ -1,7 +1,7 @@
 <template>
   <AppContainer disablePaddingx title="Account Settings">
     <div
-      class="w-full h-42 flex flex-col justify-center items-center space-y-2"
+      class="lg:hidden w-full h-42 flex flex-col justify-center items-center space-y-2"
     >
       <h2 class="first-letter:uppercase text-3xl font-semibold">
         {{ user?.name }}
@@ -40,7 +40,7 @@
       </button>
     </div>
 
-    <div ref="swipeContainer" class="overflow-hidden touch-pan-y">
+    <div ref="swipeContainer" class="overflow-hidden">
       <div class="flex" :style="containerStyle">
         <div v-for="tab in tabs" :key="tab" class="w-full flex-shrink-0 px-5">
           <AppUserSettingsView v-if="tab === 'settings'" />
@@ -66,9 +66,11 @@ definePageMeta({
   layout: 'default',
 })
 
+const route = useRoute()
+console.log(route.query.tab)
 const { user } = useUserSession()
 const tabs = ['settings', 'billing', 'security', 'support']
-const activeTab = ref(tabs[0])
+const activeTab = ref(route.query.tab || tabs[0])
 const activeTabIndex = computed(() => tabs.indexOf(activeTab.value))
 const dragOffset = ref(0)
 

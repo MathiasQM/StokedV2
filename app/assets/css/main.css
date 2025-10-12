@@ -231,9 +231,9 @@
 }
 
 /* ────── Global Styles ────── */
-/* html {
-  @apply dark:bg-black-950 dark:text-white;
-} */
+html {
+  @apply overflow-x-hidden;
+}
 
 .padding-env-top {
   padding-top: env(safe-area-inset-bottom);

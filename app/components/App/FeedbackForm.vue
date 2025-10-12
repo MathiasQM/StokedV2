@@ -38,16 +38,28 @@ const state = reactive<Partial<Schema>>({
   user: user.value?.id,
   message: '',
   meta: {
+    browser: '',
+    screenResolution: '',
+    language: '',
+    platform: '',
+    colorScheme: '',
+    timezone: '',
+    url: '',
+  },
+})
+
+onMounted(() => {
+  state.meta = {
     browser: navigator.userAgent,
     screenResolution: `${window.innerWidth}x${window.innerHeight}`,
     language: navigator.language,
-
     platform: navigator.platform,
     colorScheme: useColorMode().preference,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     url: `${window.location.origin}${window.location.pathname}`,
-  },
+  }
 })
+
 const emit = defineEmits<(e: 'close') => void>()
 const loading = ref(false)
 const toast = useToast()

@@ -22,7 +22,9 @@
         class="ring-2 ring-neutral-200 dark:ring-white/10"
       />
       <div class="hidden flex-1 items-center gap-2 md:flex">
-        <p class="text-sm text-white">{{ user?.name }}</p>
+        <p class="text-sm text-white first-letter:uppercase">
+          {{ user?.name }}
+        </p>
       </div>
       <UIcon class="hidden text-white md:flex" name="i-lucide-chevron-up" />
     </UButton>
@@ -48,10 +50,12 @@
   <UButton
     v-else
     variant="outline"
-    class="rounded-full aspect-square"
+    class="rounded-full lg:rounded-md lg:w-full lg:aspect-auto lg:h-10 aspect-square"
     @click="authStore.openAuthModal('login')"
-    ><Icon name="i-lucide-user"
-  /></UButton>
+  >
+    <Icon name="i-lucide-user" />
+    {{ !isMobile ? 'Login / Signup' : '' }}
+  </UButton>
   <UModal
     v-model:open="feedbackModal"
     title="Need help?"
@@ -64,11 +68,11 @@
 </template>
 
 <script setup lang="ts">
-import type { DropdownMenuItem } from '@nuxt/ui'
 import { useBreakpoints, breakpointsTailwind } from '@vueuse/core'
 import { usePortfolio } from '@/composables/usePortfolio'
 import { useAuthModal } from '~~/stores/authModal'
 
+const isMobile = useIsMobile()
 const authStore = useAuthModal()
 const { loggedIn } = useUserSession()
 
@@ -110,51 +114,43 @@ const items = computed(() => [
         mobileMenu.value = false
       },
     },
-    {
-      label: 'Membership',
-      icon: 'i-lucide-id-card',
-      to: `/membership`,
-      onSelect: () => {
-        mobileMenu.value = false
-      },
-    },
   ],
-  [
-    {
-      label: 'Theme',
-      icon: 'i-lucide-moon',
-      children: [
-        [
-          {
-            label: 'Light',
-            icon: 'i-lucide-sun',
-            onSelect: () => {
-              setColorMode('light')
-              mobileMenu.value = false
-            },
-          },
-          {
-            label: 'Dark',
-            icon: 'i-lucide-moon',
-            onSelect: () => {
-              setColorMode('dark')
-              mobileMenu.value = false
-            },
-          },
-        ],
-        [
-          {
-            label: 'System',
-            icon: 'i-lucide-monitor',
-            onSelect: () => {
-              setColorMode('system')
-              mobileMenu.value = false
-            },
-          },
-        ],
-      ],
-    },
-  ],
+  // [
+  //   {
+  //     label: 'Theme',
+  //     icon: 'i-lucide-moon',
+  //     children: [
+  //       [
+  //         {
+  //           label: 'Light',
+  //           icon: 'i-lucide-sun',
+  //           onSelect: () => {
+  //             setColorMode('light')
+  //             mobileMenu.value = false
+  //           },
+  //         },
+  //         {
+  //           label: 'Dark',
+  //           icon: 'i-lucide-moon',
+  //           onSelect: () => {
+  //             setColorMode('dark')
+  //             mobileMenu.value = false
+  //           },
+  //         },
+  //       ],
+  //       [
+  //         {
+  //           label: 'System',
+  //           icon: 'i-lucide-monitor',
+  //           onSelect: () => {
+  //             setColorMode('system')
+  //             mobileMenu.value = false
+  //           },
+  //         },
+  //       ],
+  //     ],
+  //   },
+  // ],
   ...(smallerThanMd.value && portfolios.value.length > 0 && isPortfolioOwner
     ? [
         [

@@ -1,7 +1,5 @@
 <template>
   <div class="flex h-full flex-col overflow-hidden">
-    <!-- <AppLogo /> -->
-
     <Transition
       mode="out-in"
       enter-active-class="transition duration-100 ease-out"
@@ -21,9 +19,9 @@
     <footer class="mt-auto space-y-5">
       <UButton
         v-if="!user?.proAccount"
-        to="/membership"
+        to="/account?tab=billing"
         class="h-32 w-full"
-        color="orange"
+        color="neutral"
         variant="subtle"
       >
         <div class="flex w-full flex-col items-start space-y-1 text-left">
@@ -34,7 +32,7 @@
           </p>
           <UButton
             v-if="!user?.proAccount"
-            to="/membership"
+            to="/account?tab=billing"
             class="mt-2 w-full text-xs"
             color="orange"
             variant="subtle"

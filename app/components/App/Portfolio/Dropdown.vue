@@ -56,8 +56,10 @@ import { checkLimit, type PlanId } from '~~/helpers/subscription-limits'
 import type { ExpandedSubscription } from '@/composables/useSubscription'
 import { usePortfolio } from '@/composables/usePortfolio'
 import { useAuthModal } from '~~/stores/authModal'
+import { usePortfolioSetupModal } from '~~/stores/portfolioSetupModal'
 
 const authStore = useAuthModal()
+const portfolioSetupModal = usePortfolioSetupModal()
 const { loggedIn } = useUserSession()
 const route = useRoute()
 const { activeSubscription, currentPlan, fetchActive } = useSubscription()
@@ -79,6 +81,8 @@ const upradeModal = ref(false)
 
 async function startPortfolioSync() {
   if (!loggedIn.value) return authStore.openAuthModal()
+  if (portfolios.value.length === 0)
+    return portfolioSetupModal.openPortfolioSetupModal()
   const effectivePortfolioCount = ownedPortfolios.length + 1
   const { isAllowed, exceededBy, limit, currentCount, label } = checkLimit(
     activeSubExpanded.value?.price?.product?.id as PlanId,

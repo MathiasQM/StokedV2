@@ -1,37 +1,79 @@
 <template>
-  <Drawer v-model:open="authStore.open">
-    <DrawerContent class="padding-env-bottom overflow-hidden">
-      <div class="absolute -top-10 inset-0 -z-10 flex justify-center">
-        <div class="linear-gradient-layer absolute -z-1"></div>
-        <div class="linear-gradient-layer-bottom absolute -z-1"></div>
-        <div class="radial-gradient-layer absolute -z-1"></div>
-      </div>
-      <div class="mx-auto w-full max-w-sm space-y-8">
-        <div class="gradient-header relative w-full">
-          <div class="flex flex-col items-center justify-center p-4 text-white">
-            <DrawerTitle
-              class="text-center text-xl font-bold tracking-wide my-5"
+  <template v-if="!isMobile">
+    <Dialog v-model:open="authStore.open">
+      <DialogContent class="overflow-hidden">
+        <div class="absolute -top-10 inset-0 -z-10 flex justify-center">
+          <div class="linear-gradient-layer absolute -z-1"></div>
+          <div class="linear-gradient-layer-bottom absolute -z-1"></div>
+          <div class="radial-gradient-layer absolute -z-1"></div>
+        </div>
+        <div class="mx-auto w-full max-w-sm space-y-8">
+          <div class="gradient-header relative w-full">
+            <div
+              class="flex flex-col items-center justify-center p-4 text-white"
             >
-              {{ name }}
-            </DrawerTitle>
-            <DrawerTitle class="text-center"> {{ title }} </DrawerTitle>
-            <DrawerDescription class="text-center text-sm opacity-80">
-              {{ description }}
-            </DrawerDescription>
+              <DrawerTitle
+                class="text-center text-xl font-bold tracking-wide my-5"
+              >
+                {{ name }}
+              </DrawerTitle>
+              <DrawerTitle class="text-center"> {{ title }} </DrawerTitle>
+              <DrawerDescription class="text-center text-sm opacity-80">
+                {{ description }}
+              </DrawerDescription>
+            </div>
+          </div>
+          <div class="px-4 mt-20">
+            <component
+              :is="authViews[authStore.view]"
+              @success="handleSuccess"
+            />
           </div>
         </div>
-        <div class="px-4 mt-20">
-          <component :is="authViews[authStore.view]" @success="handleSuccess" />
-        </div>
+      </DialogContent>
+    </Dialog>
+  </template>
 
-        <DrawerFooter>
-          <DrawerClose as-child>
-            <Button variant="outline">Cancel</Button>
-          </DrawerClose>
-        </DrawerFooter>
-      </div>
-    </DrawerContent>
-  </Drawer>
+  <template v-else>
+    <Drawer v-model:open="authStore.open" class="w-auto max-w-none">
+      <DrawerContent class="padding-env-bottom overflow-hidden">
+        <div class="absolute -top-10 inset-0 -z-10 flex justify-center">
+          <div class="linear-gradient-layer absolute -z-1"></div>
+          <div class="linear-gradient-layer-bottom absolute -z-1"></div>
+          <div class="radial-gradient-layer absolute -z-1"></div>
+        </div>
+        <div class="mx-auto w-full max-w-sm space-y-8">
+          <div class="gradient-header relative w-full">
+            <div
+              class="flex flex-col items-center justify-center p-4 text-white"
+            >
+              <DrawerTitle
+                class="text-center text-xl font-bold tracking-wide my-5"
+              >
+                {{ name }}
+              </DrawerTitle>
+              <DrawerTitle class="text-center"> {{ title }} </DrawerTitle>
+              <DrawerDescription class="text-center text-sm opacity-80">
+                {{ description }}
+              </DrawerDescription>
+            </div>
+          </div>
+          <div class="px-4 mt-20">
+            <component
+              :is="authViews[authStore.view]"
+              @success="handleSuccess"
+            />
+          </div>
+
+          <DrawerFooter>
+            <DrawerClose as-child>
+              <Button variant="outline">Cancel</Button>
+            </DrawerClose>
+          </DrawerFooter>
+        </div>
+      </DrawerContent>
+    </Drawer>
+  </template>
 </template>
 
 <script setup lang="ts">
@@ -39,14 +81,16 @@ import { computed, defineAsyncComponent } from 'vue'
 import {
   Drawer,
   DrawerContent,
-  DrawerHeader,
   DrawerTitle,
   DrawerDescription,
   DrawerFooter,
   DrawerClose,
 } from '@/components/ui/drawer'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useAuthModal, type AuthView } from '~~/stores/authModal'
+
+const isMobile = useIsMobile()
 
 const name = useRuntimeConfig().public.appName
 

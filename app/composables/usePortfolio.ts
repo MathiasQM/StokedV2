@@ -51,11 +51,9 @@ export const usePortfolio = () => {
   const getMemberships = async () => {
     loading.value = true
     try {
-      const { data: memberships } = await useFetch<Portfolio[]>(
-        '/api/me/memberships',
-      )
-      portfolios.value = memberships.value ?? [] // <-- put it in the state
-      return memberships.value as Portfolio[]
+      const membershipsData = await $fetch<Portfolio[]>('/api/me/memberships')
+      portfolios.value = membershipsData ?? []
+      return membershipsData as Portfolio[]
     } finally {
       loading.value = false
     }
