@@ -27,43 +27,26 @@
 </template>
 
 <script lang="ts" setup>
-import { useCountryProviderModal } from '@@/stores/countryProviderModal'
 import { usePortfolio } from '@/composables/usePortfolio'
-import { syncViaPlaid } from '@@/services/utilities/helpers'
+import { useAuthModal } from '~~/stores/authModal'
+import { usePortfolioSetupModal } from '~~/stores/portfolioSetupModal'
 
 const { triggerHaptic } = useHaptic()
+const { loggedIn } = useUserSession()
 
-const cpModal = useCountryProviderModal()
+// const cpModal = useCountryProviderModal()
+const authStore = useAuthModal()
+const portfolioSetupModal = usePortfolioSetupModal()
 
 const { portfolios } = usePortfolio()
-
-async function startPortfolioSync() {
-  const choice = await cpModal.pickProvider()
-
-  if (!choice) return
-
-  if (choice.securityProvider === 'Plaid') {
-    await syncViaPlaid(choice)
-  } else if (choice.securityProvider === 'Tink') {
-    return console.warn('Tink is not supported yet')
-
-    // await syncViaTink(choice)
-  } else {
-    console.warn('Unsupported provider', choice)
-  }
-}
-
 const mobileMenu = useState('mobileMenu')
 
 const props = defineProps<{
   requirePortfolio?: boolean
-
+  requireAuthentication?: boolean
   to: string
-
   icon: string
-
   label: string
-
   onSelect?: (event: Event) => void
 }>()
 
@@ -78,10 +61,14 @@ function handleClick(e: MouseEvent) {
     props.onSelect(e)
   }
 
-  if (props.requirePortfolio && portfolios.value.length === 0) {
-    e.preventDefault()
+  console.log(portfolios.value)
 
-    startPortfolioSync()
+  if (props.requireAuthentication && !loggedIn.value) {
+    e.preventDefault()
+    authStore.openAuthModal()
+  } else if (props.requirePortfolio && portfolios.value.length === 0) {
+    e.preventDefault()
+    portfolioSetupModal.openPortfolioSetupModal()
 
     mobileMenu.value = false
   } else {

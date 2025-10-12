@@ -21,11 +21,21 @@ const { portfolios, ownedPortfolios, deletePortfolio } = usePortfolio()
 const selectedIds = ref<string[]>([])
 
 const { data: activeSubscription, refresh: refreshSubscription } =
-  await useAsyncData('active-subscription', () =>
-    $fetch<SubscriptionWithProduct>('/api/stripe/subscription', {
-      query: { userId: user.value.id, includeProduct: true },
-    }),
-  )
+  await useAsyncData('active-subscription', async () => {
+    if (!user.value?.id) return null
+    try {
+      const fetchedData = await $fetch<SubscriptionWithProduct>(
+        '/api/stripe/subscription',
+        {
+          query: { userId: user.value.id, includeProduct: true },
+        },
+      )
+      return fetchedData
+    } catch (error) {
+      console.error('Failed to fetch active subscription:', error)
+      return null
+    }
+  })
 
 const { limit, currentCount } = checkLimit(
   activeSubscription?.value?.price?.product?.id,

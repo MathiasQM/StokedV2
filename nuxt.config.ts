@@ -338,6 +338,7 @@ export default defineNuxtConfig({
 
 function getWebAuthnConfig() {
   const buildEnv = process.env.BUILD_ENV
+  console.log('buildEnv', buildEnv)
 
   switch (buildEnv) {
     case 'production':
@@ -347,7 +348,7 @@ function getWebAuthnConfig() {
       }
     case 'staging':
       return {
-        rpID: 'striiveai.com',
+        rpID: 'staging.striiveai.com',
         origin: 'https://staging.striiveai.com',
       }
     default:

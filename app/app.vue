@@ -2,14 +2,29 @@
   <NuxtRouteAnnouncer />
   <NuxtPwaManifest />
   <PwaInstallPrompt />
-  <div ref="wrapperRef" class="main-wrapper padding-env-top h-screen">
+  <div ref="wrapperRef" class="main-wrapper padding-env-top">
+    <!-- <button
+      @click="
+        () => {
+          toast({
+            title: 'Scheduled: Catch up',
+            description: 'Friday, February 10, 2023 at 5:57 PM',
+          })
+        }
+      "
+    >
+      test
+    </button> -->
+
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
     <!-- MOVE TO LAYOUTS AS AUTH ROUTE ARE NOT AUTHENTICATED -->
     <!-- <AppPopupsChoosePortfolios  /> -->
 
-    <AppPortfolioCountryProviderDropdown />
+    <!-- <AppPortfolioCountryProviderDropdown /> -->
+    <AuthDrawer />
+    <AppPortfolioSetupDrawer />
   </div>
 
   <!-- IOS Haptic Feedback workaround -->
@@ -25,7 +40,6 @@
 </template>
 
 <script lang="ts" setup>
-import { AppPopupsChoosePortfolios } from '#components'
 const wrapperRef = ref<HTMLElement | null>(null)
 
 provide('wrapperRef', wrapperRef)

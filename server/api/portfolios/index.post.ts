@@ -1,60 +1,79 @@
-import {
-  createPortfolio,
-  findUserPortfolios,
-  createPortfoliosBulk,
-} from '~~/server/database/queries/portfolios'
 import { z } from 'zod'
-import { getSubscriptionByUserId } from '~~/server/database/queries/subscriptions'
-import { createPortfoliosSchema } from '@@/shared/validations/portfolio'
-import { validateBody } from '@@/server/utils/bodyValidation'
-import { checkPortfolioLimit } from '~~/services/utilities/helpers'
-
-const portfolioItemSchema = z.object({ name: z.string().min(1).max(64) })
-const bulkCreateSchema = z.array(portfolioItemSchema).nonempty()
+import { createPortfolioWithPositions } from '@@/server/database/queries/portfolios'
+import { fetchFundamentals } from '@@/server/utils/eodhd'
 
 const slugify = (name: string) => name.toLowerCase().trim().replace(/\s+/g, '-')
 
+// Define the expected structure of the incoming request body
+const createPortfolioSchema = z.object({
+  name: z.string().min(1, 'Portfolio name is required.'),
+  positions: z
+    .array(
+      z.object({
+        symbol: z.string(),
+        name: z.string(),
+        exchange: z.string(),
+        shares: z.number(),
+        costPerShare: z.number(),
+      }),
+    )
+    .min(1, 'At least one position is required.'),
+})
+
 export default defineEventHandler(async (event) => {
   const { user } = await requireUserSession(event)
-  const items = await validateBody(event, createPortfoliosSchema.nonempty())
+  const body = await readBody(event)
 
-  const current = (await findUserPortfolios(user.id)).length
-  const sub = await getSubscriptionByUserId(user.id)
-  const tierKey = sub?.price?.productId ?? 'free'
-  const limitInfo = checkPortfolioLimit(tierKey, current)
-  const remaining = limitInfo.limit - current
-
-  if (remaining <= 0) {
+  // Validate the request body
+  const validation = createPortfolioSchema.safeParse(body)
+  if (!validation.success) {
     throw createError({
-      statusCode: 403,
-      statusMessage: `Maximum of ${limitInfo.limit} portfolios reached for the “${limitInfo.label}” plan.`,
+      statusCode: 400,
+      statusMessage: 'Invalid request body.',
+      data: validation.error.issues,
     })
   }
 
-  const toCreate = items.slice(0, remaining)
-  const overflow = items.slice(remaining).map((p) => ({
-    name: p.name,
-    reason: `Plan limit exceeded (max ${limitInfo.limit})`,
-  }))
+  const { name, positions } = validation.data
 
-  const rows = toCreate.map((p) => ({
-    name: p.name,
-    slug: slugify(`${p.name}-${user.id}`),
-    ownerId: user.id,
-  }))
+  const enrichedPositions = await Promise.all(
+    positions.map(async (pos) => {
+      const fundamentals = await fetchFundamentals(pos.symbol)
+      return {
+        ...pos,
+        website: fundamentals?.WebURL || null, // Add the website URL
+      }
+    }),
+  )
 
-  const inserted = await createPortfoliosBulk(rows)
+  // Create a unique slug (e.g., 'my-first-portfolio-user_id_short')
+  const uniqueSlug = slugify(`${name}-${user.id.substring(0, 8)}`)
 
-  const successfulSlugs = new Set(inserted.map((r) => r.slug))
-  const dupFailures = rows
-    .filter((r) => !successfulSlugs.has(r.slug))
-    .map((r) => ({
-      name: r.name,
-      reason: 'Slug already in use',
-    }))
-
-  return {
-    successes: inserted.map(({ id, name, slug }) => ({ id, name, slug })),
-    failures: [...overflow, ...dupFailures],
+  try {
+    const portfolio = await createPortfolioWithPositions({
+      portfolioData: {
+        name,
+        slug: uniqueSlug,
+        ownerId: user.id,
+      },
+      positionsData: enrichedPositions,
+    })
+    return portfolio
+  } catch (error: any) {
+    // Handle potential duplicate slug errors from the database
+    if (
+      error.message.includes('duplicate key value violates unique constraint')
+    ) {
+      throw createError({
+        statusCode: 409, // Conflict
+        statusMessage:
+          'A portfolio with this name already exists. Please choose a different name.',
+      })
+    }
+    console.error('Error creating portfolio:', error)
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Could not create portfolio.',
+    })
   }
 })

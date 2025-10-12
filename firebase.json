@@ -5,7 +5,12 @@
       "site": "striive-8eb17",
       "public": ".output/public",
       "cleanUrls": true,
-      "rewrites": [{ "source": "**", "function": "server" }]
+      "rewrites": [
+        {
+          "source": "**",
+          "run": { "serviceId": "striive-staging", "region": "europe-west4" }
+        }
+      ]
     }
   ],
   "storage": {

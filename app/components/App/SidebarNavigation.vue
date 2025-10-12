@@ -27,7 +27,7 @@ const accountLinks = [
   {
     label: 'Account Settings',
     icon: 'i-lucide-settings',
-    to: '/dashboard/account-settings',
+    to: '/account',
   },
 ]
 

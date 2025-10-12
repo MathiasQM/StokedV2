@@ -6,6 +6,7 @@ import {
   timestamp,
   integer,
   uuid,
+  jsonb,
 } from 'drizzle-orm/pg-core'
 import { OneTimePasswordTypes } from '../../../constants'
 import { users } from './users'

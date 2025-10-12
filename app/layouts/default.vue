@@ -1,23 +1,25 @@
 <template>
-  <UApp class="bg-red-500/4530" :toaster="{ position: 'top-center' }">
-    <template v-if="useMobile">
-      <div class="h-full">
-        <AppLayoutsMobile v-model:open="isSidebarOpen">
+  <div>
+    <UApp :toaster="{ position: 'top-center' }">
+      <template v-if="useMobile">
+        <div class="h-full overflow-x-hidden">
+          <AppLayoutsMobile v-model:open="isSidebarOpen">
+            <AppPopupsChoosePortfolios />
+
+            <slot />
+          </AppLayoutsMobile>
+        </div>
+      </template>
+
+      <template v-else>
+        <AppLayoutsDesktop v-model:open="isSidebarOpen">
           <AppPopupsChoosePortfolios />
 
           <slot />
-        </AppLayoutsMobile>
-      </div>
-    </template>
-
-    <template v-else>
-      <AppLayoutsDesktop v-model:open="isSidebarOpen">
-        <AppPopupsChoosePortfolios />
-
-        <slot />
-      </AppLayoutsDesktop>
-    </template>
-  </UApp>
+        </AppLayoutsDesktop>
+      </template>
+    </UApp>
+  </div>
 </template>
 
 <script setup lang="ts">

@@ -1,7 +1,7 @@
 import { usePlaidStore } from '~~/stores/plaid'
 import type { Portfolio } from '@@/types/database'
 import { get } from 'lodash'
-import type { ProviderChoice } from '~~/stores/countryProviderModal'
+import type { ProviderChoice } from '~~/stores/authModal'
 import { usePortfolio } from '@/composables/usePortfolio'
 
 interface PortfolioCreationFailure {

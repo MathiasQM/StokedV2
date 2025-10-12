@@ -21,8 +21,16 @@
         <slot name="actions" />
       </div>
 
-      <div class="flex items-center gap-2">
-        <AppUserDropdown />
+      <div v-if="isSuperAdmin" class="flex items-center gap-2">
+        <UButton
+          block
+          variant="ghost"
+          @click="navigateTo('/dashboard/super-admin')"
+          class="w-8 h-8 justify-normal text-left bg-neutral-800"
+        >
+          <UIcon name="i-lucide-shield" class="size-5 text-white" />
+        </UButton>
+        <!-- <AppUserDropdown /> -->
       </div>
     </div>
 
@@ -45,6 +53,9 @@
 <script lang="ts" setup>
 const route = useRoute()
 const router = useRouter()
+const { user } = useUserSession()
+
+const isSuperAdmin = computed(() => user.value?.superAdmin)
 
 const baseRoutes = ['/dashboard', '/market', '/news']
 const hasPreviousHistory = computed(() => {

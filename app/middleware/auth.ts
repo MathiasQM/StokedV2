@@ -39,7 +39,7 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
     })
     if (portfolioSlug.value) portfolioSlug.value = ''
     if (portfolios.value.length) portfolios.value = []
-    return navigateTo('/auth/login-passkey')
+    return navigateTo('/market')
   }
 
   // Check for invite token, this means the user was not logged in or did not have an account when they clicked the verification link,
@@ -61,7 +61,7 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
   }
 
   // If portfolios aren't loaded yet, fetch them
-  if (!portfolios.value?.length) {
+  if (!portfolios.value?.length && import.meta.client) {
     portfolios.value = await usePortfolio().getMemberships()
 
     const fromInvite = useCookie('from-invite')

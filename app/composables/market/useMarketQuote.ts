@@ -1,8 +1,10 @@
 import type { LiveQuote, HistoricalQuote } from '@@/types/eodhd'
 import { useMarketStore, type DataRange } from '@@/stores/market/useMarketStore'
+import { storeToRefs } from 'pinia'
 
 export const useMarketQuote = () => {
-  const { selectedRange } = storeToRefs(useMarketStore())
+  const marketStore = useMarketStore()
+  const { selectedRange } = storeToRefs(marketStore)
   const route = useRoute()
   const symbol = route.params.symbol as string
 

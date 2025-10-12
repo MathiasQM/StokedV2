@@ -1,19 +1,26 @@
 <template>
-  <Drawer v-if="isStandalone !== undefined && !isStandalone">
+  <Drawer v-if="isStandalone !== undefined && !isStandalone && !isDismissed">
     <DrawerTrigger as-child>
       <Button
         variant="default"
         class="rounded-none flex justify-between px-5 h-12 w-full cursor-pointer bg-gray-100 items-center md:w-auto hover:bg-zinc-200/80 md:rounded-md md:px-3 md:py-4 dark:bg-white/8 dark:hover:bg-white/10"
       >
+        <Icon
+          name="i-lucide-x"
+          class="h-3 w-3 text-gray-500 hover:text-black dark:hover:text-white shrink-0"
+          @click.stop="dismissForAWeek"
+        />
+
         <img :src="logoIcon" alt="App logo" class="w-8 h-8 rounded-md" />
         <div class="w-full text-left">
-          <p class="text-white text-xs font-semibold">Striive</p>
-          <p class="text-white/70 text-[10px]">
+          <p class="dark:text-white text-black text-xs font-semibold">
+            Striive
+          </p>
+          <p class="dark:text-white/70 text-black/70 text-[10px]">
             Get the Striive app experience
           </p>
         </div>
-        <span
-          class="bg-[#156dfb] py-1 rounded-full px-2 text-black dark:text-white text-xs"
+        <span class="bg-[#156dfb] py-1 rounded-full px-2 text-white text-xs"
           >OPEN</span
         >
       </Button>
@@ -86,13 +93,6 @@
           >
             Install Now
           </Button>
-          <Button
-            v-if="isIOS"
-            @click="showShare"
-            class="w-full bg-orange-500 text-white"
-          >
-            Share & Install
-          </Button>
           <DrawerClose as-child>
             <Button variant="outline" class="w-full">Close</Button>
           </DrawerClose>
@@ -148,8 +148,27 @@ const installSteps = ref<{ text: string; icon: string }[]>([
   },
 ])
 const isMobile = ref(false)
+const isDismissed = ref(false)
+
+function dismissForAWeek() {
+  console.log('Dismissing PWA install prompt for a week')
+  isDismissed.value = true
+  const weekInMilliseconds = 7 * 24 * 60 * 60 * 1000
+  const expiryTimestamp = Date.now() + weekInMilliseconds
+  localStorage.setItem('pwaInstallDismissedUntil', String(expiryTimestamp))
+}
 
 onMounted(() => {
+  const dismissedUntil = localStorage.getItem('pwaInstallDismissedUntil')
+  if (dismissedUntil) {
+    if (Date.now() < Number(dismissedUntil)) {
+      // If the dismissal period is still active, hide the component
+      isDismissed.value = true
+    } else {
+      // If the period has expired, remove the key so it shows again
+      localStorage.removeItem('pwaInstallDismissedUntil')
+    }
+  }
   // ─── Detect device & choose screenshots ────────────────────────────────
   const ua = navigator.userAgent.toLowerCase()
   isMobile.value =
@@ -264,20 +283,6 @@ function promptInstall() {
     })
   } else if ($pwa?.showInstallPrompt) {
     $pwa!.install()
-  }
-}
-
-async function showShare() {
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: pwaName,
-        text: pwaDescription,
-        url: window.location.href,
-      })
-    } catch (error) {
-      console.error('Sharing failed:', error)
-    }
   }
 }
 </script>

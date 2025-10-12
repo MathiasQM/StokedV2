@@ -92,31 +92,45 @@ export const useSubscription = () => {
   onMounted(async () => {
     if (import.meta.client && !stripe.value) {
       stripe.value = await loadStripe(runtimeConfig.public.stripePublicKey)
+      console.log(stripe.value)
     }
     if (!plans.value.length) await fetchPlans()
     if (!activeSubscription.value) await fetchActive()
   })
 
   async function fetchPlans() {
-    const { data, error } = await useFetch<Price[]>(STRIPE.plans)
-    if (error.value) throw error.value
-    plans.value = data.value ?? []
-    return plans.value
+    try {
+      const fetchedPlans = await $fetch<Price[]>(STRIPE.plans)
+      console.log('fetchedPlans', fetchedPlans)
+      plans.value = fetchedPlans ?? []
+      return plans.value
+    } catch (e) {
+      console.error('Failed to fetch plans:', e)
+      plans.value = []
+      throw e
+    }
   }
 
   async function fetchActive() {
-    if (!user.value?.id) return null
+    if (!user.value?.id) {
+      activeSubscription.value = null
+      return null
+    }
 
-    const { data, error } = await useFetch<ExpandedSubscription>(
-      STRIPE.subscription,
-      {
-        query: { userId: user.value.id },
-      },
-    )
-
-    if (error.value) throw error.value
-    activeSubscription.value = data.value ?? null
-    return activeSubscription.value
+    try {
+      const subscriptionData = await $fetch<ExpandedSubscription>(
+        STRIPE.subscription,
+        {
+          query: { userId: user.value.id },
+        },
+      )
+      activeSubscription.value = subscriptionData ?? null
+      return activeSubscription.value
+    } catch (e) {
+      console.error('Failed to fetch active subscription:', e)
+      activeSubscription.value = null // Reset on error
+      return null
+    }
   }
 
   const groupedPlans = computed<GroupedPlan[]>(() => {

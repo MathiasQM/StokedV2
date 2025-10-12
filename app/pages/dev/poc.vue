@@ -50,31 +50,33 @@ async function run() {
 </script>
 
 <template>
-  <div class="container mx-auto space-y-8 px-4 py-8">
-    <h1 class="text-2xl font-bold">News → Article + Podcast (POC)</h1>
+  <AppContainer title="News → Article + Podcast (POC)">
+    <div class="container mx-auto space-y-8 px-4 py-8">
+      <h1 class="text-2xl font-bold">News → Article + Podcast (POC)</h1>
 
-    <div class="flex items-end gap-3">
-      <div>
-        <label class="text-xs opacity-70">Ticker</label>
-        <input v-model="ticker" class="rounded bg-zinc-800/60 px-3 py-2" />
+      <div class="flex items-end gap-3">
+        <div>
+          <label class="text-xs opacity-70">Ticker</label>
+          <input v-model="ticker" class="rounded bg-zinc-800/60 px-3 py-2" />
+        </div>
+        <button
+          @click="run"
+          class="rounded-xl bg-blue-600 px-4 py-2 font-medium"
+          :disabled="loading"
+        >
+          {{ loading ? 'Generating…' : 'Generate' }}
+        </button>
       </div>
-      <button
-        @click="run"
-        class="rounded-xl bg-blue-600 px-4 py-2 font-medium"
-        :disabled="loading"
-      >
-        {{ loading ? 'Generating…' : 'Generate' }}
-      </button>
+      <ClientOnly>
+        <div v-if="audioSrc" class="space-y-6">
+          <PodcastPlayer :audio-src="audioSrc" :cues="cues" />
+          <hr class="border-zinc-700/50" />
+          <InlineRenderer :article="article" />
+        </div>
+        <p v-else class="opacity-70">
+          Click Generate to build a fresh article + synced podcast.
+        </p>
+      </ClientOnly>
     </div>
-    <ClientOnly>
-      <div v-if="audioSrc" class="space-y-6">
-        <PodcastPlayer :audio-src="audioSrc" :cues="cues" />
-        <hr class="border-zinc-700/50" />
-        <InlineRenderer :article="article" />
-      </div>
-      <p v-else class="opacity-70">
-        Click Generate to build a fresh article + synced podcast.
-      </p>
-    </ClientOnly>
-  </div>
+  </AppContainer>
 </template>

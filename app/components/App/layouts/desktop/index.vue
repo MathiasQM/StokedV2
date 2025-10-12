@@ -3,7 +3,7 @@
     <div class="h-[100dvh] flex-col">
       <div class="flex h-full">
         <div
-          class="border-black-950 w-64 shrink-0 border-r bg-white p-2 dark:bg-black"
+          class="border-neutral-800 w-64 shrink-0 border-r bg-white p-2 dark:bg-neutral-900"
         >
           <AppSidebar />
         </div>
