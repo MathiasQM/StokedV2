@@ -75,9 +75,12 @@
                 you're always one step ahead of the markets.
               </p>
 
+              <UBadge variant="soft" color="success" size="sm">
+                No credit card required.
+              </UBadge>
               <div class="flex items-center justify-center gap-3">
                 <UButton
-                  label="Get Started"
+                  label="Start for Free"
                   color="primary"
                   size="xl"
                   class="rounded-2xl"

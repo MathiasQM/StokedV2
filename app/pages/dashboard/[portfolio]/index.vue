@@ -57,7 +57,7 @@ definePageMeta({
   layout: 'default',
 })
 
-const tabs = ['overview', 'Holdings', 'news', 'analysis', 'calendar']
+const tabs = ['overview', 'news', 'analysis', 'calendar', 'Holdings']
 const activeTab = ref(tabs[0])
 const activeTabIndex = computed(() => tabs.indexOf(activeTab.value))
 const dragOffset = ref(0)

@@ -3,7 +3,7 @@
     <UFormField label="Message" name="message">
       <UTextarea
         v-model="state.message"
-        size="lg"
+        size="xl"
         variant="soft"
         class="w-full"
       />

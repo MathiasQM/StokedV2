@@ -9,7 +9,7 @@
       <h3 class="text-sm font-medium">{{ user?.email }}</h3>
       <h4 class="text-xs font-normal text-black-400">{{ user?.id }}</h4>
     </div>
-    <div class="fixed -top-10 inset-0 -z-10 flex justify-center">
+    <div class="fixed inset-0 -z-10 flex justify-center">
       <div class="linear-gradient-layer absolute -z-1"></div>
       <div class="linear-gradient-layer-bottom absolute -z-1"></div>
       <div class="radial-gradient-layer absolute -z-1"></div>
@@ -40,7 +40,7 @@
       </button>
     </div>
 
-    <div ref="swipeContainer" class="overflow-hidden">
+    <div ref="swipeContainer" class="overflow-hidden pt-1">
       <div class="flex" :style="containerStyle">
         <div v-for="tab in tabs" :key="tab" class="w-full flex-shrink-0 px-5">
           <AppUserSettingsView v-if="tab === 'settings'" />

@@ -97,7 +97,7 @@ const footer = {
         </Text>
         <Text :style="text">
           Thanks,<br />
-          {{ env.APP_NAME }} portfolio
+          {{ env.APP_NAME }} Team
         </Text>
         <Img :src="env.LOGO_URL" width="32" alt="Logo" />
         <Text :style="footer">
