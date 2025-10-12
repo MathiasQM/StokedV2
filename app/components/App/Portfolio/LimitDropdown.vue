@@ -12,7 +12,7 @@
         </DrawerHeader>
         <DrawerFooter class="mb-10">
           <DrawerClose v-if="currentPlan.name !== 'Unlimited'" as-child>
-            <NuxtLink class="w-full" to="/membership">
+            <NuxtLink class="w-full" to="/account?tab=billing">
               <Button class="w-full">
                 Upgrade to
                 {{ currentPlan.name === 'Pro' ? 'Unlimited' : 'Pro' }}

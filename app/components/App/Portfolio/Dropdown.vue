@@ -30,8 +30,10 @@
     </UDropdownMenu>
     <UButton
       v-else
-      :label="portfolios.length > 0 ? currentPortfolio?.name : 'Sync portfolio'"
-      @click="startPortfolioSync()"
+      :label="
+        portfolios.length > 0 ? currentPortfolio?.name : 'Create portfolio'
+      "
+      @click="handleCreateNewPortfolio()"
       variant="soft"
       class="w-full bg-orange-500/20 text-orange-500 hover:bg-orange-500 hover:text-white"
       block
@@ -48,10 +50,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Portfolio } from '@@/types/database'
 import { AppPortfolioLimitDropdown } from '#components'
-import { useCountryProviderModal } from '~~/stores/countryProviderModal'
-import { syncViaPlaid } from '@@/services/utilities/helpers'
 import { checkLimit, type PlanId } from '~~/helpers/subscription-limits'
 import type { ExpandedSubscription } from '@/composables/useSubscription'
 import { usePortfolio } from '@/composables/usePortfolio'
@@ -66,7 +65,7 @@ const { activeSubscription, currentPlan, fetchActive } = useSubscription()
 const activeSubExpanded = activeSubscription as Ref<ExpandedSubscription | null>
 onMounted(async () => {
   if (!activeSubscription.value) {
-    await fetchActive({ includeProduct: true })
+    await fetchActive()
     await getMemberships()
   }
 })
@@ -74,12 +73,10 @@ onMounted(async () => {
 const { currentPortfolio, portfolios, ownedPortfolios, getMemberships } =
   usePortfolio()
 
-const cpModal = useCountryProviderModal()
-
 const { setLastUsedPortfolio } = usePortfolioPreferences()
 const upradeModal = ref(false)
 
-async function startPortfolioSync() {
+async function handleCreateNewPortfolio() {
   if (!loggedIn.value) return authStore.openAuthModal()
   if (portfolios.value.length === 0)
     return portfolioSetupModal.openPortfolioSetupModal()
@@ -94,24 +91,8 @@ async function startPortfolioSync() {
   if (!isAllowed) {
     return (upradeModal.value = true)
   }
-  const choice = await cpModal.pickProvider()
 
-  if (!choice) return
-
-  const isExistingLink = !!choice.provider && !!choice.institutionId
-
-  switch (choice.securityProvider) {
-    case 'Plaid':
-      await syncViaPlaid(choice)
-      break
-
-    case 'tink':
-      console.warn('Tink not supported yet')
-      break
-
-    default:
-      await syncViaPlaid()
-  }
+  portfolioSetupModal.openPortfolioSetupModal()
 }
 
 const items = computed(() => {
@@ -140,10 +121,10 @@ const items = computed(() => {
     [...allPortfolios],
     [
       {
-        label: 'Sync a new portfolio',
+        label: 'Create a new portfolio',
         icon: 'i-lucide-plus-circle',
         onSelect: () => {
-          startPortfolioSync()
+          handleCreateNewPortfolio()
         },
       },
     ],

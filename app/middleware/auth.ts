@@ -61,7 +61,7 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
   }
 
   // If portfolios aren't loaded yet, fetch them
-  if (!portfolios.value?.length) {
+  if (!portfolios.value?.length && import.meta.client) {
     portfolios.value = await usePortfolio().getMemberships()
 
     const fromInvite = useCookie('from-invite')

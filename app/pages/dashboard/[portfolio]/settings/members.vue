@@ -1,59 +1,6 @@
 <template>
   <AppContainer title="Workspace Members">
-    <template #actions>
-      <UButton
-        color="orange"
-        label="Invite Member"
-        @click="newMemberModal = true"
-      />
-    </template>
-    <UModal
-      size="xl"
-      v-model:open="newMemberModal"
-      prevent-close
-      :title="`Invite a new member to ${currentPortfolio?.name}`"
-      description="We will email them a link to join your portfolio. Invitations are valid for 7 days."
-    >
-      <template #body>
-        <UForm
-          class="space-y-4"
-          :state="state"
-          :schema="schema"
-          @submit="onSubmit"
-        >
-          <UFormField required label="Member email" name="email">
-            <UInput
-              v-model="state.email"
-              placeholder="john@doe.com"
-              class="w-full"
-              size="lg"
-            />
-          </UFormField>
-          <UFormField required label="Role" name="role">
-            <USelectMenu
-              v-model="state.role"
-              :items="roleOptions"
-              value-key="id"
-              class="w-full"
-              size="lg"
-              :search-input="false"
-            />
-          </UFormField>
-          <UButton
-            :loading="loading"
-            color="orange"
-            type="submit"
-            block
-            size="lg"
-            label="Send invitation"
-          />
-        </UForm>
-      </template>
-    </UModal>
-    <div class="mx-auto max-w-5xl space-y-12">
-      <AppPortfolioMembers />
-      <AppPortfolioInvites />
-    </div>
+    <AppPortfolioSettingsMembers />
   </AppContainer>
 </template>
 

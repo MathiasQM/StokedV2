@@ -44,6 +44,16 @@
       <div class="flex" :style="containerStyle">
         <div v-for="tab in tabs" :key="tab" class="w-full flex-shrink-0 px-5">
           <AppUserSettingsView v-if="tab === 'settings'" />
+          <div class="space-y-8" v-if="tab === 'portfolio'">
+            <AppPortfolioSettings v-if="portfolios.length > 0" />
+            <AppPortfolioSettingsMembers v-if="portfolios.length > 0" />
+            <AppPortfolioDelete v-if="portfolios.length > 0" />
+            <div v-if="portfolios.length === 0" class="h-20 w-full p-5">
+              <p class="text-sm text-neutral-500">
+                You don't have any portfolios yet. Create one to get started!
+              </p>
+            </div>
+          </div>
           <AppUserSettingsSecurity v-if="tab === 'security'" />
           <AppUserSettingsBilling v-if="tab === 'billing'" />
           <div
@@ -67,9 +77,9 @@ definePageMeta({
 })
 
 const route = useRoute()
-console.log(route.query.tab)
 const { user } = useUserSession()
-const tabs = ['settings', 'billing', 'security', 'support']
+const { portfolios } = usePortfolio()
+const tabs = ['settings', 'portfolio', 'billing', 'security', 'support']
 const activeTab = ref(route.query.tab || tabs[0])
 const activeTabIndex = computed(() => tabs.indexOf(activeTab.value))
 const dragOffset = ref(0)

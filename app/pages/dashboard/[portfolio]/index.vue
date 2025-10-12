@@ -29,7 +29,8 @@
     <div ref="swipeContainer" class="overflow-hidden">
       <div class="flex" :style="containerStyle">
         <div v-for="tab in tabs" :key="tab" class="w-full flex-shrink-0 px-5">
-          <div class="space-y-6">
+          <AppDashboardTabsHoldings v-if="tab === 'Holdings'" />
+          <div class="space-y-6" v-else>
             <div v-if="tab === 'overview'">
               <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
                 <AppDemoKpi title="Followers" value="8551" up="19%" />
@@ -39,8 +40,8 @@
               </div>
             </div>
 
+            <WidgetsTable class="no-swipe" title="Holdings" />
             <AppDemoChart class="no-swipe" :title="`${tab} Overview`" />
-            <AppDemoTable class="no-swipe" />
           </div>
         </div>
       </div>
@@ -56,7 +57,7 @@ definePageMeta({
   layout: 'default',
 })
 
-const tabs = ['overview', 'news', 'analysis', 'calendar']
+const tabs = ['overview', 'Holdings', 'news', 'analysis', 'calendar']
 const activeTab = ref(tabs[0])
 const activeTabIndex = computed(() => tabs.indexOf(activeTab.value))
 const dragOffset = ref(0)

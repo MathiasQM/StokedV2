@@ -55,10 +55,5 @@ const settings = computed(() => [
     to: `/dashboard/${currentPortfolio.value?.slug}/settings/members` || '',
     requirePortfolio: true,
   },
-  {
-    label: 'Billing',
-    icon: 'i-lucide-credit-card',
-    to: `/dashboard/${currentPortfolio.value.slug}/settings/billing`,
-  },
 ])
 </script>

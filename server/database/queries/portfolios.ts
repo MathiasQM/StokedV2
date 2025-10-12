@@ -91,6 +91,36 @@ export const createPortfolio = async (payload: InsertPortfolio) => {
   }
 }
 
+export const createPortfolioWithPositions = async (payload: {
+  portfolioData: InsertPortfolio
+  positionsData: { symbol: string; name: string; exchange: string }[]
+}) => {
+  return await useDB().transaction(async (tx) => {
+    // 1. Create the portfolio
+    const [portfolio] = await tx
+      .insert(tables.portfolios)
+      .values(payload.portfolioData)
+      .returning()
+
+    // 2. Create the owner's membership link
+    await tx.insert(tables.portfolioMembers).values({
+      portfolioId: portfolio.id,
+      userId: payload.portfolioData.ownerId,
+      role: 'owner',
+    })
+
+    // 3. Prepare and insert the positions
+    const positionsToInsert = payload.positionsData.map((pos) => ({
+      portfolioId: portfolio.id,
+      ...pos,
+    }))
+
+    await tx.insert(tables.portfolioPositions).values(positionsToInsert)
+
+    return portfolio
+  })
+}
+
 export async function createPortfoliosBulk(rows: NewRow[]) {
   if (rows.length === 0) return []
 

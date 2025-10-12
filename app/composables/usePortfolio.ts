@@ -1,6 +1,9 @@
 import { z } from 'zod'
 import type { Portfolio } from '@@/types/database'
+import type { TickerMeta } from '@@/types/eodhd'
 import type { Position } from '~~/types/portfolios'
+
+export interface NewPosition extends TickerMeta {}
 
 export const usePortfolio = () => {
   const { user } = useUserSession()
@@ -24,6 +27,47 @@ export const usePortfolio = () => {
 
   const loading = ref(false)
   const portfolios = useState<Portfolio[]>('portfolios', () => [])
+  const newPortfolioPositions = useState<NewPosition[]>(
+    'new-portfolio-positions',
+    () => [],
+  )
+
+  const addPosition = (stock: TickerMeta) => {
+    const isAlreadyAdded = newPortfolioPositions.value.some(
+      (p) => p.Code === stock.Code && p.Exchange === stock.Exchange,
+    )
+
+    if (isAlreadyAdded) {
+      toast.add({
+        title: 'Already Added',
+        description: `${stock.Code} is already in your list.`,
+        // Using 'foreground' for a neutral/warning style with shadcn-vue
+        color: 'success',
+      })
+      return
+    }
+
+    newPortfolioPositions.value.unshift(stock as NewPosition)
+  }
+
+  const removePosition = (stockCode: string) => {
+    const stockToRemove = newPortfolioPositions.value.find(
+      (p) => p.Code === stockCode,
+    )
+    newPortfolioPositions.value = newPortfolioPositions.value.filter(
+      (p) => p.Code !== stockCode,
+    )
+    if (stockToRemove) {
+      toast.add({
+        title: 'Removed',
+        description: `${stockToRemove.Name} has been removed.`,
+      })
+    }
+  }
+
+  const clearNewPortfolio = () => {
+    newPortfolioPositions.value = []
+  }
 
   const currentPortfolio = computed(() => {
     if (!portfolioSlug.value || !portfolios.value.length) {
@@ -51,7 +95,9 @@ export const usePortfolio = () => {
   const getMemberships = async () => {
     loading.value = true
     try {
+      if (!user.value?.id) throw new Error('User not logged in')
       const membershipsData = await $fetch<Portfolio[]>('/api/me/memberships')
+      console.log('membershipsData', membershipsData)
       portfolios.value = membershipsData ?? []
       return membershipsData as Portfolio[]
     } finally {
@@ -67,32 +113,18 @@ export const usePortfolio = () => {
     ]
   }
 
-  const createPortfolio = async (
-    portfolioData: z.infer<typeof portfolioSchema>,
-  ) => {
-    loading.value = true
-    try {
-      const newPortfolio = await $fetch<Portfolio>('/api/portfolios', {
-        method: 'POST',
-        body: portfolioData,
-      })
-      portfolios.value = [...portfolios.value, newPortfolio]
-      navigateTo(`dashboard/${newPortfolio.slug}`)
-      toast.add({
-        title: 'Portfolio created successfully',
-        color: 'success',
-      })
-      return newPortfolio
-    } catch (error) {
-      toast.add({
-        title: 'Failed to create portfolio',
-        description: (error as any).statusMessage,
-        color: 'error',
-      })
-      throw error
-    } finally {
-      loading.value = false
-    }
+  const createPortfolio = async (payload: {
+    name: string
+    positions: any[]
+  }) => {
+    const newPortfolio = await $fetch<Portfolio>('/api/portfolios', {
+      method: 'POST',
+      body: payload,
+    })
+
+    portfolios.value = [...portfolios.value, newPortfolio]
+
+    return newPortfolio
   }
 
   const updatePortfolio = async (
@@ -273,12 +305,16 @@ export const usePortfolio = () => {
     inviteMember,
     cancelInvite,
     resendInvite,
+    removePortfolioMember,
+    addPosition,
+    removePosition,
+    clearNewPortfolio,
     isPortfolioOwner,
     portfolioSchema,
     currentPortfolio,
     portfolios,
     ownedPortfolios: separatedPortfolios.value[0],
     memberPortfolios: separatedPortfolios.value[1],
-    removePortfolioMember,
+    newPortfolioPositions,
   }
 }
