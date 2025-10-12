@@ -9,6 +9,7 @@ import {
   findOneTimePassword,
   deleteOneTimePassword,
 } from '@@/server/database/queries/auth'
+import { readGeoFromHeaders } from '@@/server/utils/request-geo'
 
 export default defineEventHandler(async (event) => {
   console.log('register-verify called', event)
@@ -26,11 +27,13 @@ export default defineEventHandler(async (event) => {
   }
 
   await deleteOneTimePassword(data.code)
+  const { country, city } = readGeoFromHeaders(event)
 
   const newUser = await createUserWithOTP({
     email: data.email,
     name: data.email.split('@')[0],
     emailVerified: true, // Email is verified by this OTP process
+    country: country,
   })
 
   if (!newUser) {

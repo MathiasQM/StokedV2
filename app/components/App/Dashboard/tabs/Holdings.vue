@@ -19,45 +19,61 @@
       <p>You don't have any holdings in this portfolio yet.</p>
     </div>
 
-    <div v-else class="divide-y divide-zinc-800">
+    <div
+      v-else
+      class="divide-y divide-zinc-800 bg-neutral-900 rounded-lg border border-zinc-800"
+    >
       <div
         v-for="holding in holdings"
         :key="holding.id"
-        class="flex items-center p-4"
+        class="flex flex-col items-center p-4"
       >
-        <div class="flex-shrink-0 mr-4">
+        <div class="flex gap-2 w-full mb-1">
           <img
+            v-if="holding.website"
             :src="getLogoSrc(holding.website)"
-            class="w-10 h-10 bg-zinc-700 rounded-full"
+            class="w-5 h-5 bg-zinc-700 rounded-full"
             :alt="`${holding.name} logo`"
           />
+          <span
+            v-else
+            class="bg-neutral-800 h-5 w-5 aspect-square rounded-full flex items-center text-xs justify-center"
+            >{{ holding.name?.[0] }}</span
+          >
+          <p class="font-semibold text-white text-sm">{{ holding.name }}</p>
         </div>
-
-        <div class="flex-grow grid grid-cols-3 gap-4 items-center">
-          <div>
-            <p class="font-semibold text-white">{{ holding.name }}</p>
-            <p class="text-sm text-zinc-400">
-              {{ formatCurrency(holding.value, 'DKK') }}
+        <div class="flex w-full justify-between">
+          <div class="text-start text-xs">
+            <p class="text-xs text-zinc-500">Value</p>
+            <p
+              class="font-semibold"
+              :class="holding.return >= 0 ? 'text-green-400' : 'text-red-400'"
+            >
+              {{ formatCurrency(holding.value, {currency: user.}) }}
             </p>
           </div>
-
-          <div class="text-center">
+          <div class="text-start text-xs">
+            <p class="text-xs text-zinc-500">Return</p>
             <p
-              class="font-medium"
+              class="font-semibold"
               :class="holding.return >= 0 ? 'text-green-400' : 'text-red-400'"
             >
               {{ formatPercent(holding.return) }}
             </p>
-            <p class="text-xs text-zinc-500">Return</p>
           </div>
 
-          <div class="text-right">
+          <div class="text-start text-xs">
+            <p class="text-xs text-zinc-500">Today</p>
             <p
-              class="font-medium"
+              class="font-semibold"
               :class="holding.today >= 0 ? 'text-green-400' : 'text-red-400'"
             >
               {{ formatPercent(holding.today) }}
             </p>
+          </div>
+
+          <div class="text-right text-xs">
+            <p class="text-xs text-zinc-500">Latest</p>
             <p class="text-xs text-zinc-400">
               {{ formatCurrency(holding.latest, 'USD') }}
             </p>
@@ -69,10 +85,9 @@
 </template>
 
 <script setup lang="ts">
-// This composable gives you access to the current portfolio in the URL
 const { currentPortfolio } = usePortfolio()
+import { formatCurrency, formatPercent } from '@/utils/numbers'
 
-// Fetch data from our new API endpoint using the current portfolio's ID
 const {
   data: holdings,
   pending,
@@ -80,7 +95,7 @@ const {
 } = await useAsyncData(
   `holdings-${currentPortfolio.value.id}`,
   () => $fetch(`/api/portfolios/${currentPortfolio.value.id}/positions`),
-  { watch: [currentPortfolio] }, // Re-fetch if the portfolio changes
+  { watch: [currentPortfolio] },
 )
 
 // --- Helper Functions ---
@@ -96,27 +111,5 @@ function getLogoSrc(website: string | null | undefined): string {
     return fallbackLogo
   }
   return `https://logo.clearbit.com/${encodeURIComponent(website)}`
-}
-
-// Formats numbers as currency (e.g., 15,213 kr)
-function formatCurrency(value: number, currency: 'DKK' | 'USD') {
-  return new Intl.NumberFormat('da-DK', {
-    style: 'currency',
-    currency,
-    maximumFractionDigits: 2,
-  }).format(value)
-}
-
-// Formats numbers as percentages (e.g., +26.69%)
-function formatPercent(value: number) {
-  const sign = value > 0 ? '+' : ''
-  return `${sign}${value.toFixed(2)}%`
-}
-
-// Simple helper to guess a domain for the logo API
-function getDomain(name: string) {
-  return (
-    name.replace(/ Inc\.| Corp\.| Class A| Class C/g, '').toLowerCase() + '.com'
-  )
 }
 </script>

@@ -2,6 +2,7 @@ import { sendEmail } from '@@/server/services/email'
 import { render } from '@vue-email/render'
 import LoginNotification from '@@/emails/login-notification.vue'
 import { env } from '@@/env'
+import { readGeoFromHeaders } from '@@/server/utils/request-geo'
 
 export default defineEventHandler(async (event) => {
   // Get user data from the request body
@@ -13,19 +14,8 @@ export default defineEventHandler(async (event) => {
     })
   }
   // 1. Try to get location from Cloudflare headers first
-  let city = event.context.cf?.city
-  let country = event.context.cf?.country
+  const { country, city } = readGeoFromHeaders(event)
 
-  // 2. If no country info, check for Google's header
-  // 'x-country-code' is added by Google Cloud Run / Firebase App Hosting
-  if (!country) {
-    const countryCode = getRequestHeader(event, 'x-country-code')
-    if (countryCode) {
-      country = countryCode // This will be a two-letter code like 'US', 'DK', etc.
-    }
-  }
-
-  // Only send email if we have location information
   try {
     const htmlTemplate = await render(LoginNotification, {
       userName: user.name,
