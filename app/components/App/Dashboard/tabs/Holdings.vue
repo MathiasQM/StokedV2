@@ -49,7 +49,7 @@
               class="font-semibold"
               :class="holding.return >= 0 ? 'text-green-400' : 'text-red-400'"
             >
-              {{ formatCurrency(holding.value, {currency: user.}) }}
+              {{ formatCurrency(holding.value, 'DKK') }}
             </p>
           </div>
           <div class="text-start text-xs">
@@ -86,7 +86,6 @@
 
 <script setup lang="ts">
 const { currentPortfolio } = usePortfolio()
-import { formatCurrency, formatPercent } from '@/utils/numbers'
 
 const {
   data: holdings,
@@ -111,5 +110,20 @@ function getLogoSrc(website: string | null | undefined): string {
     return fallbackLogo
   }
   return `https://logo.clearbit.com/${encodeURIComponent(website)}`
+}
+
+// Formats numbers as currency (e.g., 15,213 kr)
+function formatCurrency(value: number, currency: 'DKK' | 'USD') {
+  return new Intl.NumberFormat('da-DK', {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: 2,
+  }).format(value)
+}
+
+// Formats numbers as percentages (e.g., +26.69%)
+function formatPercent(value: number) {
+  const sign = value > 0 ? '+' : ''
+  return `${sign}${value.toFixed(2)}%`
 }
 </script>
