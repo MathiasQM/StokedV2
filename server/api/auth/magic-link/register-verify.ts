@@ -9,7 +9,6 @@ import {
   findOneTimePassword,
   deleteOneTimePassword,
 } from '@@/server/database/queries/auth'
-import { readGeoFromHeaders } from '@@/server/utils/request-geo'
 import { readGeoFromIp } from '~~/server/utils/ip'
 
 export default defineEventHandler(async (event) => {

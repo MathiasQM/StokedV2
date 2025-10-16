@@ -3,6 +3,7 @@ import { createCredential } from '@@/server/database/queries/passkeys'
 import { createUserWithPasskey } from '@@/server/database/queries/users'
 import { sanitizeUser } from '@@/server/utils/auth'
 import type { InsertPasskey } from '@@/types/database'
+import { readGeoFromIp } from '~~/server/utils/ip'
 
 export default defineEventHandler(async (event) => {
   const { attestation, email } = await readBody(event)
@@ -44,12 +45,16 @@ export default defineEventHandler(async (event) => {
         message: 'User identifier missing from response.',
       })
     }
+    const geo = await readGeoFromIp(event)
 
     const newUser = await createUserWithPasskey({
       id: userID,
       email: email.trim().toLowerCase(),
       name: email.split('@')[0],
       emailVerified: true,
+      country: geo.country,
+      timezone: geo.timezone,
+      currency: geo.currency,
     })
 
     if (!newUser) {

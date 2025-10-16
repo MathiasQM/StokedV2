@@ -45,9 +45,10 @@
     </div>
 
     <div ref="swipeContainer" class="pt-1">
-      <div class="flex overflow-auto" :style="containerStyle">
+      <div class="flex" :style="containerStyle">
         <div v-for="tab in tabs" :key="tab" class="w-full flex-shrink-0 px-5">
           <AppUserSettingsView v-if="tab === 'settings'" />
+          {{ tab }}
           <div class="space-y-8" v-if="tab === 'portfolio'">
             <AppPortfolioSettings v-if="portfolios.length > 0" />
             <AppPortfolioSettingsMembers v-if="portfolios.length > 0" />
