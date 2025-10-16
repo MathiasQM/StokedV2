@@ -27,6 +27,7 @@
               placeholder="john@doe.com"
               class="w-full"
               size="lg"
+              type="email"
             />
           </UFormField>
           <UFormField required label="Role" name="role">

@@ -57,6 +57,7 @@
             size="lg"
             placeholder="○"
             class="justify-center"
+            type="number"
           />
         </UFormField>
         <UButton

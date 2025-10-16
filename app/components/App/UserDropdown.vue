@@ -50,7 +50,7 @@
   <UButton
     v-else
     variant="outline"
-    class="rounded-full lg:rounded-md lg:w-full lg:aspect-auto lg:h-10 aspect-square"
+    class="rounded-full md:rounded-md md:w-full md:aspect-auto md:h-10 aspect-square"
     @click="authStore.openAuthModal('login')"
   >
     <Icon name="i-lucide-user" />

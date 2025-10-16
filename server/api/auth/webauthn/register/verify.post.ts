@@ -47,7 +47,7 @@ export default defineEventHandler(async (event) => {
 
     const newUser = await createUserWithPasskey({
       id: userID,
-      email,
+      email: email.trim().toLowerCase(),
       name: email.split('@')[0],
       emailVerified: true,
     })

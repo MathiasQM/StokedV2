@@ -1,6 +1,7 @@
 <template>
   <div class="relative">
     <ULink
+      draggable="false"
       :to="linkTo"
       exact
       class="relative flex w-20 flex-col items-center gap-2 p-2 font-medium md:w-full md:flex-row md:rounded-md dark:hover:bg-white/10"

@@ -2,7 +2,7 @@ import { sendEmail } from '@@/server/services/email'
 import { render } from '@vue-email/render'
 import LoginNotification from '@@/emails/login-notification.vue'
 import { env } from '@@/env'
-import { readGeoFromHeaders } from '@@/server/utils/request-geo'
+import { readGeoFromIp } from '~~/server/utils/ip'
 
 export default defineEventHandler(async (event) => {
   // Get user data from the request body
@@ -14,13 +14,13 @@ export default defineEventHandler(async (event) => {
     })
   }
   // 1. Try to get location from Cloudflare headers first
-  const { country, city } = readGeoFromHeaders(event)
+  const geo = await readGeoFromIp(event)
 
   try {
     const htmlTemplate = await render(LoginNotification, {
       userName: user.name,
-      city: city || 'Unknown City',
-      country: country || user.country || 'Unknown Country',
+      city: geo.city || 'Unknown City',
+      country: geo.country || user.country || 'Unknown Country',
     })
 
     if (!env.MOCK_EMAIL) {

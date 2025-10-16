@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative min-h-[100dvh] pb-28 pt-5 lg:pt-5"
+    class="relative min-h-[90dvh] pb-28 pt-5 lg:pt-5"
     :class="{ 'px-5': !disablePaddingx }"
   >
     <div

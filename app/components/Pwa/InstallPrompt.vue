@@ -16,7 +16,7 @@
           <p class="dark:text-white text-black text-xs font-semibold">
             Striive
           </p>
-          <p class="dark:text-white/70 text-black/70 text-[10px]">
+          <p class="dark:text-white/70 text-black/70 text-[10px] text-wrap">
             Get the Striive app experience
           </p>
         </div>
@@ -87,7 +87,7 @@
         <!-- Footer -->
         <DrawerFooter class="justify-center space-y-2">
           <Button
-            v-if="canInstall && isAndroidOrDesktop"
+            v-if="canInstall"
             @click="promptInstall"
             class="w-full bg-orange-500 text-white"
           >

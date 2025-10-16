@@ -23,6 +23,10 @@
             placeholder="you@example.com"
             size="xl"
             class="w-full"
+            tyoe="email"
+            autocapitalize="none"
+            autocorrect="off"
+            spellcheck="false"
           />
         </UFormField>
         <UButton type="submit" :loading="registering" block size="lg">
@@ -52,7 +56,7 @@
             size="xl"
             placeholder="○"
             class="justify-center w-full"
-            inputmode="numeric"
+            type="number"
           />
         </UFormField>
         <UButton type="submit" :loading="registering" block size="lg">

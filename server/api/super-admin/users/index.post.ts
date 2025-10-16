@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
   // Validate the request body
   const data = await validateBody(event, schema)
   // Check if user already exists
-  const existingUser = await findUserByEmail(data.email)
+  const existingUser = await findUserByEmail(data.email.trim().toLowerCase())
   if (existingUser) {
     throw createError({
       statusCode: 400,
@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
 
   // Create the user
   const newUser = await createUserWithPassword({
-    email: data.email,
+    email: data.email.trim().toLowerCase(),
     name: data.name,
     hashedPassword,
     emailVerified: data.emailVerified || false,

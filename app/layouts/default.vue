@@ -14,7 +14,6 @@
       <template v-else>
         <AppLayoutsDesktop v-model:open="isSidebarOpen">
           <AppPopupsChoosePortfolios />
-
           <slot />
         </AppLayoutsDesktop>
       </template>

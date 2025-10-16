@@ -26,6 +26,8 @@ export const users = pgTable(
     bannedUntil: timestamp('bannedUntil'),
     onboarded: boolean('onboarded').notNull().default(false),
     proAccount: boolean('proAccount').notNull().default(false),
+    timezone: text('timezone').notNull().default('UTC'),
+    currency: text('currency').notNull().default('USD'),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
     lastActive: timestamp('last_active').defaultNow(),

@@ -12,7 +12,9 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Invalid email format.' })
   }
 
-  const existingUser = await findUserByEmail(validation.data.email)
+  const existingUser = await findUserByEmail(
+    validation.data.email.trim().toLowerCase(),
+  )
   if (
     existingUser?.banned &&
     existingUser?.bannedUntil &&

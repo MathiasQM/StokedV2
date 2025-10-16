@@ -1,6 +1,6 @@
 <template>
   <div class="w-full overflow-y-scroll">
-    <header class="flex h-12 w-full items-center gap-2 px-4">
+    <header class="flex h-12 pt-5 w-full items-center gap-2 px-4">
       <UButton
         icon="i-lucide-panel-left"
         color="orange"
@@ -9,6 +9,9 @@
         @click="emit('openSidebar')"
       />
       <slot name="actions" />
+      <div class="hidden md:block relative right-5">
+        <PwaInstallPrompt />
+      </div>
     </header>
     <slot />
   </div>

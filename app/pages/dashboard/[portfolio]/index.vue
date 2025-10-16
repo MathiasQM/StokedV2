@@ -29,17 +29,12 @@
     <div ref="swipeContainer" class="overflow-hidden">
       <div class="flex" :style="containerStyle">
         <div v-for="tab in tabs" :key="tab" class="w-full flex-shrink-0 px-5">
-          <AppDashboardTabsHoldings v-if="tab === 'Holdings'" />
+          <AppPortfolioDashboardTabsHoldings v-if="tab === 'Holdings'" />
+          <AppPortfolioDashboardTabsOverview
+            class="no-swipe"
+            v-if="tab === 'overview'"
+          />
           <div class="space-y-6" v-else>
-            <div v-if="tab === 'overview'">
-              <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
-                <AppDemoKpi title="Followers" value="8551" up="19%" />
-                <AppDemoKpi title="Impressions" value="80.5k" up="16%" />
-                <AppDemoKpi title="Profile Visits" value="930" down="8%" />
-                <AppDemoKpi title="Likes" value="12.5k" up="32%" />
-              </div>
-            </div>
-
             <WidgetsTable class="no-swipe" title="Holdings" />
             <AppDemoChart class="no-swipe" :title="`${tab} Overview`" />
           </div>

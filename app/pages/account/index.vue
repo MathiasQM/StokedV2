@@ -1,5 +1,9 @@
 <template>
-  <AppContainer disablePaddingx title="Account Settings">
+  <AppContainer
+    disablePaddingx
+    title="Account Settings"
+    class="overflow-hidden"
+  >
     <div
       class="lg:hidden w-full h-42 flex flex-col justify-center items-center space-y-2"
     >
@@ -40,8 +44,8 @@
       </button>
     </div>
 
-    <div ref="swipeContainer" class="overflow-hidden pt-1">
-      <div class="flex" :style="containerStyle">
+    <div ref="swipeContainer" class="pt-1">
+      <div class="flex overflow-auto" :style="containerStyle">
         <div v-for="tab in tabs" :key="tab" class="w-full flex-shrink-0 px-5">
           <AppUserSettingsView v-if="tab === 'settings'" />
           <div class="space-y-8" v-if="tab === 'portfolio'">
@@ -74,6 +78,7 @@ import { useSwipe, useElementSize } from '@vueuse/core'
 
 definePageMeta({
   layout: 'default',
+  middleware: ['auth'],
 })
 
 const route = useRoute()

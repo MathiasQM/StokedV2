@@ -8,7 +8,15 @@
         @submit="onLoginSubmit"
       >
         <UFormField label="Email" name="email">
-          <UInput v-model="loginState.email" size="xl" class="w-full" />
+          <UInput
+            v-model="loginState.email"
+            size="xl"
+            class="w-full"
+            type="email"
+            autocapitalize="none"
+            autocorrect="off"
+            spellcheck="false"
+          />
         </UFormField>
         <UButton type="submit" :loading="loading" block size="lg">
           Send Code
@@ -45,7 +53,7 @@
             size="lg"
             placeholder="○"
             class="justify-center w-full"
-            inputmode="numeric"
+            type="number"
           />
         </UFormField>
         <UButton type="submit" :loading="loading" size="lg" block>

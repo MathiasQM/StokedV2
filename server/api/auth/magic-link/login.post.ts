@@ -35,7 +35,7 @@ import { env } from '@@/env'
 export default defineEventHandler(async (event) => {
   const data = await validateBody(event, emailSchema)
 
-  const user = await findUserByEmail(data.email)
+  const user = await findUserByEmail(data.email.trim().toLowerCase())
   if (!user) {
     throw createError({
       statusCode: 400,

@@ -53,8 +53,8 @@
           :length="6"
           size="lg"
           otp
-          type="number"
           placeholder="○"
+          type="number"
         />
       </UFormField>
 

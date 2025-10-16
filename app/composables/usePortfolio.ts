@@ -95,7 +95,7 @@ export const usePortfolio = () => {
   const getMemberships = async () => {
     loading.value = true
     try {
-      if (!user.value?.id) throw new Error('User not logged in')
+      if (!user.value?.id) return []
       const membershipsData = await $fetch<Portfolio[]>('/api/me/memberships')
       console.log('membershipsData', membershipsData)
       portfolios.value = membershipsData ?? []

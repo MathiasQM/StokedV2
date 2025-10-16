@@ -1,7 +1,7 @@
 <template>
   <div
     ref="navElement"
-    class="padding-env-bottom fixed bottom-0 flex w-full justify-center p-5 transition-all"
+    class="padding-env-bottom fixed bottom-0 flex w-full justify-center p-5 transition-all select-none"
   >
     <div
       class="border-black-100 dark:border-black-800 dark:bg-black-500/10 flex w-full max-w-92 items-center justify-evenly rounded-lg border-1 bg-white/10 backdrop-blur-md"

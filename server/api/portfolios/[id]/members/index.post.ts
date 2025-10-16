@@ -49,7 +49,7 @@ export default defineEventHandler(async (event) => {
   const body = await validateBody(event, invitePortfolioMemberSchema)
 
   // 3. Check if user already exists
-  const existingUser = await findUserByEmail(body.email)
+  const existingUser = await findUserByEmail(body.email.trim().toLowerCase())
 
   // 4. Generate invitation token
   const inviteToken = generateAlphaNumericCode(32)

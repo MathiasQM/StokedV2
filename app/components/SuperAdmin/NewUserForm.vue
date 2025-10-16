@@ -3,7 +3,15 @@
     <UFormField label="Name" name="name" required>
       <UInput v-model="state.name" class="w-full" size="lg" />
     </UFormField>
-    <UFormField label="Email" name="email" required>
+    <UFormField
+      label="Email"
+      name="email"
+      required
+      type="email"
+      autocapitalize="none"
+      autocorrect="off"
+      spellcheck="false"
+    >
       <UInput v-model="state.email" class="w-full" size="lg" />
     </UFormField>
     <UFormField label="Password" name="password" required>

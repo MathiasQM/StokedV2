@@ -35,12 +35,12 @@ export const handleOAuthSuccess = async (
   oauthUser: OAuthUserData,
 ) => {
   // 2. Check if user exists
-  let dbUser = await findUserByEmail(oauthUser.email)
+  let dbUser = await findUserByEmail(oauthUser.email.trim().toLowerCase())
 
   // 3. If new user, create user with OAuth data
   if (!dbUser) {
     dbUser = await createUserWithOAuth({
-      email: oauthUser.email,
+      email: oauthUser.email.trim().toLowerCase(),
       name: oauthUser.name,
       avatarUrl: oauthUser.avatarUrl,
       emailVerified: true,
