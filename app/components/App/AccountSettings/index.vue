@@ -1,10 +1,10 @@
 <template>
   <div class="space-y-8">
     <div class="flex w-full flex-wrap gap-5">
-      <AppAccountSettingsGeneral />
+      <AppAccountSettingsPersonalInfo />
       <!-- <AppAccountSettingsPhoneNumber /> -->
     </div>
-    <AppAccountSettingsLinkedAccounts />
+    <AppAccountSettingsGeneral />
     <UButton
       size="xl"
       variant="solid"

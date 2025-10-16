@@ -1,9 +1,5 @@
 <template>
-  <AppContainer
-    disablePaddingx
-    title="Account Settings"
-    class="overflow-hidden"
-  >
+  <AppContainer disablePaddingx title="Account Settings">
     <div
       class="lg:hidden w-full h-42 flex flex-col justify-center items-center space-y-2"
     >
@@ -19,7 +15,7 @@
       <div class="radial-gradient-layer absolute -z-1"></div>
     </div>
     <div
-      class="relative mb-5 pl-5 flex justify-start gap-x-2 w-full rounded-md p-1 overflow-auto"
+      class="relative mb-5 pl-5 flex justify-start gap-x-2 w-full rounded-md p-1"
     >
       <span
         class="absolute bg-white h-[3px] rounded-full block bottom-1 transition-all duration-300 ease-in-out"
@@ -47,20 +43,19 @@
     <div ref="swipeContainer" class="pt-1">
       <div class="flex" :style="containerStyle">
         <div v-for="tab in tabs" :key="tab" class="w-full flex-shrink-0 px-5">
-          <AppUserSettingsView v-if="tab === 'settings'" />
-          {{ tab }}
+          <AppAccountSettings v-if="tab === 'settings'" />
           <div class="space-y-8" v-if="tab === 'portfolio'">
             <AppPortfolioSettings v-if="portfolios.length > 0" />
             <AppPortfolioSettingsMembers v-if="portfolios.length > 0" />
-            <AppPortfolioDelete v-if="portfolios.length > 0" />
+            <AppPortfolioSettingsDelete v-if="portfolios.length > 0" />
             <div v-if="portfolios.length === 0" class="h-20 w-full p-5">
               <p class="text-sm text-neutral-500">
                 You don't have any portfolios yet. Create one to get started!
               </p>
             </div>
           </div>
-          <AppUserSettingsSecurity v-if="tab === 'security'" />
-          <AppUserSettingsBilling v-if="tab === 'billing'" />
+          <AppAccountSettingsSecurity v-if="tab === 'security'" />
+          <AppAccountSettingsBilling v-if="tab === 'billing'" />
           <div
             v-if="tab === 'support'"
             class="bg-neutral-900 p-3 border border-neutral-800 rounded-lg"
@@ -76,6 +71,7 @@
 <script lang="ts" setup>
 import { ref, computed, onBeforeUpdate } from 'vue'
 import { useSwipe, useElementSize } from '@vueuse/core'
+import { AppPortfolioSettings, AppPortfolioSettingsMembers } from '#components'
 
 definePageMeta({
   layout: 'default',

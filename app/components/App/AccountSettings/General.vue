@@ -1,110 +1,509 @@
 <template>
-  <UCard class="flex min-w-[16rem] flex-1 basis-[16rem] flex-col">
+  <UCard>
     <template #header>
-      <h3 class="font-medium">Personal Information</h3>
-      <p class="text-neutral-500 mt-1 text-sm">
-        Your personal information is not shared with anyone.
-      </p>
+      <div class="flex items-center justify-between">
+        <h3 class="font-medium">General settings</h3>
+        <!-- <UButton
+          label="Link Account"
+          variant="subtle"
+          color="orange"
+          @click="linkAccountModal = true"
+        /> -->
+      </div>
+      <p class="text-neutral-500 mt-1 text-sm">Your general account setup</p>
     </template>
-    <UForm
-      :schema="schema"
-      :state="state"
-      class="w-full min-w-32 space-y-4 md:max-w-md"
-      @submit="onSubmit as any"
+    <div class="divide-neutral-200 dark:divide-white/10 divide-y">
+      <Item class="px-0">
+        <ItemContent>
+          <ItemTitle>Default portfolio</ItemTitle>
+          <ItemDescription> Your default portfolio </ItemDescription>
+        </ItemContent>
+        <ItemActions>
+          <Select>
+            <SelectTrigger :disabled="true" class="w-[130px]">
+              <SelectValue placeholder="Select a currency" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>North America</SelectLabel>
+                <SelectItem value="est">
+                  Eastern Standard Time (EST)
+                </SelectItem>
+                <SelectItem value="cst">
+                  Central Standard Time (CST)
+                </SelectItem>
+                <SelectItem value="mst">
+                  Mountain Standard Time (MST)
+                </SelectItem>
+                <SelectItem value="pst">
+                  Pacific Standard Time (PST)
+                </SelectItem>
+                <SelectItem value="akst">
+                  Alaska Standard Time (AKST)
+                </SelectItem>
+                <SelectItem value="hst">
+                  Hawaii Standard Time (HST)
+                </SelectItem>
+              </SelectGroup>
+              <SelectGroup>
+                <SelectLabel>Europe & Africa</SelectLabel>
+                <SelectItem value="gmt"> Greenwich Mean Time (GMT) </SelectItem>
+                <SelectItem value="cet">
+                  Central European Time (CET)
+                </SelectItem>
+                <SelectItem value="eet">
+                  Eastern European Time (EET)
+                </SelectItem>
+                <SelectItem value="west">
+                  Western European Summer Time (WEST)
+                </SelectItem>
+                <SelectItem value="cat"> Central Africa Time (CAT) </SelectItem>
+                <SelectItem value="eat"> East Africa Time (EAT) </SelectItem>
+              </SelectGroup>
+              <SelectGroup>
+                <SelectLabel>Asia</SelectLabel>
+                <SelectItem value="msk"> Moscow Time (MSK) </SelectItem>
+                <SelectItem value="ist"> India Standard Time (IST) </SelectItem>
+                <SelectItem value="cst_china">
+                  China Standard Time (CST)
+                </SelectItem>
+                <SelectItem value="jst"> Japan Standard Time (JST) </SelectItem>
+                <SelectItem value="kst"> Korea Standard Time (KST) </SelectItem>
+                <SelectItem value="ist_indonesia">
+                  Indonesia Central Standard Time (WITA)
+                </SelectItem>
+              </SelectGroup>
+              <SelectGroup>
+                <SelectLabel>Australia & Pacific</SelectLabel>
+                <SelectItem value="awst">
+                  Australian Western Standard Time (AWST)
+                </SelectItem>
+                <SelectItem value="acst">
+                  Australian Central Standard Time (ACST)
+                </SelectItem>
+                <SelectItem value="aest">
+                  Australian Eastern Standard Time (AEST)
+                </SelectItem>
+                <SelectItem value="nzst">
+                  New Zealand Standard Time (NZST)
+                </SelectItem>
+                <SelectItem value="fjt"> Fiji Time (FJT) </SelectItem>
+              </SelectGroup>
+              <SelectGroup>
+                <SelectLabel>South America</SelectLabel>
+                <SelectItem value="art"> Argentina Time (ART) </SelectItem>
+                <SelectItem value="bot"> Bolivia Time (BOT) </SelectItem>
+                <SelectItem value="brt"> Brasilia Time (BRT) </SelectItem>
+                <SelectItem value="clt"> Chile Standard Time (CLT) </SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </ItemActions>
+      </Item>
+      <Item class="px-0">
+        <ItemContent>
+          <ItemTitle>Country</ItemTitle>
+          <ItemDescription> Your country of residency </ItemDescription>
+        </ItemContent>
+        <ItemActions>
+          <Select>
+            <SelectTrigger class="w-[130px]">
+              <SelectValue placeholder="Select a currency" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>North America</SelectLabel>
+                <SelectItem value="est">
+                  Eastern Standard Time (EST)
+                </SelectItem>
+                <SelectItem value="cst">
+                  Central Standard Time (CST)
+                </SelectItem>
+                <SelectItem value="mst">
+                  Mountain Standard Time (MST)
+                </SelectItem>
+                <SelectItem value="pst">
+                  Pacific Standard Time (PST)
+                </SelectItem>
+                <SelectItem value="akst">
+                  Alaska Standard Time (AKST)
+                </SelectItem>
+                <SelectItem value="hst">
+                  Hawaii Standard Time (HST)
+                </SelectItem>
+              </SelectGroup>
+              <SelectGroup>
+                <SelectLabel>Europe & Africa</SelectLabel>
+                <SelectItem value="gmt"> Greenwich Mean Time (GMT) </SelectItem>
+                <SelectItem value="cet">
+                  Central European Time (CET)
+                </SelectItem>
+                <SelectItem value="eet">
+                  Eastern European Time (EET)
+                </SelectItem>
+                <SelectItem value="west">
+                  Western European Summer Time (WEST)
+                </SelectItem>
+                <SelectItem value="cat"> Central Africa Time (CAT) </SelectItem>
+                <SelectItem value="eat"> East Africa Time (EAT) </SelectItem>
+              </SelectGroup>
+              <SelectGroup>
+                <SelectLabel>Asia</SelectLabel>
+                <SelectItem value="msk"> Moscow Time (MSK) </SelectItem>
+                <SelectItem value="ist"> India Standard Time (IST) </SelectItem>
+                <SelectItem value="cst_china">
+                  China Standard Time (CST)
+                </SelectItem>
+                <SelectItem value="jst"> Japan Standard Time (JST) </SelectItem>
+                <SelectItem value="kst"> Korea Standard Time (KST) </SelectItem>
+                <SelectItem value="ist_indonesia">
+                  Indonesia Central Standard Time (WITA)
+                </SelectItem>
+              </SelectGroup>
+              <SelectGroup>
+                <SelectLabel>Australia & Pacific</SelectLabel>
+                <SelectItem value="awst">
+                  Australian Western Standard Time (AWST)
+                </SelectItem>
+                <SelectItem value="acst">
+                  Australian Central Standard Time (ACST)
+                </SelectItem>
+                <SelectItem value="aest">
+                  Australian Eastern Standard Time (AEST)
+                </SelectItem>
+                <SelectItem value="nzst">
+                  New Zealand Standard Time (NZST)
+                </SelectItem>
+                <SelectItem value="fjt"> Fiji Time (FJT) </SelectItem>
+              </SelectGroup>
+              <SelectGroup>
+                <SelectLabel>South America</SelectLabel>
+                <SelectItem value="art"> Argentina Time (ART) </SelectItem>
+                <SelectItem value="bot"> Bolivia Time (BOT) </SelectItem>
+                <SelectItem value="brt"> Brasilia Time (BRT) </SelectItem>
+                <SelectItem value="clt"> Chile Standard Time (CLT) </SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </ItemActions>
+      </Item>
+      <Item class="px-0">
+        <ItemContent>
+          <ItemTitle>Currency</ItemTitle>
+          <ItemDescription>How your currency is displayed</ItemDescription>
+        </ItemContent>
+        <ItemActions>
+          <Select>
+            <SelectTrigger class="w-[130px]">
+              <SelectValue placeholder="Select a currency" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>North America</SelectLabel>
+                <SelectItem value="est">
+                  Eastern Standard Time (EST)
+                </SelectItem>
+                <SelectItem value="cst">
+                  Central Standard Time (CST)
+                </SelectItem>
+                <SelectItem value="mst">
+                  Mountain Standard Time (MST)
+                </SelectItem>
+                <SelectItem value="pst">
+                  Pacific Standard Time (PST)
+                </SelectItem>
+                <SelectItem value="akst">
+                  Alaska Standard Time (AKST)
+                </SelectItem>
+                <SelectItem value="hst">
+                  Hawaii Standard Time (HST)
+                </SelectItem>
+              </SelectGroup>
+              <SelectGroup>
+                <SelectLabel>Europe & Africa</SelectLabel>
+                <SelectItem value="gmt"> Greenwich Mean Time (GMT) </SelectItem>
+                <SelectItem value="cet">
+                  Central European Time (CET)
+                </SelectItem>
+                <SelectItem value="eet">
+                  Eastern European Time (EET)
+                </SelectItem>
+                <SelectItem value="west">
+                  Western European Summer Time (WEST)
+                </SelectItem>
+                <SelectItem value="cat"> Central Africa Time (CAT) </SelectItem>
+                <SelectItem value="eat"> East Africa Time (EAT) </SelectItem>
+              </SelectGroup>
+              <SelectGroup>
+                <SelectLabel>Asia</SelectLabel>
+                <SelectItem value="msk"> Moscow Time (MSK) </SelectItem>
+                <SelectItem value="ist"> India Standard Time (IST) </SelectItem>
+                <SelectItem value="cst_china">
+                  China Standard Time (CST)
+                </SelectItem>
+                <SelectItem value="jst"> Japan Standard Time (JST) </SelectItem>
+                <SelectItem value="kst"> Korea Standard Time (KST) </SelectItem>
+                <SelectItem value="ist_indonesia">
+                  Indonesia Central Standard Time (WITA)
+                </SelectItem>
+              </SelectGroup>
+              <SelectGroup>
+                <SelectLabel>Australia & Pacific</SelectLabel>
+                <SelectItem value="awst">
+                  Australian Western Standard Time (AWST)
+                </SelectItem>
+                <SelectItem value="acst">
+                  Australian Central Standard Time (ACST)
+                </SelectItem>
+                <SelectItem value="aest">
+                  Australian Eastern Standard Time (AEST)
+                </SelectItem>
+                <SelectItem value="nzst">
+                  New Zealand Standard Time (NZST)
+                </SelectItem>
+                <SelectItem value="fjt"> Fiji Time (FJT) </SelectItem>
+              </SelectGroup>
+              <SelectGroup>
+                <SelectLabel>South America</SelectLabel>
+                <SelectItem value="art"> Argentina Time (ART) </SelectItem>
+                <SelectItem value="bot"> Bolivia Time (BOT) </SelectItem>
+                <SelectItem value="brt"> Brasilia Time (BRT) </SelectItem>
+                <SelectItem value="clt"> Chile Standard Time (CLT) </SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </ItemActions>
+      </Item>
+      <Item class="px-0">
+        <ItemContent>
+          <ItemTitle>Timezone</ItemTitle>
+          <ItemDescription> Your timezone </ItemDescription>
+        </ItemContent>
+        <ItemActions>
+          <Select>
+            <SelectTrigger class="w-[130px]">
+              <SelectValue placeholder="Select a currency" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>North America</SelectLabel>
+                <SelectItem value="est">
+                  Eastern Standard Time (EST)
+                </SelectItem>
+                <SelectItem value="cst">
+                  Central Standard Time (CST)
+                </SelectItem>
+                <SelectItem value="mst">
+                  Mountain Standard Time (MST)
+                </SelectItem>
+                <SelectItem value="pst">
+                  Pacific Standard Time (PST)
+                </SelectItem>
+                <SelectItem value="akst">
+                  Alaska Standard Time (AKST)
+                </SelectItem>
+                <SelectItem value="hst">
+                  Hawaii Standard Time (HST)
+                </SelectItem>
+              </SelectGroup>
+              <SelectGroup>
+                <SelectLabel>Europe & Africa</SelectLabel>
+                <SelectItem value="gmt"> Greenwich Mean Time (GMT) </SelectItem>
+                <SelectItem value="cet">
+                  Central European Time (CET)
+                </SelectItem>
+                <SelectItem value="eet">
+                  Eastern European Time (EET)
+                </SelectItem>
+                <SelectItem value="west">
+                  Western European Summer Time (WEST)
+                </SelectItem>
+                <SelectItem value="cat"> Central Africa Time (CAT) </SelectItem>
+                <SelectItem value="eat"> East Africa Time (EAT) </SelectItem>
+              </SelectGroup>
+              <SelectGroup>
+                <SelectLabel>Asia</SelectLabel>
+                <SelectItem value="msk"> Moscow Time (MSK) </SelectItem>
+                <SelectItem value="ist"> India Standard Time (IST) </SelectItem>
+                <SelectItem value="cst_china">
+                  China Standard Time (CST)
+                </SelectItem>
+                <SelectItem value="jst"> Japan Standard Time (JST) </SelectItem>
+                <SelectItem value="kst"> Korea Standard Time (KST) </SelectItem>
+                <SelectItem value="ist_indonesia">
+                  Indonesia Central Standard Time (WITA)
+                </SelectItem>
+              </SelectGroup>
+              <SelectGroup>
+                <SelectLabel>Australia & Pacific</SelectLabel>
+                <SelectItem value="awst">
+                  Australian Western Standard Time (AWST)
+                </SelectItem>
+                <SelectItem value="acst">
+                  Australian Central Standard Time (ACST)
+                </SelectItem>
+                <SelectItem value="aest">
+                  Australian Eastern Standard Time (AEST)
+                </SelectItem>
+                <SelectItem value="nzst">
+                  New Zealand Standard Time (NZST)
+                </SelectItem>
+                <SelectItem value="fjt"> Fiji Time (FJT) </SelectItem>
+              </SelectGroup>
+              <SelectGroup>
+                <SelectLabel>South America</SelectLabel>
+                <SelectItem value="art"> Argentina Time (ART) </SelectItem>
+                <SelectItem value="bot"> Bolivia Time (BOT) </SelectItem>
+                <SelectItem value="brt"> Brasilia Time (BRT) </SelectItem>
+                <SelectItem value="clt"> Chile Standard Time (CLT) </SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </ItemActions>
+      </Item>
+    </div>
+    <ul
+      v-if="linkedAccounts"
+      class="divide-neutral-200 dark:divide-white/10 divide-y"
     >
-      <UFormField label="Name" name="name">
-        <UInput
-          v-model="state.name"
-          placeholder="Name"
-          class="w-full"
-          size="lg"
+      <li
+        v-for="account in linkedAccounts"
+        :key="account.id"
+        class="flex items-center gap-3 py-4"
+      >
+        <div
+          class="bg-neutral-100 dark:bg-white/10 flex h-12 w-12 items-center justify-center rounded-md"
+        >
+          <UIcon :name="getProviderIcon(account.provider)" class="text-xl" />
+        </div>
+        <div class="flex-1">
+          <p>{{ getProviderName(account.provider) }}</p>
+          <p class="text-neutral-500 text-xs">
+            Connected on
+            {{
+              account.createdAt
+                ? useDateFormat(account.createdAt, 'MMM D, YYYY').value
+                : 'Unknown date'
+            }}
+          </p>
+        </div>
+        <UButton
+          icon="i-lucide-trash"
+          variant="ghost"
+          color="error"
+          :loading="loading"
+          @click="unlinkAccount(account)"
         />
-      </UFormField>
-      <UFormField label="Email">
-        <UInput
-          :value="user?.email"
-          placeholder="Email"
-          class="w-full"
-          disabled
-          variant="subtle"
-          size="lg"
-        />
-      </UFormField>
-      <UFormField label="Account ID">
-        <UInput
-          :value="user?.id"
-          placeholder="Account ID"
-          class="w-full"
-          disabled
-          variant="subtle"
-          size="lg"
-        />
-      </UFormField>
-      <UButton
-        color="orange"
-        :loading="loading"
-        :disabled="loading"
-        type="submit"
-        label="Save"
-      />
-    </UForm>
+      </li>
+    </ul>
   </UCard>
+  <UModal
+    v-model:open="linkAccountModal"
+    title="Link Account"
+    description="Link an account to your account."
+  >
+    <template #body>
+      <div class="space-y-2">
+        <AuthSocialLoginButton
+          v-for="provider in availableProviders"
+          :key="provider.id"
+          :label="provider.name"
+          :icon="provider.icon"
+          :provider="provider.id"
+        />
+      </div>
+    </template>
+  </UModal>
 </template>
 
 <script lang="ts" setup>
-import type { FormSubmitEvent } from '#ui/types'
-const { user, fetch: refreshSession } = useUserSession()
-const selectedFile = ref<File | null>(null)
-const { updateUser, loading, schema } = useUserAccount()
+import { useDateFormat } from '@vueuse/core'
+import type { OAuthAccounts } from '@@/types/database'
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemActions,
+  ItemTitle,
+} from '@/components/ui/item'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
-// const uploadAvatar = async () => {
-//   try {
-//     if (!selectedFile.value) return ''
-//     const formData = new FormData()
-//     formData.append('image', selectedFile.value)
-//     const fileUrl = await $fetch('/api/upload-image', {
-//       method: 'POST',
-//       body: formData,
-//     })
-//     return fileUrl
-//   } catch (error) {
-//     throw new Error('Failed to upload avatar')
-//   }
-// }
+const linkAccountModal = ref(false)
+const toast = useToast()
+const loading = ref(false)
 
-// const handleFileSelected = (file: File | null) => {
-//   selectedFile.value = file
-//   if (!file) {
-//     state.avatarUrl = ''
-//   }
-// }
+const { data: linkedAccounts } = await useFetch<OAuthAccounts[]>(
+  '/api/me/linked-accounts',
+  {
+    key: 'linked-accounts',
+  },
+)
 
-const state = reactive({
-  name: user.value?.name || '',
-  // avatarUrl: user.value?.avatarUrl || '',
-})
+const availableProviders = [
+  {
+    id: 'google',
+    name: 'Google',
+    icon: 'i-logos-google-icon',
+  },
+  // {
+  //   id: 'github',
+  //   name: 'Github',
+  //   icon: 'i-mdi-github',
+  // },
+  // {
+  //   id: 'discord',
+  //   name: 'Discord',
+  //   icon: 'i-logos-discord-icon',
+  // },
+  // {
+  //   id: 'spotify',
+  //   name: 'Spotify',
+  //   icon: 'i-logos-spotify-icon',
+  // },
+]
 
-const onSubmit = async (event: FormSubmitEvent<any>) => {
+const getProviderIcon = (providerId: string) => {
+  if (!providerId) return 'i-lucide-question-mark-circle'
+  const provider = availableProviders.find((p) => p.id === providerId)
+  return provider?.icon || 'i-lucide-question-mark-circle'
+}
+
+const getProviderName = (providerId: string) => {
+  if (!providerId) return 'Unknown'
+  const provider = availableProviders.find((p) => p.id === providerId)
+  return provider?.name || 'Unknown'
+}
+
+const unlinkAccount = async (account: OAuthAccounts) => {
   try {
-    // let filePath = ''
-
-    // if (selectedFile.value) {
-    //   filePath = await uploadAvatar()
-    // } else if (state.avatarUrl) {
-    //   filePath = state.avatarUrl
-    // } else {
-    //   filePath = `https://api.dicebear.com/9.x/glass/svg?seed=${event.data.name}`
-    // }
-
-    const userData = {
-      ...event.data,
-      // avatarUrl: filePath,
-    }
-
-    await updateUser(userData)
-    await refreshSession()
-  } catch (error) {
-    console.error(error)
+    loading.value = true
+    await $fetch(`/api/me/linked-accounts/${account.id}`, {
+      method: 'DELETE',
+    })
+    // Refresh the linked accounts list
+    await refreshNuxtData('linked-accounts')
+    toast.add({
+      title: 'Account unlinked',
+      description: `Your ${account.provider} account has been successfully unlinked`,
+      color: 'success',
+    })
+  } catch (error: any) {
+    const errorMessage = error.data?.statusMessage || 'Failed to unlink account'
+    toast.add({
+      title: 'Error',
+      description: errorMessage,
+      color: 'error',
+    })
+  } finally {
+    loading.value = false
   }
 }
 </script>
