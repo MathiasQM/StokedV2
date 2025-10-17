@@ -1,48 +1,59 @@
 <template>
-  <AppContainer disablePaddingx title="Account Settings">
-    <div
-      class="lg:hidden w-full h-42 flex flex-col justify-center items-center space-y-2"
-    >
-      <h2 class="first-letter:uppercase text-3xl font-semibold">
-        {{ user?.name }}
-      </h2>
-      <h3 class="text-sm font-medium">{{ user?.email }}</h3>
-      <h4 class="text-xs font-normal text-black-400">{{ user?.id }}</h4>
-    </div>
+  <!-- <AppContainer
+    disablePaddingx
+    title="Account Settings"
+    class="overflow-y-hidden! p-0!" 
+  >-->
+  <div class="flex flex-col h-[calc(100vh-52px)]">
     <div class="fixed inset-0 -z-10 flex justify-center">
       <div class="linear-gradient-layer absolute -z-1"></div>
       <div class="linear-gradient-layer-bottom absolute -z-1"></div>
       <div class="radial-gradient-layer absolute -z-1"></div>
     </div>
-    <div
-      class="relative mb-5 pl-5 flex justify-start gap-x-2 w-full rounded-md p-1"
-    >
-      <span
-        class="absolute bg-white h-[3px] rounded-full block bottom-1 transition-all duration-300 ease-in-out"
-        :style="underlineStyle"
-      ></span>
-
-      <button
-        v-for="(tab, index) in tabs"
-        :key="tab"
-        :ref="
-          (el) => {
-            if (el) tabButtonRefs[index] = el as HTMLButtonElement
-          }
-        "
-        :class="[
-          'rounded-sm px-3 py-1.5 text-sm font-medium transition-all first-letter:uppercase',
-          activeTab === tab ? ' text-white' : 'text-zinc-400',
-        ]"
-        @click="activeTab = tab"
+    <div class="flex-shrink-0">
+      <div
+        class="lg:hidden w-full h-42 flex flex-col justify-center items-center space-y-2"
       >
-        {{ tab }}
-      </button>
+        <h2 class="first-letter:uppercase text-3xl font-semibold">
+          {{ user?.name }}
+        </h2>
+        <h3 class="text-sm font-medium">{{ user?.email }}</h3>
+        <h4 class="text-xs font-normal text-black-400">{{ user?.id }}</h4>
+      </div>
+      <div
+        class="relative mb-5 pl-5 flex justify-start gap-x-2 w-full rounded-md p-1"
+      >
+        <span
+          class="absolute bg-white h-[3px] rounded-full flex bottom-1 transition-all duration-300 ease-in-out"
+          :style="underlineStyle"
+        ></span>
+
+        <button
+          v-for="(tab, index) in tabs"
+          :key="tab"
+          :ref="
+            (el) => {
+              if (el) tabButtonRefs[index] = el as HTMLButtonElement
+            }
+          "
+          :class="[
+            'rounded-sm px-3 py-1.5 text-sm font-medium transition-all first-letter:uppercase',
+            activeTab === tab ? ' text-white' : 'text-zinc-400',
+          ]"
+          @click="activeTab = tab"
+        >
+          {{ tab }}
+        </button>
+      </div>
     </div>
 
-    <div ref="swipeContainer" class="pt-1">
-      <div class="flex" :style="containerStyle">
-        <div v-for="tab in tabs" :key="tab" class="w-full flex-shrink-0 px-5">
+    <div ref="swipeContainer" class="flex-1 overflow-y-hidden">
+      <div class="flex h-full" :style="containerStyle">
+        <div
+          v-for="tab in tabs"
+          :key="tab"
+          class="w-full h-full overflow-y-auto flex-shrink-0 px-5 pb-28"
+        >
           <AppAccountSettings v-if="tab === 'settings'" />
           <div class="space-y-8" v-if="tab === 'portfolio'">
             <AppPortfolioSettings v-if="portfolios.length > 0" />
@@ -65,7 +76,8 @@
         </div>
       </div>
     </div>
-  </AppContainer>
+  </div>
+  <!-- </AppContainer> -->
 </template>
 
 <script lang="ts" setup>
