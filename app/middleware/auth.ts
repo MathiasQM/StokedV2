@@ -7,7 +7,6 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
     (Array.isArray(to.params.portfolio)
       ? to.params.portfolio[0]
       : to.params.portfolio) || ''
-  const toast = useToast()
   const { loggedIn } = useUserSession()
   const portfolios = useState<Portfolio[]>('portfolios', () => [])
   const portfolioSlug = useState<string>('portfolioSlug')
@@ -33,10 +32,6 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
 
   // Redirect to login if not logged in
   if (!loggedIn.value) {
-    toast.add({
-      title: 'You must be logged in to access this page',
-      color: 'error',
-    })
     if (portfolioSlug.value) portfolioSlug.value = ''
     if (portfolios.value.length) portfolios.value = []
     return navigateTo('/market')

@@ -181,7 +181,7 @@
 <script setup lang="ts">
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
-definePageMeta({ layout: false })
+definePageMeta({ layout: false, middleware: ['landing-page'] })
 
 const { loggedIn } = useUserSession()
 const authOptions = ref([
