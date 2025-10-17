@@ -1,5 +1,12 @@
 import { z } from 'zod'
 import type { User } from '@@/types/database'
+import type { Currency } from 'lucide-vue-next'
+
+function stripUndefined<T extends Record<string, any>>(obj: T) {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, v]) => v !== undefined),
+  ) as Partial<T>
+}
 
 export const useUserAccount = () => {
   const toast = useToast()
@@ -7,6 +14,7 @@ export const useUserAccount = () => {
   const schema = z.object({
     avatarUrl: z.string().optional(),
     name: z.string().min(1),
+    currency: z.string().min(1),
   })
 
   const passwordSchema = z.object({
@@ -15,10 +23,12 @@ export const useUserAccount = () => {
 
   const updateUser = async (userData: Partial<z.infer<typeof schema>>) => {
     loading.value = true
+    const payload = stripUndefined(userData)
+    console.log('payload', payload)
     try {
       await $fetch<User>('/api/me', {
         method: 'PATCH',
-        body: userData,
+        body: payload,
       })
       toast.add({
         title: 'Your account has been updated successfully',
