@@ -97,13 +97,6 @@ const {
   { watch: [currentPortfolio] },
 )
 
-// --- Helper Functions ---
-
-/**
- * Creates a Clearbit logo URL, matching the provided example.
- * Includes a fallback for when the website URL is not available.
- * @param website - The full URL of the company's website.
- */
 function getLogoSrc(website: string | null | undefined): string {
   const fallbackLogo = 'https://logo.clearbit.com/stoked.dev' // A generic fallback
   if (!website) {
@@ -112,7 +105,6 @@ function getLogoSrc(website: string | null | undefined): string {
   return `https://logo.clearbit.com/${encodeURIComponent(website)}`
 }
 
-// Formats numbers as currency (e.g., 15,213 kr)
 function formatCurrency(value: number, currency: 'DKK' | 'USD') {
   return new Intl.NumberFormat('da-DK', {
     style: 'currency',
@@ -121,7 +113,6 @@ function formatCurrency(value: number, currency: 'DKK' | 'USD') {
   }).format(value)
 }
 
-// Formats numbers as percentages (e.g., +26.69%)
 function formatPercent(value: number) {
   const sign = value > 0 ? '+' : ''
   return `${sign}${value.toFixed(2)}%`
