@@ -28,7 +28,7 @@
       </div>
     </div>
 
-    <div ref="swipeContainer" class="flex-1 overflow-y-hidden">
+    <div ref="swipeContainer" class="flex-1 overflow-hidden">
       <div class="flex h-full" :style="containerStyle">
         <div
           v-for="tab in tabs"
@@ -81,7 +81,7 @@ const underlineStyle = computed(() => {
 const swipeContainer = ref<HTMLElement | null>(null)
 const { width } = useElementSize(swipeContainer)
 
-const { isSwiping, distanceX } = useSwipe(swipeContainer, {
+const { isSwiping, coordsStart, coordsEnd } = useSwipe(swipeContainer, {
   onSwipeEnd: () => {
     const swipeThreshold = width.value / 4
     if (Math.abs(distanceX.value) > swipeThreshold) {
@@ -103,6 +103,8 @@ const { isSwiping, distanceX } = useSwipe(swipeContainer, {
     dragOffset.value = offset
   },
 })
+
+const distanceX = computed(() => coordsEnd.x - coordsStart.x)
 
 const containerStyle = computed(() => {
   const baseOffset = -activeTabIndex.value * width.value
