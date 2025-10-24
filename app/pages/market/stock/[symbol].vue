@@ -5,16 +5,25 @@ import { gradientFlarePlugin } from '@/lib/chart/gradientFlarePlugin'
 
 definePageMeta({ validate: (route) => !!route.params.symbol })
 
-const isMobile = useIsMobile()
 const route = useRoute()
 const symbol = route.params.symbol as string
 
 const hoveredChartData = ref<any>(null)
+
+const tabs = [
+  'overview',
+  'news',
+  'analysis',
+  'financials',
+  'options',
+  'order book',
+] as const
+const activeTab = ref(tabs[0])
 </script>
 
 <template>
-  <AppContainer :disable-paddingx="isMobile">
-    <div class="flex w-full flex-wrap gap-5">
+  <AppContainer disable-paddingx>
+    <div class="flex w-full flex-wrap gap-5 px-5">
       <ElementsCard
         disableBorders
         class="group absolute top-0 left-0 w-full flex-1 select-none lg:min-w-0"
@@ -46,5 +55,10 @@ const hoveredChartData = ref<any>(null)
         </ChartsWrapper>
       </ElementsCard>
     </div>
+    <AppTabs v-model="activeTab" :tabs="tabs">
+      <template #news>
+        <TickerNews :symbol="symbol" />
+      </template>
+    </AppTabs>
   </AppContainer>
 </template>
