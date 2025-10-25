@@ -51,8 +51,6 @@ const { symbol } = defineProps<{
   symbol: string
 }>()
 
-// useAsyncData provides server-side rendering and efficient caching
-// The key ensures data is refetched only when the ticker changes
 const {
   data: article,
   pending,
@@ -63,7 +61,7 @@ const {
     try {
       // Replace with your actual API endpoint to fetch the *latest* article
       const response = await $fetch(`/api/article/get-latest?ticker=${symbol}`)
-
+      console.log('Raw API Response:', response)
       // Basic validation and parsing (adjust based on your actual API response)
       if (
         response &&
@@ -72,10 +70,18 @@ const {
         response.components
       ) {
         try {
-          response.components = JSON.parse(response.components as string)
+          if (typeof response.components === 'string') {
+            response.components = JSON.parse(response.components)
+          } else if (!Array.isArray(response.components)) {
+            console.error(
+              'Components field is not a valid array:',
+              response.components,
+            )
+            response.components = [] // Fallback if not string or array
+          }
         } catch (e) {
           console.error('Failed to parse article components:', e)
-          response.components = [] // Provide fallback
+          response.components = [] // Fallback on parsing error
         }
         return response as ArticleData
       }
@@ -84,10 +90,6 @@ const {
       console.error('Error fetching article:', fetchError)
       return null
     }
-  },
-  {
-    // Optional: Add watch if you need reactivity beyond route changes
-    watch: [symbol],
   },
 )
 

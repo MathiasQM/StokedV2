@@ -49,6 +49,25 @@ export function useChartUI(data: HistoricalQuote[]) {
     ],
   }))
 
+  const yStats = computed(() => {
+    const ys = (data ?? [])
+      .map((d) => Number(d.adjusted_close))
+      .filter((v) => Number.isFinite(v))
+
+    // handle empty / all-bad data defensively
+    if (ys.length === 0) {
+      return { min: 0, max: 1, headroom: 0.1 }
+    }
+
+    const min = Math.min(...ys)
+    const max = Math.max(...ys)
+    const range = max - min
+
+    // 10% headroom on top; if flat series, give a tiny epsilon so Chart.js has a range
+    const headroom = range > 0 ? range * 0.1 : Math.max(1, Math.abs(max) * 0.02)
+    return { min, max, headroom }
+  })
+
   const chartOptions = computed<ChartOptions<'line'>>(() => ({
     responsive: true,
     maintainAspectRatio: false,
@@ -56,7 +75,7 @@ export function useChartUI(data: HistoricalQuote[]) {
     interaction: { intersect: false, mode: 'index' },
     layout: {
       padding: {
-        top: 20,
+        top: 0,
         bottom: 15,
         right: 0,
         left: 0,
@@ -90,9 +109,11 @@ export function useChartUI(data: HistoricalQuote[]) {
       },
       y: {
         display: false,
+        min: yStats.value.min - 5,
+        suggestedMax: yStats.value.max + yStats.value.headroom,
         ticks: {
           count: 8,
-          callback: (v) => Number(v).toFixed(0).toLocaleString(),
+          callback: (v) => Number(v).toFixed(0),
         },
         grid: { display: false },
       },

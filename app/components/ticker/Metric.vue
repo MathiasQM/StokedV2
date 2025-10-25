@@ -78,14 +78,16 @@ const computeDifference = computed(() => {
 </script>
 
 <template>
-  <div>
-    <p class="text-black-400 mb-1 text-sm font-bold">
+  <div class="space-y-2">
+    <span class="block h-8 w-8 bg-white rounded-full"></span>
+    <p class="text-black-100 text-lg font-bold">
       {{
         purpose === 'ticker' && !hoverData
           ? symbol
           : useDateFormat(hoverData?.date, `${computedDateFormat} YYYY`)
       }}
     </p>
+
     <p class="text-black-50 mb-2 text-4xl font-semibold tracking-wide">
       ${{
         purpose === 'ticker' && !hoverData

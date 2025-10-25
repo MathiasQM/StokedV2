@@ -16,6 +16,15 @@ export const articles = pgTable(
     body: jsonb('body'), // Expecting array of strings
     conclusion: text('conclusion'),
     components: jsonb('components'),
+    tags: jsonb('tags')
+      .notNull()
+      .default(sql`'[]'::jsonb`),
+    sources: jsonb('sources')
+      .notNull()
+      .default(sql`'[]'::jsonb`),
+    sentiment: jsonb('sentiment')
+      .notNull()
+      .default(sql`'{"polarity":0,"neg":0,"neu":0,"pos":0}'::jsonb`),
   },
   (table) => [
     pgPolicy('Allow authenticated read access', {

@@ -1,4 +1,3 @@
-<!-- components/chart/ChartsWrapper.vue -->
 <script setup lang="ts">
 import dayjs from 'dayjs'
 import { useMarketQuote } from '~/composables/market/useMarketQuote'

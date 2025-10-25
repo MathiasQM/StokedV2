@@ -23,7 +23,7 @@ const activeTab = ref(tabs[0])
 
 <template>
   <AppContainer disable-paddingx>
-    <div class="flex w-full flex-wrap gap-5 px-5">
+    <div class="flex w-full flex-wrap gap-5 lg:px-5">
       <ElementsCard
         disableBorders
         class="group absolute top-0 left-0 w-full flex-1 select-none lg:min-w-0"
@@ -31,7 +31,7 @@ const activeTab = ref(tabs[0])
         <ChartsWrapper :symbol="symbol">
           <template #default="{ quoteData }">
             <TickerMetric
-              class="p-5"
+              class="px-5 pt-0 md:pt-5"
               :quoteData="quoteData"
               :symbol="symbol"
               :hover-data="hoveredChartData"
