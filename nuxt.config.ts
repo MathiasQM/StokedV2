@@ -245,6 +245,7 @@ export default defineNuxtConfig({
     elevenLabsVoiceId: process.env.ELEVENLABS_VOICE_ID_NARRATOR,
     elevenLabsModelId: process.env.ELEVENLABS_MODEL_ID,
     openaiApiKey: process.env.OPENAI_API_KEY,
+    geminiApiKey: process.env.GEMINI_API_KEY, // Missing in apphosting
     public: {
       webauthn: getWebAuthnConfig(),
       yodleeFastlinkUrl: process.env.YODLEE_FASTLINK_URL,
