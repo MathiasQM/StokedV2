@@ -2,7 +2,7 @@
   <AppContainer disablePaddingx :title="`Dashboard`">
     <AppTabs v-model="activeTab" :tabs="tabs">
       <template #overview>
-        <AppPortfolioDashboardTabsOverview class="no-swipe" />
+        <AppPortfolioDashboardTabsOverview />
       </template>
       <template #holdings>
         <AppPortfolioDashboardTabsHoldings />

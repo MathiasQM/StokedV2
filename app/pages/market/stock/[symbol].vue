@@ -28,11 +28,13 @@ const activeTab = ref(tabs[0])
         disableBorders
         class="group absolute top-0 left-0 w-full flex-1 select-none lg:min-w-0"
       >
-        <ChartsWrapper :symbol="symbol">
+        <ChartsWrapper :symbol="symbol" class="pt-20">
           <template #default="{ quoteData }">
             <TickerMetric
-              class="px-5 pt-0 md:pt-5"
+              class="px-5 pt-0 md:pt-5 absolute -top-20"
               :quoteData="quoteData"
+              showIcon
+              show
               :symbol="symbol"
               :hover-data="hoveredChartData"
               :purpose="hoveredChartData ? 'chartTooltip' : 'ticker'"

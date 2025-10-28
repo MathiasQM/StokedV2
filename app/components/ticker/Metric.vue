@@ -8,11 +8,12 @@ import { useMarketStore } from '~~/stores/market/useMarketStore'
 const props = withDefaults(
   defineProps<{
     purpose?: 'ticker' | 'chartTooltip'
+    showIcon?: boolean
     symbol: string
     quoteData: HistoricalQuote[]
     hoverData?: any
   }>(),
-  { purpose: 'ticker' },
+  { purpose: 'ticker', showIcon: false },
 )
 
 const { selectedRange } = storeToRefs(useMarketStore())
@@ -29,7 +30,9 @@ const computedDateFormat = computed(() => {
       return 'MMM DD'
     case '6m':
       return 'MMM DD'
-    case '1y':
+    case 'ytd':
+      return 'MMM DD'
+    case '3y':
       return 'MMM DD'
     case 'max':
       return 'MMM DD'
@@ -79,7 +82,7 @@ const computeDifference = computed(() => {
 
 <template>
   <div class="space-y-2">
-    <span class="block h-8 w-8 bg-white rounded-full"></span>
+    <span v-if="showIcon" class="block h-8 w-8 bg-white rounded-full"></span>
     <p class="text-black-100 text-lg font-bold">
       {{
         purpose === 'ticker' && !hoverData

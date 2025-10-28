@@ -16,8 +16,11 @@ const props = defineProps<{
 const { selectedRange } = storeToRefs(useMarketStore())
 
 function startDateForRange(range: string, lastDate: dayjs.Dayjs) {
+  // Clone the date object to prevent mutating the original
+  const date = lastDate.clone()
+
   if (range === 'max') return dayjs(props.data[0].date)
-  if (range === 'ytd') return lastDate.startOf('year')
+  if (range === 'ytd') return date.startOf('year')
 
   const [, n, u] = range.match(/^(\d+)([dwmy])$/i) ?? []
   const unitMap: Record<string, dayjs.ManipulateType> = {
@@ -26,7 +29,8 @@ function startDateForRange(range: string, lastDate: dayjs.Dayjs) {
     m: 'month',
     y: 'year',
   }
-  return lastDate.subtract(Number(n), unitMap[u])
+  // Perform the subtraction on the cloned object
+  return date.subtract(Number(n), unitMap[u])
 }
 
 const rangeMoves = computed<Move[]>(() => {
@@ -44,6 +48,11 @@ const rangeMoves = computed<Move[]>(() => {
     const firstIdx = props.data.findIndex(
       (q) => dayjs(q.date).isSame(start, 'day') || dayjs(q.date).isAfter(start),
     )
+
+    if (firstIdx === -1 && r !== 'max') {
+      return { range: r, pct: null } // Return null for pct
+    }
+
     const firstClose =
       firstIdx === -1
         ? props.data[0].adjusted_close

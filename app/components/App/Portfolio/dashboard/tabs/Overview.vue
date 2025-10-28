@@ -2,14 +2,14 @@
   <div class="flex flex-wrap gap-5">
     <ElementsCard
       enableBorderFlare
-      class="group w-full flex-1 select-none min-w-[325px] h-[50vh]"
+      class="group w-full flex-1 select-none min-w-[325px] h-[50vh] no-swipe"
     >
-      <ChartsWrapper :symbol="symbol">
+      <ChartsWrapper :symbol="symbol" class="pt-20">
         <template #default="{ quoteData }">
           <TickerMetric
-            class="p-5"
+            class="p-5 absolute -top-20 z-10"
             :quoteData="quoteData"
-            :symbol="'New Portfolio'"
+            symbol="Net asset value"
             :hover-data="hoveredChartData"
             :purpose="hoveredChartData ? 'chartTooltip' : 'ticker'"
           />
