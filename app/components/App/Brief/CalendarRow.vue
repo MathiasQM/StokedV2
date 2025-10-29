@@ -5,15 +5,12 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
   type CarouselApi,
 } from '@/components/ui/carousel'
 import type { Dayjs } from 'dayjs'
 
 const { $dayjs } = useNuxtApp()
 
-// 1. PROPS & EMITS
 const props = withDefaults(
   defineProps<{
     modelValue: Dayjs
@@ -30,14 +27,11 @@ const props = withDefaults(
 
 const emit = defineEmits(['update:modelValue'])
 
-// 2. STATE
 const emblaApi = ref<CarouselApi>()
 const activeIndex = ref(-1)
 const today = $dayjs().endOf('day')
-// The carousel will have 3 pages (0, 1, 2). We want to start on the middle one.
 const START_PAGE = 1
 
-// 3. DATE VALIDATION
 const isDateDisabled = (date: Dayjs): boolean => {
   if (props.minDate && date.isBefore(props.minDate, 'day')) return true
   if (props.maxDate && date.isAfter(props.maxDate, 'day')) return true
@@ -45,29 +39,22 @@ const isDateDisabled = (date: Dayjs): boolean => {
   return false
 }
 
-// 4. DATE GENERATION (3 WEEKS ONLY)
-// Find the start of the week containing today's date
 const startOfCurrentWeek = today.startOf('week')
-// The first day in our array is the start of the previous week
 const startDate = startOfCurrentWeek.subtract(7, 'day')
-// Create a static array of 21 days (3 weeks)
 const dates = Array.from({ length: 21 }, (_, i) => {
   return startDate.add(i, 'day')
 })
 
-// Group the flat array into pages of 7
 const dateGroups = computed(() => {
   return [dates.slice(0, 7), dates.slice(7, 14), dates.slice(14, 21)]
 })
 
-// 5. EVENT HANDLERS
 const handleDateClick = (date: Dayjs, globalIndex: number) => {
   if (isDateDisabled(date)) return
   activeIndex.value = globalIndex
   emit('update:modelValue', date)
 }
 
-// 6. HOOKS (WATCHERS)
 watch(
   () => props.modelValue,
   (newDate) => {
@@ -75,15 +62,12 @@ watch(
     const newGlobalIndex = dates.findIndex((d) => d.isSame(newDate, 'day'))
 
     if (newGlobalIndex === -1 || isDateDisabled(dates[newGlobalIndex])) {
-      // If the date from the parent is invalid, don't select anything
       activeIndex.value = -1
       return
     }
 
-    // Set the active selection
     activeIndex.value = newGlobalIndex
   },
-  // Run this on component mount to select the initial date
   { immediate: true },
 )
 </script>
@@ -92,7 +76,6 @@ watch(
   <Carousel
     class="w-full max-w-md bg-neutral-900 border-1 border-neutal-500 px-3 rounded-lg"
     :opts="{
-      // Tell the carousel to start on the middle page (today's week)
       startIndex: START_PAGE,
     }"
     @get-api="(api) => (emblaApi = api)"

@@ -7,19 +7,19 @@
       class="h-18 border-black-100 dark:border-black-800 dark:bg-black-500/10 flex w-full max-w-92 items-center justify-evenly rounded-full border-1 bg-white/10 backdrop-blur-md"
     >
       <AppSidebarLink
-        key="poc"
-        v-bind="{
-          label: 'Poc',
-          icon: 'i-lucide-globe',
-          to: `/dev/poc`,
-        }"
-      />
-      <AppSidebarLink
         key="market"
         v-bind="{
           label: 'Market',
           icon: 'i-lucide-globe',
           to: `/market`,
+        }"
+      />
+      <AppSidebarLink
+        key="brief"
+        v-bind="{
+          label: 'Daily Brief',
+          icon: 'i-lucide-newspaper',
+          to: `/brief`,
         }"
       />
       <AppSidebarLink v-for="link in links" :key="link.to" v-bind="link" />
@@ -34,19 +34,12 @@ const { currentPortfolio, portfolios } = usePortfolio()
 
 const links = computed(() => [
   {
-    label: 'Dashboard',
-    icon: 'i-lucide-layout-dashboard',
+    label: 'Portfolio',
+    icon: 'i-lucide-briefcase-business',
     to: `/dashboard/${currentPortfolio.value?.slug}` || '',
     requireAuthentication: true,
     requirePortfolio: true,
   },
-  // {
-  //   label: 'News',
-  //   icon: 'i-lucide-newspaper',
-  //   to: `/dashboard/${currentPortfolio.value?.slug}/news` || '',
-  //   requirePortfolio: true,
-  //   requireAuthentication: true,
-  // },
   {
     label: 'Account',
     icon: 'i-lucide-circle-user',

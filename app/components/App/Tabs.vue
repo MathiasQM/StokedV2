@@ -2,7 +2,7 @@
   <div class="flex flex-col flex-1 overflow-y-hidden">
     <div class="flex-shrink-0">
       <div
-        class="relative mb-5 pl-5 -left-5 flex justify-start gap-x-2 w-full rounded-md p-1 overflow-y-auto"
+        class="relative mb-5 pl-5 -left-5 flex justify-start gap-x-2 w-full rounded-md p-1 overflow-x-auto"
       >
         <span
           class="absolute bg-white h-[3px] rounded-full flex bottom-1 transition-all duration-300 ease-in-out"
@@ -18,7 +18,7 @@
             }
           "
           :class="[
-            'rounded-sm px-3 py-1.5 text-sm font-medium transition-all first-letter:uppercase',
+            'rounded-sm px-3 py-1.5 text-sm font-medium transition-all first-letter:uppercase whitespace-nowrap',
             activeTab === tab ? ' text-white' : 'text-zinc-400',
           ]"
           @click="activeTab = tab"
@@ -28,7 +28,11 @@
       </div>
     </div>
 
-    <div ref="swipeContainer" class="flex-1 overflow-hidden">
+    <div
+      ref="swipeContainer"
+      class="flex-1 overflow-hidden"
+      style="touch-action: pan-y"
+    >
       <div class="flex h-full" :style="containerStyle">
         <div
           v-for="tab in tabs"
@@ -44,7 +48,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, toRef } from 'vue'
+import { ref, computed, toRef, watch, nextTick } from 'vue'
 import { useSwipe, useElementSize } from '@vueuse/core'
 
 const props = withDefaults(
@@ -77,7 +81,8 @@ const underlineStyle = computed(() => {
   const paddingLeft = parseFloat(style.paddingLeft)
   const paddingRight = parseFloat(style.paddingRight)
   const newWidth = activeButton.offsetWidth - paddingLeft - paddingRight
-  const newTranslateX = activeButton.offsetLeft - (paddingLeft - 3)
+  const newTranslateX =
+    activeButton.offsetLeft - paddingLeft + (paddingLeft > 0 ? 3 : 0)
   return {
     width: `${newWidth}px`,
     transform: `translateX(${newTranslateX}px)`,
@@ -88,30 +93,63 @@ const underlineStyle = computed(() => {
 const swipeContainer = ref<HTMLElement | null>(null)
 const { width } = useElementSize(swipeContainer)
 
-const { isSwiping, coordsStart, coordsEnd } = useSwipe(swipeContainer, {
+// OPTIMIZATION: State to lock swipe direction
+const swipeDirection = ref<'horizontal' | 'vertical' | null>(null)
+const directionLockThreshold = 10 // pixels
+
+const { isSwiping, coordsStart, coordsEnd, stop } = useSwipe(swipeContainer, {
+  onSwipeStart: (e: TouchEvent | MouseEvent) => {
+    const target = e.target as HTMLElement
+    // Check if the event started on or inside an element with the .no-swipe class
+    if (target.closest('.no-swipe')) {
+      stop() // Abort the swipe
+      return
+    }
+    // If we're not ignoring, reset the direction for a new swipe
+    swipeDirection.value = null
+  },
   onSwipeEnd: () => {
-    const swipeThreshold = width.value / 4
-    if (Math.abs(distanceX.value) > swipeThreshold) {
-      if (distanceX.value < 0 && activeTabIndex.value < tabs.value.length - 1) {
-        activeTab.value = tabs.value[activeTabIndex.value + 1]
-      } else if (distanceX.value > 0 && activeTabIndex.value > 0) {
-        activeTab.value = tabs.value[activeTabIndex.value - 1]
+    // Only trigger tab change if the gesture was primarily horizontal
+    if (swipeDirection.value === 'horizontal') {
+      const distanceX = coordsEnd.x - coordsStart.x
+      const swipeThreshold = width.value / 4
+      if (Math.abs(distanceX) > swipeThreshold) {
+        if (distanceX < 0 && activeTabIndex.value < tabs.value.length - 1) {
+          activeTab.value = tabs.value[activeTabIndex.value + 1]
+        } else if (distanceX > 0 && activeTabIndex.value > 0) {
+          activeTab.value = tabs.value[activeTabIndex.value - 1]
+        }
       }
     }
-    dragOffset.value = 0
+    dragOffset.value = 0 // Reset drag offset regardless of direction
   },
-  onSwipe: () => {
-    let offset = distanceX.value
-    const isFirst = activeTabIndex.value === 0
-    const isLast = activeTabIndex.value === tabs.value.length - 1
-    if ((isFirst && offset > 0) || (isLast && offset < 0)) {
-      offset *= 0.4
+  onSwipe: (e: TouchEvent | MouseEvent) => {
+    // Calculate current distances from the start of the swipe
+    const dx = Math.abs(coordsEnd.x - coordsStart.x)
+    const dy = Math.abs(coordsEnd.y - coordsStart.y)
+
+    // Step 1: Lock the swipe direction once the user has dragged past the threshold
+    if (
+      swipeDirection.value === null &&
+      (dx > directionLockThreshold || dy > directionLockThreshold)
+    ) {
+      swipeDirection.value = dx > dy ? 'horizontal' : 'vertical'
     }
-    dragOffset.value = offset
+
+    // Step 2: If the direction is horizontal, prevent vertical scrolling and apply the drag offset
+    if (swipeDirection.value === 'horizontal') {
+      let offset = coordsEnd.x - coordsStart.x
+      const isFirst = activeTabIndex.value === 0
+      const isLast = activeTabIndex.value === tabs.value.length - 1
+      // Apply resistance at the edges
+      if ((isFirst && offset > 0) || (isLast && offset < 0)) {
+        offset *= 0.4
+      }
+      dragOffset.value = offset
+    }
+    // If direction is vertical, do nothing and let the browser handle scrolling
   },
 })
-
-const distanceX = computed(() => coordsEnd.x - coordsStart.x)
 
 const containerStyle = computed(() => {
   const baseOffset = -activeTabIndex.value * width.value
@@ -119,6 +157,8 @@ const containerStyle = computed(() => {
   return {
     transform: `translateX(${totalOffset}px)`,
     transition: isSwiping.value ? 'none' : 'transform 0.3s ease-in-out',
+    // OPTIMIZATION: Prevent accidental text selection while swiping
+    userSelect: isSwiping.value ? 'none' : 'auto',
   }
 })
 
