@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: ['class'],
   content: [
     './app/components/**/*.{vue,js,ts,jsx,tsx}',
     './app/layouts/**/*.vue',
@@ -9,8 +10,6 @@ export default {
     './app/nuxt.config.{js,ts}',
   ],
   theme: {
-    // Keep this top-level 'theme' object, but leave it empty for now.
-    // All your customizations go inside 'extend'.
     extend: {
       colors: {
         red: {
@@ -81,6 +80,28 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
+      },
+      keyframes: {
+        'accordion-down': {
+          from: {
+            height: '0',
+          },
+          to: {
+            height: 'var(--reka-accordion-content-height)',
+          },
+        },
+        'accordion-up': {
+          from: {
+            height: 'var(--reka-accordion-content-height)',
+          },
+          to: {
+            height: '0',
+          },
+        },
+      },
+      animation: {
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
       },
     },
   },

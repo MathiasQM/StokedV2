@@ -1,8 +1,13 @@
 <template>
-  <AppContainer disablePaddingx :title="`Dashboard`">
-    <AppTabs v-model="activeTab" :tabs="tabs">
+  <AppContainer :title="`Dashboard`">
+    <AppPortfolioDashboardOverview />
+    <AppTabs disablePaddingx v-model="activeTab" :tabs="tabs">
       <template #overview>
-        <AppPortfolioDashboardTabsOverview />
+        <AppPortfolioDashboardTabsCalendarRow
+          v-model="selectedDate"
+          dateFormat="d"
+          disable-future
+        />
       </template>
       <template #holdings>
         <AppPortfolioDashboardTabsHoldings />
@@ -13,6 +18,9 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
+const { $dayjs } = useNuxtApp()
+
+const selectedDate = ref($dayjs())
 
 definePageMeta({
   layout: 'default',

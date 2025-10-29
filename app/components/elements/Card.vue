@@ -24,7 +24,7 @@ const isMobile = useIsMobile()
         class="absolute top-0 left-0 m-[1px] h-full w-full"
         :class="
           isMobile
-            ? 'from-black-950/0 to-black-900 bg-gradient-to-b'
+            ? 'from-black-800/30 to-black-800 bg-gradient-to-b'
             : 'bg-black-950'
         "
       ></div>

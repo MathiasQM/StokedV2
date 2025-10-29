@@ -81,7 +81,7 @@ const computeDifference = computed(() => {
 </script>
 
 <template>
-  <div class="space-y-2">
+  <div class="space-y-2 text-start">
     <span v-if="showIcon" class="block h-8 w-8 bg-white rounded-full"></span>
     <p class="text-black-100 text-lg font-bold">
       {{

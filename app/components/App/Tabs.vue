@@ -2,7 +2,7 @@
   <div class="flex flex-col flex-1 overflow-y-hidden">
     <div class="flex-shrink-0">
       <div
-        class="relative mb-5 pl-5 flex justify-start gap-x-2 w-full rounded-md p-1 overflow-y-auto"
+        class="relative mb-5 pl-5 -left-5 flex justify-start gap-x-2 w-full rounded-md p-1 overflow-y-auto"
       >
         <span
           class="absolute bg-white h-[3px] rounded-full flex bottom-1 transition-all duration-300 ease-in-out"
@@ -33,7 +33,8 @@
         <div
           v-for="tab in tabs"
           :key="tab"
-          class="w-full h-full overflow-y-auto flex-shrink-0 px-5 pb-28"
+          class="w-full h-full overflow-y-auto flex-shrink-0 pb-28"
+          :class="disablePaddingx ? '' : 'px-5'"
         >
           <slot :name="tab" />
         </div>
@@ -46,10 +47,16 @@
 import { ref, computed, toRef } from 'vue'
 import { useSwipe, useElementSize } from '@vueuse/core'
 
-const props = defineProps<{
-  tabs: string[]
-  modelValue: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    tabs: string[]
+    modelValue: string
+    disablePaddingx?: boolean
+  }>(),
+  {
+    disablePaddingx: false,
+  },
+)
 
 const emit = defineEmits(['update:modelValue'])
 

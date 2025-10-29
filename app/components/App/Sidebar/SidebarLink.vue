@@ -10,13 +10,13 @@
       @click="handleClick($event)"
       v-slot="{ active }"
     >
-      <UIcon :name="icon" class="h-5 w-5 md:h-4 md:w-4" />
+      <UIcon :name="icon" class="h-6 w-6 md:h-4 md:w-4" />
 
-      <p class="text-xs md:text-sm">{{ label }}</p>
+      <p class="text-xs">{{ label }}</p>
       <Transition name="fade">
         <div
           v-if="active"
-          class="gradient-overlay pointer-events-none absolute inset-0 rounded-md"
+          class="hidden md:block gradient-overlay pointer-events-none absolute inset-0 rounded-md"
         >
           <span
             class="absolute bottom-0 left-1/2 h-[3px] w-6 -translate-x-1/2 rounded-t-lg bg-orange-500 opacity-70 md:top-[6px] md:right-0 md:bottom-auto md:left-auto md:h-6 md:w-[3px] md:-translate-x-0 md:rounded-t-none md:rounded-l-lg"
