@@ -4,25 +4,11 @@
   <div class="md:hidden">
     <PwaInstallPrompt />
   </div>
-  <div ref="wrapperRef" class="main-wrapper padding-env-top">
-    <!-- <button
-      @click="
-        () => {
-          toast({
-            title: 'Scheduled: Catch up',
-            description: 'Friday, February 10, 2023 at 5:57 PM',
-          })
-        }
-      "
-    >
-      test
-    </button> -->
-
+  <div ref="wrapperRef" class="padding-env-top">
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
     <!-- MOVE TO LAYOUTS AS AUTH ROUTE ARE NOT AUTHENTICATED -->
-    <!-- <AppPopupsChoosePortfolios  /> -->
 
     <!-- <AppPortfolioCountryProviderDropdown /> -->
     <AuthDrawer />

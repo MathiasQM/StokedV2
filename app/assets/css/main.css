@@ -236,7 +236,7 @@ html {
 }
 
 .padding-env-top {
-  padding-top: env(safe-area-inset-bottom);
+  padding-top: max(1rem, env(safe-area-inset-top));
 }
 
 .margin-env-top {

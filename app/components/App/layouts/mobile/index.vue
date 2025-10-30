@@ -1,8 +1,7 @@
 <template>
-  <header class="relative z-50 flex w-full flex-col justify-end px-5 pt-5">
+  <header class="relative z-50 flex w-full flex-col justify-end px-5 h-10">
     <div class="flex w-full items-end justify-between">
       <TransitionGroup tag="div" name="nav" class="flex items-center gap-3">
-        <!-- Back button ─ fades away -->
         <UButton
           v-if="showBackButton"
           key="back"
@@ -13,7 +12,6 @@
           <UIcon name="i-lucide-chevron-left" class="size-5" />
         </UButton>
 
-        <!-- Dropdown ─ always rendered -->
         <AppPortfolioDropdown key="portfolio" />
       </TransitionGroup>
 
@@ -30,22 +28,19 @@
         >
           <UIcon name="i-lucide-shield" class="size-5 text-white" />
         </UButton>
-        <!-- <AppUserDropdown /> -->
       </div>
     </div>
 
     <div v-if="isSuperAdminRoute" key="super-admin">
       <AppSidebarSuperAdmin />
     </div>
-    <!-- To cover statusbar/safearea -->
-    <!-- <span class="dark:bg-black-950 absolute left-0 bottom-12 -z-10 h-52 w-full bg-white"></span> -->
   </header>
 
   <main>
     <slot />
   </main>
 
-  <footer class="fixed bottom-0 w-full">
+  <footer>
     <AppMobileNav />
   </footer>
 </template>

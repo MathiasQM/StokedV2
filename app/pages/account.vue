@@ -1,6 +1,8 @@
 <template>
-  <div class="flex flex-col h-[calc(100vh-52px)]">
-    <div class="fixed inset-0 -z-10 flex justify-center">
+  <div class="overflow-hiddden">
+    <div
+      class="fixed top-0 right-1/2 z-[0] flex justify-center h-[calc(100vh)]"
+    >
       <div class="linear-gradient-layer absolute -z-1"></div>
       <div class="linear-gradient-layer-bottom absolute -z-1"></div>
       <div class="radial-gradient-layer absolute -z-1"></div>
