@@ -5,7 +5,7 @@
         <AppPortfolioDashboardOverview />
       </template>
       <template #holdings>
-        <AppPortfolioDashboardTabsHoldings />
+        <AppPortfolioTable />
       </template>
     </AppTabs>
   </AppContainer>

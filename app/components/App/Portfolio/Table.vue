@@ -1,250 +1,390 @@
-<script setup lang="ts">
-import { h, ref, type Ref } from 'vue'
-import type { ColumnDef } from '@tanstack/vue-table'
-import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
-import type { Updater } from '@tanstack/vue-table'
-import { PlusCircle, X } from 'lucide-vue-next'
-
-// --- UI COMPONENT IMPORTS WITH ALIASES ---
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import {
-  Table as ShadcnTable,
-  TableBody as ShadcnTableBody,
-  TableCell as ShadcnTableCell,
-  TableHead as ShadcnTableHead,
-  TableHeader as ShadcnTableHeader,
-  TableRow as ShadcnTableRow,
-} from '@/components/ui/table'
-import { useToast } from '@/components/ui/toast/use-toast'
-
-// --- UTILITIES & INTERFACES ---
-function valueUpdater<T extends Updater<any>>(
-  updaterOrValue: T,
-  refValue: Ref<any>,
-) {
-  refValue.value =
-    typeof updaterOrValue === 'function'
-      ? updaterOrValue(refValue.value)
-      : updaterOrValue
-}
-
-export interface Stock {
-  id: string
-  ticker: string
-  name: string
-  change: number
-  // Removed price and marketCap as they are no longer displayed
-}
-
-const { toast } = useToast()
-
-// --- DATA & STATE MANAGEMENT ---
-const newTicker = ref('')
-const isAdding = ref(false)
-
-// Initial portfolio data, starting with a few examples.
-const data = ref<Stock[]>([
-  { id: 'aapl', ticker: 'AAPL', name: 'Apple Inc.', change: -0.89 },
-  { id: 'msft', ticker: 'MSFT', name: 'Microsoft Corp.', change: 1.52 },
-  { id: 'tsla', ticker: 'TSLA', name: 'Tesla, Inc.', change: 2.11 },
-])
-
-// --- MOCK API & CORE LOGIC ---
-/**
- * Simulates fetching stock data from an API.
- * @param ticker The stock ticker to look up.
- */
-async function fetchStockData(ticker: string): Promise<Stock | null> {
-  console.log(`Searching for ${ticker}...`)
-  // This mock simulates a network delay. In a real app, this would be a fetch request.
-  await new Promise((resolve) => setTimeout(resolve, 600))
-
-  const tickerUpper = ticker.toUpperCase()
-  // Mock database now only contains the required fields
-  const mockDatabase: Record<string, Omit<Stock, 'id' | 'ticker'>> = {
-    GOOGL: { name: 'Alphabet Inc.', change: 0.25 },
-    AMZN: { name: 'Amazon.com, Inc.', change: -1.2 },
-    NVDA: { name: 'NVIDIA Corp.', change: 3.45 },
-  }
-
-  if (mockDatabase[tickerUpper]) {
-    return {
-      id: ticker.toLowerCase(),
-      ticker: tickerUpper,
-      ...mockDatabase[tickerUpper],
-    }
-  }
-  return null
-}
-
-async function addStock() {
-  if (!newTicker.value.trim()) return
-
-  isAdding.value = true
-  const tickerToAdd = newTicker.value.trim()
-
-  if (
-    data.value.some(
-      (stock) => stock.ticker.toLowerCase() === tickerToAdd.toLowerCase(),
-    )
-  ) {
-    toast({
-      title: 'Duplicate Stock',
-      description: `${tickerToAdd.toUpperCase()} is already in your portfolio.`,
-      variant: 'destructive',
-    })
-    isAdding.value = false
-    return
-  }
-
-  const newStock = await fetchStockData(tickerToAdd)
-  isAdding.value = false
-
-  if (newStock) {
-    data.value.unshift(newStock) // Add new stock to the top of the list
-    newTicker.value = ''
-    toast({
-      title: 'Success!',
-      description: `${newStock.name} has been added to your portfolio.`,
-    })
-  } else {
-    toast({
-      title: 'Stock Not Found',
-      description: `Could not find data for the ticker "${tickerToAdd.toUpperCase()}".`,
-      variant: 'destructive',
-    })
-  }
-}
-
-function removeStock(id: string) {
-  const stockToRemove = data.value.find((stock) => stock.id === id)
-  data.value = data.value.filter((stock) => stock.id !== id)
-  if (stockToRemove) {
-    toast({
-      title: `${stockToRemove.ticker} Removed`,
-      description: `${stockToRemove.name} has been removed from your portfolio.`,
-    })
-  }
-}
-
-// --- TABLE COLUMN DEFINITIONS (Refactored to 4 columns) ---
-const columns: ColumnDef<Stock>[] = [
-  {
-    accessorKey: 'ticker',
-    header: 'Ticker',
-    cell: ({ row }) => h('div', { class: 'font-bold' }, row.getValue('ticker')),
-  },
-  {
-    accessorKey: 'name',
-    header: 'Company Name',
-  },
-  {
-    accessorKey: 'change',
-    header: () => h('div', { class: 'text-right' }, 'Today(%)'),
-    cell: ({ row }) => {
-      const change: number = row.getValue('change')
-      const colorClass = change >= 0 ? 'text-green-500' : 'text-red-500'
-      const sign = change >= 0 ? '+' : ''
-      return h(
-        'div',
-        { class: `text-right font-medium ${colorClass}` },
-        `${sign}${change.toFixed(2)}%`,
-      )
-    },
-  },
-  {
-    id: 'actions',
-    header: () => h('div', { class: 'text-right' }, 'Opts'),
-    cell: ({ row }) => {
-      return h('div', { class: 'text-right' }, [
-        h(
-          Button,
-          {
-            variant: 'ghost',
-            size: 'sm',
-            onClick: () => removeStock(row.original.id),
-          },
-          () => h(X, { class: 'h-4 w-4 text-muted-foreground' }),
-        ),
-      ])
-    },
-  },
-]
-
-// Create reactive table instance
-const table = useVueTable({
-  get data() {
-    return data.value
-  },
-  columns,
-  getCoreRowModel: getCoreRowModel(),
-})
-</script>
-
 <template>
-  <div class="w-full p-5">
-    <!-- Search and Add Controls -->
-    <div class="flex items-center gap-2 py-4">
-      <Input
-        v-model="newTicker"
-        class="max-w-sm"
-        placeholder="Search for a stock ticker (e.g., GOOGL)..."
-        @keyup.enter="addStock"
-      />
-      <Button @click="addStock" :disabled="isAdding">
-        <PlusCircle class="mr-2 h-4 w-4" />
-        {{ isAdding ? 'Adding...' : 'Add' }}
-      </Button>
+  <div>
+    <div v-if="!disableActions" class="flex justify-end mb-4">
+      <button
+        v-if="isEditing"
+        @click="isEditing = false"
+        class="px-4 py-2 text-sm font-semibold rounded-lg transition-colors bg-zinc-700 hover:bg-zinc-600 text-zinc-200"
+      >
+        Cancel
+      </button>
+      <button
+        @click="handleEditSave"
+        class="px-4 py-2 text-sm font-semibold rounded-lg transition-colors"
+        :class="
+          isEditing
+            ? 'bg-green-600 hover:bg-green-500 text-white'
+            : 'bg-zinc-700 hover:bg-zinc-600 text-zinc-200'
+        "
+      >
+        {{ isEditing ? 'Save Changes' : 'Edit Holdings' }}
+      </button>
     </div>
 
-    <!-- Portfolio Table -->
-    <div class="rounded-md border bg-black-950/70 h-60">
-      <ShadcnTable>
-        <ShadcnTableHeader>
-          <ShadcnTableRow
-            v-for="headerGroup in table.getHeaderGroups()"
-            :key="headerGroup.id"
-          >
-            <ShadcnTableHead
-              v-for="header in headerGroup.headers"
-              :key="header.id"
-            >
-              <FlexRender
-                v-if="!header.isPlaceholder"
-                :render="header.column.columnDef.header"
-                :props="header.getContext()"
-              />
-            </ShadcnTableHead>
-          </ShadcnTableRow>
-        </ShadcnTableHeader>
-        <ShadcnTableBody>
-          <template v-if="table.getRowModel().rows?.length">
-            <ShadcnTableRow
-              v-for="row in table.getRowModel().rows"
-              :key="row.id"
-            >
-              <ShadcnTableCell
-                v-for="cell in row.getVisibleCells()"
-                :key="cell.id"
+    <div v-if="pending" class="space-y-4 p-4">
+      <div
+        v-for="i in 4"
+        :key="i"
+        class="h-24 w-full bg-zinc-800/50 rounded-lg animate-pulse"
+      ></div>
+    </div>
+
+    <div
+      v-else-if="!editableHoldings || editableHoldings.length === 0"
+      class="text-center p-8 text-zinc-500"
+    >
+      <p>You don't have any holdings in this portfolio yet.</p>
+      <button
+        v-if="isEditing"
+        @click="addHolding"
+        class="mt-4 w-full max-w-xs py-2 px-4 text-sm font-semibold text-zinc-200 bg-blue-600 hover:bg-blue-500 rounded-lg"
+      >
+        + Add Your First Holding
+      </button>
+    </div>
+
+    <div v-else class="bg-neutral-900 rounded-lg border border-zinc-800">
+      <TransitionGroup
+        tag="div"
+        name="list-item"
+        class="divide-y divide-zinc-800"
+      >
+        <div
+          v-for="holding in editableHoldings"
+          :key="holding.id"
+          class="border-t border-zinc-800"
+        >
+          <div class="relative">
+            <Transition name="slide-up">
+              <div
+                v-if="!isEditing"
+                :key="'view-' + holding.id"
+                class="flex flex-col items-center p-4"
               >
-                <FlexRender
-                  :render="cell.column.columnDef.cell"
-                  :props="cell.getContext()"
-                />
-              </ShadcnTableCell>
-            </ShadcnTableRow>
-          </template>
-          <ShadcnTableRow v-else>
-            <ShadcnTableCell
-              :colspan="columns.length"
-              class="h-24 text-center text-muted-foreground"
-            >
-              Your portfolio is empty. Add a stock to get started.
-            </ShadcnTableCell>
-          </ShadcnTableRow>
-        </ShadcnTableBody>
-      </ShadcnTable>
+                <div class="flex gap-2 w-full mb-1">
+                  <img
+                    v-if="holding.website"
+                    :src="getLogoSrc(holding.website)"
+                    class="w-5 h-5 bg-zinc-700 rounded-full"
+                    :alt="`${holding.name} logo`"
+                    @error="
+                      ($event.target as HTMLImageElement).style.display = 'none'
+                    "
+                  />
+                  <span
+                    v-else
+                    class="bg-neutral-800 h-5 w-5 aspect-square rounded-full flex items-center text-xs justify-center"
+                    >{{ holding.name?.[0] }}</span
+                  >
+                  <p class="font-semibold text-white text-sm">
+                    {{ holding.name }}
+                  </p>
+                </div>
+                <div class="flex w-full justify-between">
+                  <div class="text-start text-xs">
+                    <p class="text-xs text-zinc-500">Value</p>
+                    <p
+                      class="font-semibold"
+                      :class="
+                        holding.return >= 0 ? 'text-green-400' : 'text-red-400'
+                      "
+                    >
+                      {{ formatCurrency(holding.value, 'DKK') }}
+                    </p>
+                  </div>
+                  <div class="text-start text-xs">
+                    <p class="text-xs text-zinc-500">Return</p>
+                    <p
+                      class="font-semibold"
+                      :class="
+                        holding.return >= 0 ? 'text-green-400' : 'text-red-400'
+                      "
+                    >
+                      {{ formatPercent(holding.return) }}
+                    </p>
+                  </div>
+                  <div class="text-start text-xs">
+                    <p class="text-xs text-zinc-500">Today</p>
+                    <p
+                      class="font-semibold"
+                      :class="
+                        holding.today >= 0 ? 'text-green-400' : 'text-red-400'
+                      "
+                    >
+                      {{ formatPercent(holding.today) }}
+                    </p>
+                  </div>
+                  <div class="text-right text-xs">
+                    <p class="text-xs text-zinc-500">Latest</p>
+                    <p class="text-xs text-zinc-400">
+                      {{ formatCurrency(holding.latest, 'USD') }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                v-else
+                :key="'edit-' + holding.id"
+                class="flex flex-col items-between justify-end gap-4 p-4"
+              >
+                <div class="flex items-center gap-2 w-full">
+                  <img
+                    v-if="holding.website"
+                    :src="getLogoSrc(holding.website)"
+                    class="w-5 h-5 bg-zinc-700 rounded-full"
+                    :alt="`${holding.name} logo`"
+                    @error="
+                      ($event.target as HTMLImageElement).style.display = 'none'
+                    "
+                  />
+                  <span
+                    v-else
+                    class="bg-neutral-800 h-5 w-5 aspect-square rounded-full flex items-center text-xs justify-center"
+                    >{{ holding.name?.[0] }}</span
+                  >
+                  <p class="font-semibold text-white text-sm truncate min-w-0">
+                    {{ holding.name }}
+                  </p>
+                </div>
+                <div class="flex w-full items-end gap-4">
+                  <div class="text-start text-xs">
+                    <label class="text-xs text-zinc-500 block mb-1"
+                      >Price</label
+                    >
+                    <input
+                      v-model.number="holding.avgPrice"
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      class="bg-zinc-800 border border-zinc-700 text-white text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2"
+                    />
+                  </div>
+                  <div class="text-start text-xs">
+                    <label class="text-xs text-zinc-500 block mb-1"
+                      >Amount</label
+                    >
+                    <input
+                      v-model.number="holding.amount"
+                      type="number"
+                      step="1"
+                      placeholder="0"
+                      class="bg-zinc-800 border border-zinc-700 text-white text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2"
+                    />
+                  </div>
+                  <button
+                    @click="deleteHolding(holding.id)"
+                    class="w-9 h-9 bg-red-500 font-semibold p-2 rounded-md mt-5"
+                  >
+                    <Icon name="i-lucide-trash-2" />
+                  </button>
+                </div>
+              </div>
+            </Transition>
+          </div>
+        </div>
+      </TransitionGroup>
+
+      <div class="p-4" v-if="isEditing">
+        <button
+          @click="addHolding"
+          class="w-full py-2 px-4 text-sm font-semibold text-zinc-200 bg-black-800 hover:bg-white-100 hover:text-black rounded-lg"
+        >
+          + Add New Holding
+        </button>
+      </div>
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+
+const props = withDefaults(
+  defineProps<{
+    isEditing?: boolean
+    disableActions?: boolean
+  }>(),
+  {
+    isEditing: false,
+    disableActions: false,
+  },
+)
+
+const { currentPortfolio } = usePortfolio()
+const isEditing = ref(props.isEditing)
+
+const {
+  data: holdings,
+  pending,
+  error,
+  refresh: refreshHoldings,
+} = await useAsyncData(
+  `holdings-${currentPortfolio?.value?.id}`,
+  () =>
+    $fetch(`/api/portfolios/${currentPortfolio?.value?.id}/positions`, {
+      method: 'GET',
+    }),
+  { watch: [currentPortfolio] },
+)
+
+type Holding = {
+  id: string
+  website: string | null | undefined
+  name: string
+  value: number
+  return: number
+  today: number
+  latest: number
+  symbol: string
+  avgPrice: number
+  amount: number
+  isNew?: boolean
+}
+
+const editableHoldings = ref<Holding[]>([])
+
+watch(
+  holdings,
+  (newHoldings) => {
+    if (!isEditing.value && newHoldings) {
+      editableHoldings.value = JSON.parse(JSON.stringify(newHoldings))
+    }
+  },
+  { immediate: true, deep: true },
+)
+
+function addHolding() {
+  editableHoldings.value.push({
+    id: `new-${Date.now()}`,
+    name: 'New Holding',
+    symbol: '',
+    avgPrice: 0,
+    amount: 0,
+    website: '',
+    value: 0,
+    return: 0,
+    today: 0,
+    latest: 0,
+    isNew: true,
+  })
+}
+
+function deleteHolding(holdingId: string) {
+  editableHoldings.value = editableHoldings.value.filter(
+    (h) => h.id !== holdingId,
+  )
+}
+
+async function handleEditSave() {
+  console.log(editableHoldings.value)
+  if (isEditing.value) {
+    pending.value = true
+
+    const payload = editableHoldings.value.map((holding) => ({
+      symbol: holding.symbol,
+      name: holding.name,
+      avgPrice: holding.avgPrice,
+      amount: holding.amount,
+    }))
+    try {
+      await $fetch(`/api/portfolios/${currentPortfolio.value.id}/positions`, {
+        method: 'PATCH',
+        body: { holdings: editableHoldings.value },
+      })
+
+      await refreshHoldings()
+      isEditing.value = false
+    } catch (saveError) {
+      console.error('Failed to save holdings:', saveError)
+    } finally {
+      pending.value = false
+    }
+  } else {
+    editableHoldings.value = JSON.parse(JSON.stringify(holdings.value || []))
+    isEditing.value = true
+  }
+}
+
+function getLogoSrc(website: string | null | undefined): string {
+  const fallbackLogo = 'https.placehold.co/20x20/404040/9ca3af?text=?' // A generic fallback
+  if (!website) {
+    return fallbackLogo
+  }
+  return `https://logo.clearbit.com/${encodeURIComponent(website)}`
+}
+
+function formatCurrency(value: number, currency: 'DKK' | 'USD') {
+  return new Intl.NumberFormat('da-DK', {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: 2,
+  }).format(value)
+}
+
+function formatPercent(value: number) {
+  const sign = value > 0 ? '+' : ''
+  return `${sign}${value.toFixed(2)}%`
+}
+</script>
+
+<style scoped>
+/* Defines the starting state for the element that is entering.
+  It's invisible and shifted 20px down.
+*/
+.slide-up-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* Defines the final state for the element that is leaving.
+  It's invisible and shifted 20px up ("up and out").
+*/
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+/* Defines the duration and easing for the transition.
+  This class is active for both entering and leaving elements.
+*/
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.3s ease-out;
+}
+
+/*
+  This is a key part! When an element is leaving, we make it
+  absolute so it doesn't push the new entering element around.
+  This allows both to animate smoothly in the same space.
+*/
+.slide-up-leave-active {
+  position: absolute;
+  width: 100%; /* Ensure it takes up the full width */
+}
+
+/* NEW: Styles for the list-item animation */
+.list-item-enter-from,
+.list-item-leave-to {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.list-item-enter-active,
+.list-item-leave-active {
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* This ensures the leaving item is taken out of the layout flow
+   so the move animation can be calculated correctly. */
+.list-item-leave-active {
+  position: absolute;
+  width: 100%; /* prevent collapsing */
+}
+
+/* This class is applied to remaining items when an item is removed,
+   creating a smooth shuffling effect. */
+.list-item-move {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+</style>

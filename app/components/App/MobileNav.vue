@@ -4,7 +4,7 @@
     class="fixed bottom-0 flex w-full justify-center p-5 transition-all select-none"
   >
     <div
-      class="h-16 border-black-100 dark:border-black-800 dark:bg-black-500/10 flex w-full max-w-92 items-center justify-evenly rounded-full border-1 bg-white/10 backdrop-blur-md"
+      class="h-14 border-black-100 dark:border-black-800 dark:bg-black-500/10 flex w-full max-w-92 items-center justify-evenly rounded-full border-1 bg-white/10 backdrop-blur-md"
     >
       <AppSidebarLink
         key="market"

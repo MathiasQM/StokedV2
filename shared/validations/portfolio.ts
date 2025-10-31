@@ -1,5 +1,8 @@
 import { z } from 'zod'
-import { insertPortfolioSchema } from '@@/types/database'
+import {
+  insertPortfolioSchema,
+  insertPortfolioPositionSchema,
+} from '@@/types/database'
 import { UserRole } from '@@/constants'
 
 export const createPortfolioSchema = insertPortfolioSchema.pick({

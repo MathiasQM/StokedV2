@@ -24,6 +24,7 @@ export type InsertOneTimePasswords = typeof tables.oneTimePasswords.$inferInsert
 export type Image = typeof tables.images.$inferSelect
 export type InsertImage = typeof tables.images.$inferInsert
 export type Portfolio = typeof tables.portfolios.$inferSelect
+export type PortfolioPosition = typeof tables.portfolioPositions.$inferSelect
 export type InsertPortfolio = typeof tables.portfolios.$inferInsert
 export type PortfolioMember = typeof tables.portfolioMembers.$inferSelect
 export type InsertPortfolioMember = typeof tables.portfolioMembers.$inferInsert
@@ -95,6 +96,13 @@ export const insertPortfolioInviteSchema = createInsertSchema(
 )
 export const selectPortfolioInviteSchema = createSelectSchema(
   tables.portfolioInvites,
+)
+
+export const insertPortfolioPositionSchema = createInsertSchema(
+  tables.portfolioPositions,
+)
+export const selectPortfolioPositionSchema = createSelectSchema(
+  tables.portfolioPositions,
 )
 
 export const insertPasskeySchema = createInsertSchema(

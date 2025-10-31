@@ -4,7 +4,7 @@
       draggable="false"
       :to="linkTo"
       exact
-      class="relative flex flex-col items-center gap-2 p-2 font-medium md:w-full md:flex-row md:rounded-md dark:hover:bg-white/10"
+      class="relative flex flex-col items-center gap-1 p-2 font-medium md:w-full md:flex-row md:rounded-md dark:hover:bg-white/10"
       active-class=" md:text-neutral-900 dark:text-white md:dark:text-white md:bg-neutral-200/70 md:dark:bg-white/10 md:hover:bg-neutral-200/80"
       inactive-class="text-[var(--ui-text-muted)]"
       @click="handleClick($event)"

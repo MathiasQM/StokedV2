@@ -4,6 +4,7 @@ import type {
   InsertPortfolio,
   InsertPortfolioInvite,
   PortfolioInvite,
+  PortfolioPosition,
 } from '@@/types/database'
 
 // Define invite status types for better type safety
@@ -119,6 +120,25 @@ export const createPortfolioWithPositions = async (payload: {
 
     return portfolio
   })
+}
+
+export const updatePortfolioPositions = async (
+  portfolioId: string,
+  payload: Partial<PortfolioPosition>,
+) => {
+  try {
+    const [record] = await useDB()
+      .update(tables.portfolioPositions)
+      .set(payload)
+      .where(eq(tables.portfolioPositions.portfolioId, portfolioId))
+      .returning()
+    return record
+  } catch (error) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to update portfolio',
+    })
+  }
 }
 
 export async function createPortfoliosBulk(rows: NewRow[]) {

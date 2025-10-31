@@ -1,7 +1,7 @@
 <template>
   <div class="overflow-hiddden">
     <div
-      class="fixed top-0 right-1/2 z-[0] flex justify-center h-[calc(100vh)]"
+      class="fixed top-0 right-1/2 -z-10 flex justify-center h-[calc(100vh)]"
     >
       <div class="linear-gradient-layer absolute -z-1"></div>
       <div class="linear-gradient-layer-bottom absolute -z-1"></div>

@@ -76,7 +76,9 @@
 
   <template v-else>
     <Drawer v-model:open="portfoliosSetupStore.open">
-      <DrawerContent class="padding-env-bottom overflow-hidden h-full w-full">
+      <DrawerContent
+        class="padding-env-bottom overflow-hidden h-full w-full flex flex-col justify-start"
+      >
         <div>
           <img
             :src="bottomGlowOverflow"
@@ -84,16 +86,14 @@
             class="absolute -bottom-60 -z-1 scale-[230%] select-none"
           />
         </div>
-        <div
-          class="w-full h-full max-w-sm flex flex-col items-center justify-around"
-        >
+        <div class="w-full flex flex-col items-center justify-around">
           <div
             class="gradient-header relative w-full flex justify-center flex-col items-center"
           >
             <div
               class="flex flex-col items-center justify-center w-full p-4 text-white"
             >
-              <DrawerTitle class="text-center">
+              <DrawerTitle class="text-center text-xl">
                 Create a portfolio
               </DrawerTitle>
               <DrawerDescription class="text-center text-sm opacity-80">
@@ -122,10 +122,14 @@
             </div>
           </div>
 
-          <AppPortfolioSetupTickerCloud />
+          <div class="p-5">
+            <AppPortfolioTable disable-actions is-editing />
+          </div>
+
+          <!-- <AppPortfolioSetupTickerCloud /> -->
         </div>
         <DrawerFooter>
-          <AppStockSearchBar @add="handleAddStock" />
+          <!-- <AppStockSearchBar @add="handleAddStock" /> -->
 
           <Button
             @click="handleCreatePortfolio"
@@ -186,7 +190,6 @@ const portfolioName = ref('New portfolio')
 const isCreating = ref(false)
 
 const handleAddStock = (stock: TickerMeta) => {
-  console.log('from drawer', stock)
   addPosition(stock)
 }
 
