@@ -478,3 +478,19 @@ link[rel='manifest'] {
     @apply bg-background text-foreground;
   }
 }
+
+/* Command Palette */
+[cmdk-dialog-content] {
+  top: 0;
+  transform: translateX(-50%);
+  margin-top: 2.5rem; /* 40px, gives some space from the top of the screen */
+}
+
+/* On desktop (screens larger than sm), revert to the centered default */
+@media (min-width: 640px) {
+  [cmdk-dialog-content] {
+    top: 50%;
+    transform: translate(-50%, -50%);
+    margin-top: 0;
+  }
+}

@@ -1,4 +1,12 @@
-import { pgTable, text, timestamp, uuid, real } from 'drizzle-orm/pg-core'
+import {
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+  real,
+  unique,
+  boolean,
+} from 'drizzle-orm/pg-core'
 import { users } from './users'
 import { relations, sql } from 'drizzle-orm'
 import { pgPolicy } from 'drizzle-orm/pg-core'
@@ -69,6 +77,11 @@ export const portfolioPositions = pgTable(
     symbol: text('symbol').notNull(), // e.g., 'AAPL.US'
     name: text('name'), // e.g., 'Apple Inc.'
     exchange: text('exchange'), // e.g., 'NASDAQ'
+    country: text('country'), // e.g., 'USA'
+    currency: text('currency'), // e.g., 'USD'
+    type: text('type'), // e.g., 'Common Stock'
+    isin: text('isin'), // International Securities Identification Number
+    isPrimary: boolean('is_primary').default(false), // Flag for primary listing
     shares: real('shares').notNull().default(0),
     website: text('website'),
     costPerShare: real('cost_per_share').notNull().default(0),
@@ -82,6 +95,8 @@ export const portfolioPositions = pgTable(
     const isAdminOrOwnerCondition = `EXISTS (SELECT 1 FROM public.portfolio_members pm WHERE pm."portfolioId" = "portfolioId" AND pm."userId" = auth.uid() AND pm.role IN ('owner', 'admin'))`
 
     return [
+      // Enforce unique constraint on (portfolioId, symbol)
+      unique().on(table.portfolioId, table.symbol),
       // SELECT Policy: Any member of the portfolio can view its positions.
       pgPolicy('pp_select_member', {
         for: 'select',
@@ -222,6 +237,7 @@ export const portfolioInvites = pgTable(
 
 export const portfoliosRelations = relations(portfolios, ({ many, one }) => ({
   members: many(portfolioMembers),
+  positions: many(portfolioPositions),
   owner: one(users, {
     fields: [portfolios.ownerId],
     references: [users.id],

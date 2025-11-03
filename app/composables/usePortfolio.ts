@@ -32,24 +32,6 @@ export const usePortfolio = () => {
     () => [],
   )
 
-  const addPosition = (stock: TickerMeta) => {
-    const isAlreadyAdded = newPortfolioPositions.value.some(
-      (p) => p.Code === stock.Code && p.Exchange === stock.Exchange,
-    )
-
-    if (isAlreadyAdded) {
-      toast.add({
-        title: 'Already Added',
-        description: `${stock.Code} is already in your list.`,
-        // Using 'foreground' for a neutral/warning style with shadcn-vue
-        color: 'success',
-      })
-      return
-    }
-
-    newPortfolioPositions.value.unshift(stock as NewPosition)
-  }
-
   const removePosition = (stockCode: string) => {
     const stockToRemove = newPortfolioPositions.value.find(
       (p) => p.Code === stockCode,
@@ -306,7 +288,6 @@ export const usePortfolio = () => {
     cancelInvite,
     resendInvite,
     removePortfolioMember,
-    addPosition,
     removePosition,
     clearNewPortfolio,
     isPortfolioOwner,

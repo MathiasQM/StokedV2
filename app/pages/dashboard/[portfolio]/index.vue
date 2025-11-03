@@ -12,12 +12,12 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
-
 definePageMeta({
   layout: 'default',
 })
 
+const route = useRoute()
+
 const tabs = ['overview', 'news', 'analysis', 'calendar', 'holdings']
-const activeTab = ref(tabs[0])
+const activeTab = ref(route.query.tab || tabs[0])
 </script>

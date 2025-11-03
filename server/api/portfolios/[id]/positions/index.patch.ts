@@ -1,18 +1,15 @@
 import {
   findUserPortfolios,
-  updatePortfolioPositions,
+  syncPortfolioPositions,
 } from '~~/server/database/queries/portfolios'
 
 import { validateBody } from '@@/server/utils/bodyValidation'
-import { insertPortfolioPositionSchema } from '~~/types/database'
+import { createPositionsSchema } from '~~/shared/validations/portfolio'
 
 export default defineEventHandler(async (event) => {
   // 1. Get authenticated user and portfolio ID
   const { user } = await requireUserSession(event)
   const portfolioId = getRouterParam(event, 'id')
-
-  console.log('PORTFOLIO ID', portfolioId)
-  console.log('USER', user)
 
   if (!portfolioId) {
     throw createError({
@@ -22,9 +19,8 @@ export default defineEventHandler(async (event) => {
   }
 
   // 2. Validate request body
-  const body = await validateBody(event, insertPortfolioPositionSchema)
-
-  console.log('BODY', body)
+  const body = await readBody(event)
+  // const body = await validateBody(event, createPositionsSchema)
 
   // 3. Get user's portfolios to check ownership
   const userPortfolios = await findUserPortfolios(user.id)
@@ -46,10 +42,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // 5. Update portfolio
-  //   const updatedPortfolio = await updatePortfolioPositions(portfolioId, {
-  //     name: body.name,
-  //     logo: body.logo,
-  //   })
+  const updatedPortfolio = await syncPortfolioPositions(portfolioId, body)
 
-  //   return updatedPortfolio
+  return updatedPortfolio
 })

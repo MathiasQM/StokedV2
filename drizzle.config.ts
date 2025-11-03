@@ -3,7 +3,7 @@ import { config as loadEnv } from 'dotenv'
 loadEnv()
 
 export default {
-  schema: './server/database/schema',
+  schema: './server/database/schema/index.ts',
   out: './server/database/migrations',
   dialect: 'postgresql',
   dbCredentials: {

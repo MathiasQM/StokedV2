@@ -1,5 +1,11 @@
 <template>
   <template v-if="!isMobile">
+    <CommandPalette
+      v-model:open="isStockSearchOpen"
+      v-model:selected-stocks="selectedStocksForPortfolio"
+      context="stock-search"
+      @create-portfolio="addToTable"
+    />
     <Dialog v-model:open="portfoliosSetupStore.open">
       <DialogContent class="overflow-hidden min-h-[500px]">
         <div class="absolute -top-10 inset-0 -z-10 flex justify-center">
@@ -42,11 +48,8 @@
               </div>
             </div>
           </div>
-
-          <AppPortfolioSetupTickerCloud />
         </div>
         <div class="flex flex-col gap-5">
-          <AppStockSearchBar @add="handleAddStock" />
           <div class="w-full flex justify-evenly gap-2">
             <DialogClose as-child>
               <Button variant="outline" class="w-1/2">Cancel</Button>
@@ -79,6 +82,12 @@
       <DrawerContent
         class="padding-env-bottom overflow-hidden h-full w-full flex flex-col justify-start"
       >
+        <CommandPalette
+          v-model:open="isStockSearchOpen"
+          v-model:selected-stocks="selectedStocksForPortfolio"
+          context="create-portfolio"
+          @create-portfolio="handleCreatePortfolio"
+        />
         <div>
           <img
             :src="bottomGlowOverflow"
@@ -123,20 +132,31 @@
           </div>
 
           <div class="p-5">
-            <AppPortfolioTable disable-actions is-editing />
+            <Input
+              v-model="portfolioName"
+              placeholder="Name your portfolio"
+              class="w-full"
+            />
+            <AppPortfolioTable
+              :editablePositions="selectedStocksForPortfolio"
+              disable-actions
+              is-editing
+            />
+            <button
+              @click="isStockSearchOpen = true"
+              class="mt-4 w-full max-w-xs py-2 px-4 text-sm font-semibold bg-white hover:bg-neutral-200 text-black rounded-lg"
+            >
+              + Add Your Positions
+            </button>
           </div>
-
-          <!-- <AppPortfolioSetupTickerCloud /> -->
         </div>
         <DrawerFooter>
-          <!-- <AppStockSearchBar @add="handleAddStock" /> -->
-
           <Button
             @click="handleCreatePortfolio"
             :disabled="
               isCreating ||
               !portfolioName.trim() ||
-              newPortfolioPositions.length === 0
+              selectedStocksForPortfolio.length === 0
             "
             variant="default"
             class="mt-2"
@@ -178,23 +198,20 @@ const toast = useToast()
 const router = useRouter()
 
 const isMobile = useIsMobile()
-const {
-  addPosition,
-  clearNewPortfolio,
-  createPortfolio,
-  newPortfolioPositions,
-} = usePortfolio()
+const { clearNewPortfolio, createPortfolio, newPortfolioPositions } =
+  usePortfolio()
 const portfoliosSetupStore = usePortfolioSetupModal()
 
-const portfolioName = ref('New portfolio')
+const portfolioName = ref('')
 const isCreating = ref(false)
-
-const handleAddStock = (stock: TickerMeta) => {
-  addPosition(stock)
-}
+const isStockSearchOpen = ref(false)
+const selectedStocksForPortfolio = ref<TickerMeta[]>([])
 
 async function handleCreatePortfolio() {
-  if (!portfolioName.value.trim() || newPortfolioPositions.value.length === 0) {
+  if (
+    !portfolioName.value.trim() ||
+    selectedStocksForPortfolio.value.length === 0
+  ) {
     toast.add({
       title: 'Missing Information',
       description: 'Please name your portfolio and add at least one stock.',
@@ -206,11 +223,16 @@ async function handleCreatePortfolio() {
   isCreating.value = true
   try {
     const newPortfolio = await createPortfolio({
-      name: portfolioName.value,
-      positions: newPortfolioPositions.value.map((p) => ({
-        symbol: `${p.Code}.${p.Exchange === 'NASDAQ' || p.Exchange === 'NYSE' ? 'US' : p.Exchange}`,
+      name: portfolioName.value || 'Untitled Portfolio',
+      positions: selectedStocksForPortfolio.value.map((p) => ({
+        symbol: p.Code,
         name: p.Name,
         exchange: p.Exchange,
+        ISIN: p.ISIN,
+        type: p.Type,
+        isPrimary: p.isPrimary,
+        country: p.Country,
+        currency: p.Currency,
         shares: 0,
         costPerShare: 0,
       })),
@@ -222,7 +244,12 @@ async function handleCreatePortfolio() {
     })
 
     portfoliosSetupStore.closePortfolioSetupModal()
-    await navigateTo(`/dashboard/${newPortfolio.slug}`)
+    await navigateTo(
+      `/dashboard/${newPortfolio.slug}?tab=holdings&isEditing=true`,
+      {
+        replace: true,
+      },
+    )
   } catch (error: any) {
     toast.add({
       title: 'Error creating portfolio',
@@ -243,4 +270,12 @@ watch(
     }
   },
 )
+
+// watch(
+//   selectedStocksForPortfolio,
+//   (newSelection) => {
+//     setNewPortfolioPositions(newSelection)
+//   },
+//   { deep: true },
+// )
 </script>

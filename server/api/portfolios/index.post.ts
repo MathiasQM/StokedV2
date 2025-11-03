@@ -1,6 +1,8 @@
 import { z } from 'zod'
 import { createPortfolioWithPositions } from '@@/server/database/queries/portfolios'
 import { fetchFundamentals } from '@@/server/utils/eodhd'
+import { count } from 'drizzle-orm'
+import { Currency } from 'lucide-vue-next'
 
 const slugify = (name: string) => name.toLowerCase().trim().replace(/\s+/g, '-')
 
@@ -13,6 +15,11 @@ const createPortfolioSchema = z.object({
         symbol: z.string(),
         name: z.string(),
         exchange: z.string(),
+        ISIN: z.string().nullable(),
+        type: z.string().nullable(),
+        isPrimary: z.boolean().nullable(),
+        country: z.string().nullable(),
+        currency: z.string().nullable(),
         shares: z.number(),
         costPerShare: z.number(),
       }),
@@ -36,17 +43,8 @@ export default defineEventHandler(async (event) => {
 
   const { name, positions } = validation.data
 
-  const enrichedPositions = await Promise.all(
-    positions.map(async (pos) => {
-      const fundamentals = await fetchFundamentals(pos.symbol)
-      return {
-        ...pos,
-        website: fundamentals?.WebURL || null, // Add the website URL
-      }
-    }),
-  )
-
   // Create a unique slug (e.g., 'my-first-portfolio-user_id_short')
+  // TODO: Make sure users can't create portfolios with duplicate names - send error to frontend
   const uniqueSlug = slugify(`${name}-${user.id.substring(0, 8)}`)
 
   try {
@@ -56,7 +54,7 @@ export default defineEventHandler(async (event) => {
         slug: uniqueSlug,
         ownerId: user.id,
       },
-      positionsData: enrichedPositions,
+      positionsData: positions,
     })
     return portfolio
   } catch (error: any) {

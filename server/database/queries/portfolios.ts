@@ -1,4 +1,4 @@
-import { eq, or, and, sql } from 'drizzle-orm'
+import { eq, or, and, notInArray, sql } from 'drizzle-orm'
 import type {
   Portfolio,
   InsertPortfolio,
@@ -122,21 +122,71 @@ export const createPortfolioWithPositions = async (payload: {
   })
 }
 
-export const updatePortfolioPositions = async (
+type PositionPayload = {
+  name: string | null
+  symbol: string
+  website: string | null
+  shares: number
+  costPerShare: number
+}
+
+export const syncPortfolioPositions = async (
   portfolioId: string,
-  payload: Partial<PortfolioPosition>,
+  positionsPayload: PositionPayload[],
 ) => {
+  const incomingSymbols =
+    positionsPayload.length > 0 ? positionsPayload.map((p) => p.symbol) : []
+
   try {
-    const [record] = await useDB()
-      .update(tables.portfolioPositions)
-      .set(payload)
-      .where(eq(tables.portfolioPositions.portfolioId, portfolioId))
-      .returning()
-    return record
+    // A transaction ensures that all operations succeed or none do.
+    const result = await useDB().transaction(async (tx) => {
+      if (positionsPayload.length > 0) {
+        const positionsToInsert = positionsPayload.map((p) => ({
+          ...p,
+          portfolioId,
+        }))
+
+        await tx
+          .insert(tables.portfolioPositions)
+          .values(positionsToInsert)
+          .onConflictDoUpdate({
+            target: [
+              tables.portfolioPositions.portfolioId,
+              tables.portfolioPositions.symbol,
+            ],
+            set: {
+              shares: sql.raw(`excluded.shares`),
+              costPerShare: sql.raw(`excluded.cost_per_share`),
+              name: sql.raw(`excluded.name`),
+              website: sql.raw(`excluded.website`),
+            },
+          })
+      }
+
+      // 2. DELETE all old positions that are not in the incoming array 🗑️
+      await tx
+        .delete(tables.portfolioPositions)
+        .where(
+          and(
+            eq(tables.portfolioPositions.portfolioId, portfolioId),
+            notInArray(tables.portfolioPositions.symbol, incomingSymbols),
+          ),
+        )
+
+      const finalPositions = await tx
+        .select()
+        .from(tables.portfolioPositions)
+        .where(eq(tables.portfolioPositions.portfolioId, portfolioId))
+
+      return finalPositions
+    })
+
+    return result
   } catch (error) {
+    console.error('Failed to sync portfolio:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to update portfolio',
+      statusMessage: 'Failed to sync portfolio positions',
     })
   }
 }

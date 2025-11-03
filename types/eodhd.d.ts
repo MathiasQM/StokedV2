@@ -78,6 +78,9 @@ export interface TickerMeta {
   Code: string // "AAPL"
   Name: string // "Apple Inc"
   Exchange: string // "US"
+  ISIN: string // "US0378331005"
+  isPrimary: boolean
+  Country: string
   Type: 'Common Stock' | 'ETF' | 'Fund' | string
   IsDelisted: boolean
   Currency?: string
