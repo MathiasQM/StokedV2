@@ -10,7 +10,7 @@
       @click="handleClick($event)"
       v-slot="{ active }"
     >
-      <UIcon :name="icon" class="h-6 w-6 md:h-4 md:w-4" />
+      <UIcon :name="icon" class="h-5 w-5 md:h-4 md:w-4" />
 
       <p class="text-xs">{{ label }}</p>
       <Transition name="fade">

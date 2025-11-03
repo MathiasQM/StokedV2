@@ -1,56 +1,170 @@
 <script setup lang="ts">
+import { Button } from '@/components/ui/button'
+import { computed, useSlots, type PropType, Comment, Text } from 'vue'
+
 const props = defineProps({
-  size: {
-    type: String as PropType<'xs' | 'sm' | 'md' | 'lg' | 'xl'>,
+  /**
+   * The visual style of the button.
+   * - 'pill': The default rectangular button with rounded ends.
+   * - 'circle': A circular button, ideal for an icon.
+   * - 'square': A square button with rounded corners.
+   */
+  variant: {
+    type: String as PropType<'pill' | 'circle' | 'square'>, // 'glow' removed
     required: false,
-    default: 'md',
+    default: 'pill',
+  },
+  /**
+   * If true, removes the gradient border effect.
+   */
+  disableGradient: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+  /**
+   * If true, applies disabled styling and stops events.
+   */
+  disabled: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+  /**
+   * Optional: Apply a custom width (e.g., "w-10", "w-[100px]").
+   */
+  width: {
+    type: String,
+    required: false,
+    default: undefined,
+  },
+  /**
+   * Optional: Apply a custom height (e.g., "h-10", "h-[100px]").
+   */
+  height: {
+    type: String,
+    required: false,
+    default: undefined,
   },
 })
+
+const slots = useSlots()
+
+/**
+ * Checks if the default slot has any "real" content (not just comments or whitespace).
+ */
+const hasDefaultSlot = computed(() => {
+  if (!slots.default) return false
+  return slots.default().some((vnode) => {
+    if (vnode.type === Comment) return false // Ignore comments
+    if (vnode.type === Text && !vnode.children?.trim()) return false // Ignore whitespace
+    return true // Found a valid element or text
+  })
+})
+
+/**
+ * Checks if the icon slot has content.
+ */
+const hasIconSlot = computed(() => !!slots.icon)
+
+/**
+ * Computes the dynamic classes for the outer wrapper div.
+ * This handles the gradient, glow, and shaping.
+ */
+const wrapperClasses = computed(() => {
+  return [
+    'flex items-center justify-center transition-all',
+    // Apply gradient border ONLY if gradient is enabled
+    !props.disableGradient ? 'py-[1px] px-[1px] gradient' : '',
+    // Apply shape
+    props.variant === 'square' ? 'rounded-md' : 'rounded-full', // pill & circle are -full
+  ]
+})
+
+/**
+ * Computes the dynamic classes for the inner <Button> component.
+ * This handles padding and layout.
+ */
+const buttonClasses = computed(() => {
+  const classes = [
+    // Base style
+    'bg-neutral-800 text-white line text-[10px] font-thin',
+    'whitespace-nowrap leading-none',
+    'flex items-center justify-center',
+
+    // Interaction & Disabled State
+    'cursor-pointer',
+    'disabled:bg-neutral-900 disabled:text-neutral-400 disabled:cursor-not-allowed disabled:opacity-100', // Override shadcn disabled state
+
+    // Prop-based styles
+    props.width ? props.width : '',
+    props.height ? props.height : 'h-auto',
+  ]
+
+  // === 1. Shape ===
+  if (props.variant === 'square') {
+    classes.push('rounded-md')
+  } else {
+    // 'pill' or 'circle'
+    classes.push('rounded-full')
+  }
+
+  // === 2. Sizing (Aspect) ===
+  if (
+    !props.width &&
+    !props.height &&
+    (props.variant === 'circle' || props.variant === 'square')
+  ) {
+    classes.push('aspect-square')
+  }
+
+  // === 3. Padding ===
+  if (props.variant === 'circle' || props.variant === 'square') {
+    classes.push('p-[6px]')
+  } else {
+    // 'pill'
+    classes.push('px-3 py-[6px]')
+  }
+
+  return classes
+})
+
+/**
+ * Computes classes for the icon's <span> wrapper.
+ * Adds a margin only if there is text next to it.
+ */
+const iconClasses = computed(() => {
+  return hasDefaultSlot.value ? 'mr-1.5' : ''
+})
 </script>
+
 <template>
-  <div class="relative flex w-full gap-2">
-    <div
-      class="gradient relative flex h-6 min-w-6 items-center justify-center rounded-full text-sm text-[white] transition-all hover:scale-[102%]"
-      :class="`size-${props.size}`"
-    >
-      <button
-        class="text-md flex h-[calc(100%-2px)] w-[calc(100%-2px)] cursor-pointer items-center justify-center rounded-full bg-orange-500 p-2 font-semibold whitespace-nowrap"
-      >
+  <div :class="wrapperClasses">
+    <Button v-bind="$attrs" :class="buttonClasses" :disabled="disabled">
+      <span v-if="hasIconSlot" :class="iconClasses">
+        <slot name="icon" />
+      </span>
+
+      <span v-if="hasDefaultSlot">
         <slot />
-      </button>
-    </div>
+      </span>
+    </Button>
   </div>
 </template>
 
 <style scoped>
-.size-xs {
-  width: 40px;
-  height: 40px;
-}
-.size-sm {
-  width: 80px;
-  height: 40px;
-}
-.size-md {
-  width: 80px;
-  height: 40px;
-}
-.size-lg {
-  width: 80px;
-  height: 40px;
-}
-.size-xl {
-  width: 100%;
-  height: 40px;
-}
+/* Your original gradient */
 .gradient {
   background: linear-gradient(
-    50deg,
-    rgba(255, 255, 255, 0.5) 30%,
-    rgba(255, 255, 255, 0.7) 35%,
-    rgba(255, 255, 255, 1) 50%,
-    rgba(255, 255, 255, 0.8) 55%,
-    rgba(255, 255, 255, 0.5) 70%
+    130deg,
+    rgba(150, 150, 150, 0.3) 20%,
+    rgba(150, 150, 150, 0.7) 40%,
+    rgba(150, 150, 150, 0.8) 50%,
+    rgba(150, 150, 150, 0.8) 60%,
+    rgba(150, 150, 150, 0.7) 70%,
+    rgba(150, 150, 150, 0.3) 90%
   );
 }
+
+/* .glow-wrapper style removed */
 </style>
