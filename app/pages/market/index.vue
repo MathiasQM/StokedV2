@@ -15,6 +15,21 @@
             >{{ sym }}</CustomCard
           >
         </div>
+        <div
+          class="w-full flex flex-col justify-center h-32 items-center gap-3"
+        >
+          <CustomButtonsShiny disabled>Add Stock</CustomButtonsShiny>
+          <CustomButtonsShiny disabled variant="circle"
+            ><Icon name="lucide-trash"
+          /></CustomButtonsShiny>
+          <CustomButtonsShiny disabled variant="square"
+            ><Icon name="lucide-trash"
+          /></CustomButtonsShiny>
+          <CustomButtonsShiny variant="glow" disabled
+            ><template #icon> <Icon name="lucide-trash" /> </template> Add
+            Stock</CustomButtonsShiny
+          >
+        </div>
       </div>
     </AppContainer>
   </div>

@@ -3,7 +3,7 @@
     <div class="w-full min-w-0 flex-1 overflow-y-auto">
       <SuperAdminImpersonationBanner v-if="user?._impersonated" :user="user" />
       <AppContainer :title="`Dashboard`">
-        <AppBriefGreeting :name="user.name" />
+        <AppBriefGreeting :name="user?.name" />
         <p>
           Your portfolio is up 7% today, largely due to news that Nvidia is
           ramping up production. Things to look out for today are upcoming
