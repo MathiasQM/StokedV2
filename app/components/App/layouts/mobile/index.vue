@@ -20,14 +20,15 @@
       </div>
 
       <div v-if="isSuperAdmin" class="flex items-center gap-2">
-        <UButton
-          block
-          variant="ghost"
+        <!-- <CustomButtonsShiny width="w-12">{{ countdown }}</CustomButtonsShiny> -->
+
+        <CustomButtonsShiny
+          width="w-8"
+          height="h-8"
+          variant="square"
           @click="navigateTo('/dashboard/super-admin')"
-          class="w-8 h-8 justify-normal text-left bg-neutral-800"
-        >
-          <UIcon name="i-lucide-shield" class="size-5 text-white" />
-        </UButton>
+          ><Icon name="i-material-symbols-shield-rounded" class="size-4"
+        /></CustomButtonsShiny>
       </div>
     </div>
 
@@ -49,6 +50,7 @@
 const route = useRoute()
 const router = useRouter()
 const { user } = useUserSession()
+// const { countdown } = useIntervalRefresh()
 
 const isSuperAdmin = computed(() => user.value?.superAdmin)
 
