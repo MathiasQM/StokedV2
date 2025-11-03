@@ -7,9 +7,7 @@
           Let's get you started by syncronizing your portfolio.
         </p>
       </div>
-      <div class="mx-auto mt-12 max-w-md">
-        <AppNewPortfolioForm @success="onPortfolioCreated" />
-      </div>
+      <div class="mx-auto mt-12 max-w-md"></div>
       <div class="mt-4 flex justify-center">
         <UButton
           variant="ghost"

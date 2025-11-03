@@ -24,7 +24,7 @@ const activeTab = ref(tabs[0])
 <template>
   <AppContainer disable-paddingx>
     <div class="flex w-full flex-wrap gap-5 lg:px-5">
-      <ElementsCard
+      <CustomCard
         disableBorders
         class="group absolute top-0 left-0 w-full flex-1 select-none lg:min-w-0"
       >
@@ -55,7 +55,7 @@ const activeTab = ref(tabs[0])
             <ChartsRangePicker :symbol="symbol" :data="quoteData" />
           </template>
         </ChartsWrapper>
-      </ElementsCard>
+      </CustomCard>
     </div>
     <AppTabs v-model="activeTab" :tabs="tabs">
       <template #news>

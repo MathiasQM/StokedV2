@@ -40,7 +40,7 @@
           >
         </div>
       </UButton>
-      <AppUserDropdown />
+      <AppLayoutsDesktopUserDropdown />
     </footer>
   </div>
 </template>

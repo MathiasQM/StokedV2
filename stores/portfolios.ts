@@ -36,14 +36,14 @@ export const usePortfoliosStore = defineStore('portfolios', () => {
   watch(
     positions,
     (newPositions, oldPositions) => {
-      const newSymbols = newPositions.map((p) => p.symbol)
-      const oldSymbols = oldPositions?.map((p) => p.symbol) ?? []
+      const newSymbols = newPositions.map((p) => `${p.symbol}.${p.exchange}`)
+      const oldSymbols =
+        oldPositions?.map((p) => `${p.symbol}.${p.exchange}`) ?? []
 
       const symbolsToWatch = newSymbols.filter((s) => !oldSymbols.includes(s))
       const symbolsToUnwatch = oldSymbols.filter((s) => !newSymbols.includes(s))
 
       if (symbolsToWatch.length > 0) {
-        console.log('Watching symbols:', symbolsToWatch)
         watchSymbols(symbolsToWatch)
       }
 
@@ -59,7 +59,8 @@ export const usePortfoliosStore = defineStore('portfolios', () => {
     const quotes = liveQuotes.value
 
     return list.map((pos) => {
-      const q = quotes[pos.symbol]
+      const fullSymbol = `${pos.symbol}.${pos.exchange}`
+      const q = quotes[fullSymbol]
 
       const livePrice = q?.close || 0
       const costBasis = pos.shares * pos.costPerShare

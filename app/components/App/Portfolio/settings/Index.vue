@@ -8,10 +8,6 @@
     label="Portfolio logo (Recommended size: 1 MB, 1:1 aspect ratio)"
     name="logo"
   >
-    <AppAvatarUploader
-      v-model="state.logo"
-      @file-selected="handleFileSelected"
-    />
   </UFormField> -->
     <UForm
       :schema="portfolioSchema"

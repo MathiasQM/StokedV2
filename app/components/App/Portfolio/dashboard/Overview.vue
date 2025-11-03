@@ -4,7 +4,7 @@
       <template #default="{ quoteData }">
         <Accordion type="single" collapsible v-model="openAccordionModel">
           <AccordionItem class="border-none" value="item-1">
-            <ElementsCard
+            <CustomCard
               enableBorderFlare
               class="group w-full flex-1 select-none min-w-[325px]"
             >
@@ -31,7 +31,7 @@
                   />
                 </div>
               </AccordionContent>
-            </ElementsCard>
+            </CustomCard>
           </AccordionItem>
         </Accordion>
       </template>
@@ -50,6 +50,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
+import { CustomCard } from '#components'
 
 const { useManagedSetting } = usePortfolioPreferences()
 

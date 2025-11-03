@@ -41,7 +41,7 @@
   </main>
 
   <footer>
-    <AppMobileNav />
+    <AppLayoutsMobileNav />
   </footer>
 </template>
 

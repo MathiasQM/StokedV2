@@ -8,11 +8,11 @@
 
         <!-- simple responsive cards -->
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <ElementsCard
+          <CustomCard
             v-for="sym in symbols"
             :key="sym"
             @click="navigateTo(`/market/stock/${sym}`)"
-            >{{ sym }}</ElementsCard
+            >{{ sym }}</CustomCard
           >
         </div>
       </div>

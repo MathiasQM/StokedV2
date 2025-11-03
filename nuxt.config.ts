@@ -23,7 +23,7 @@ export default defineNuxtConfig({
     },
     display: 'swap',
   },
-  plugins: ['~/plugins/plaid-link.client.ts', '~/plugins/dayjs.ts'],
+  plugins: ['~/plugins/dayjs.ts'],
   colorMode: {
     preference: 'dark',
   },

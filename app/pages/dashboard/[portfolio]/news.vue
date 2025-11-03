@@ -1,6 +1,6 @@
 <template>
   <AppContainer title="News">
-    <ElementsCard
+    <CustomCard
       enableBorderFlare
       enableDots
       class="group w-full flex-1 select-none lg:min-w-0"
@@ -30,7 +30,7 @@
           <ChartsRangePicker :symbol="symbol" :data="quoteData" />
         </template>
       </ChartsWrapper>
-    </ElementsCard>
+    </CustomCard>
   </AppContainer>
 </template>
 

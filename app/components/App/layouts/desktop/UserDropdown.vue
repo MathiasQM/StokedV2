@@ -62,7 +62,7 @@
     description="Have a question or need assistance? We're here to help!"
   >
     <template #body>
-      <AppFeedbackForm @close="feedbackModal = false" />
+      <AppAccountSettingsFeedbackForm @close="feedbackModal = false" />
     </template>
   </UModal>
 </template>

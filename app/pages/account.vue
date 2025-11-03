@@ -46,7 +46,7 @@
 
       <template #support>
         <div class="bg-neutral-900 p-3 border border-neutral-800 rounded-lg">
-          <AppFeedbackForm />
+          <AppAccountSettingsFeedbackForm />
         </div>
       </template>
     </AppTabs>
@@ -55,7 +55,11 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { AppPortfolioSettings, AppPortfolioSettingsMembers } from '#components'
+import {
+  AppAccountSettings,
+  AppPortfolioSettings,
+  AppPortfolioSettingsMembers,
+} from '#components'
 
 definePageMeta({
   layout: 'default',

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { CustomCard } from '#components'
 import { ref, computed, defineAsyncComponent, type Component } from 'vue'
 import { useRoute } from 'vue-router'
 // Assuming animate.css is included globally or via import
@@ -126,7 +127,7 @@ const resolveComponent = (componentName: string): Component | null => {
 </script>
 
 <template>
-  <ElementsCard>
+  <CustomCard>
     <div
       class="article-container p-4 md:p-6 lg:p-8 max-w-4xl mx-auto font-sans"
     >
@@ -300,7 +301,7 @@ const resolveComponent = (componentName: string): Component | null => {
         </p>
       </article>
     </div>
-  </ElementsCard>
+  </CustomCard>
 </template>
 
 <style scoped>
