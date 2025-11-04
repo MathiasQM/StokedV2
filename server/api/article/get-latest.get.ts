@@ -63,6 +63,7 @@ export default defineEventHandler(async (event: H3Event) => {
           ${tables.articles}.* 
         FROM ${tables.articles}
         WHERE ${inArray(tables.articles.ticker, tickers)}
+        AND ${tables.articles}.ticker IS NOT NULL
         ORDER BY ${tables.articles.ticker}, ${tables.articles.createdAt} DESC
       `,
     )
@@ -74,33 +75,35 @@ export default defineEventHandler(async (event: H3Event) => {
       got.set(String(row.ticker).toLowerCase(), row)
     }
 
-    const out = tickers.map((t) => {
-      const row = got.get(t)
-      if (!row) return null
+    const out = tickers
+      .map((t) => {
+        const row = got.get(t)
+        if (!row?.ticker) return null
 
-      const created_at =
-        (row as any).created_at ?? (row as any).createdAt ?? null
+        const created_at =
+          (row as any).created_at ?? (row as any).createdAt ?? null
 
-      return {
-        id: row.id,
-        created_at,
-        ticker: String(row.ticker).toUpperCase(),
-        title: row.title,
-        introduction: row.introduction,
+        return {
+          id: row.id,
+          created_at,
+          ticker: String(row.ticker).toUpperCase(),
+          title: row.title,
+          introduction: row.introduction,
 
-        body: safeParseJSON<string[]>(
-          row.body,
-          Array.isArray(row.body) ? (row.body as any) : [],
-        ),
+          body: safeParseJSON<string[]>(
+            row.body,
+            Array.isArray(row.body) ? (row.body as any) : [],
+          ),
 
-        conclusion: row.conclusion,
+          conclusion: row.conclusion,
 
-        components: safeParseJSON<any[]>(
-          row.components,
-          Array.isArray(row.components) ? (row.components as any) : [],
-        ),
-      } as ArticleData
-    })
+          components: safeParseJSON<any[]>(
+            row.components,
+            Array.isArray(row.components) ? (row.components as any) : [],
+          ),
+        } as ArticleData
+      })
+      .filter((a): a is ArticleData => !!a)
 
     setResponseStatus(event, 200)
     return out

@@ -57,10 +57,12 @@ function btnVariant(type?: 'primary' | 'secondary' | 'danger' | 'ghost') {
     @update:open="(val) => !val && store.closeModal()"
   >
     <DrawerContent
-      :class="store.config.widthClass"
+      :class="[
+        store.config.widthClass,
+        'h-[85vh] max-h-[85vh] overflow-hidden flex flex-col',
+      ]"
       @interact-outside="onBackdropClose"
       @escape-key-down="onEscClose"
-      class="overflow-y-visible"
     >
       <DrawerHeader v-if="store.config.title || store.config.description">
         <DrawerTitle v-if="store.config.title" class="text-center text-xl">
@@ -74,7 +76,7 @@ function btnVariant(type?: 'primary' | 'secondary' | 'danger' | 'ghost') {
         </DrawerDescription>
       </DrawerHeader>
 
-      <div class="relative overflow-y-scroll -top-5">
+      <div class="flex-1 min-h-0">
         <component
           v-if="DynComp"
           :is="DynComp"

@@ -59,7 +59,7 @@ const activeTab = ref(route.query.tab || tabs[0])
     </div>
     <AppTabs v-model="activeTab" :tabs="tabs">
       <template #news v-if="activeTab === 'news'">
-        <TickerNews :symbol="symbol" />
+        <AppPortfolioDashboardNews :symbol="symbol" />
       </template>
     </AppTabs>
   </AppContainer>

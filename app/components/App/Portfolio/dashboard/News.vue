@@ -8,28 +8,41 @@
       v-else
       v-for="(article, index) in articles"
       :key="index"
-      class="min-h-32! w-full p-2"
+      class="p-2 w-full flex"
+      @click="openArticle(article)"
     >
-      <div class="w-full h-32 flex flex-col gap-4 items-center overflow-hidden">
-        <!-- <div class="bg-orange-500 w-full rounded-lg flex-1"></div> -->
-        <div class="flex-0">
-          <h3 class="text-sm font-semibold">{{ article?.ticker }}</h3>
-          <h3 class="text-sm font-semibold">{{ article?.title }}</h3>
+      <div class="h-32 w-full flex flex-col gap-4">
+        <!-- Text container fills remaining space -->
+        <div class="flex-1 min-w-0 flex flex-col justify-center">
+          <h3 class="text-sm font-semibold">
+            {{ article?.title }}
+          </h3>
           <p class="text-xs text-neutral-400 mb-2">
             {{ $dayjs(article?.created_at).format('MMMM D, YYYY') }}
           </p>
         </div>
-        <!-- <CustomButtonsShiny @click="openArticle(article)" variant="pill"
-        >News</CustomButtonsShiny
-        > -->
+
+        <div class="flex justify-start gap-2">
+          <!-- TODO: Have n8n choose widgets to show -->
+          <!-- TODO: Capture stock price when this was published -->
+          <CustomButtonsShiny variant="pill">
+            Up 10% since this news
+          </CustomButtonsShiny>
+          <CustomButtonsShiny variant="pill"> Sentiment </CustomButtonsShiny>
+        </div>
       </div>
     </CustomCard>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ar } from 'zod/v4/locales'
 import { useGlobalDrawerDialogStore } from '~~/stores/globalDrawerDialog'
 import { usePortfoliosStore } from '~~/stores/portfolios'
+
+const props = defineProps<{
+  symbol?: string
+}>()
 
 const { $dayjs } = useNuxtApp()
 
@@ -37,7 +50,9 @@ const portfoliosStore = usePortfoliosStore()
 const { positions } = storeToRefs(portfoliosStore)
 
 const symbols = computed(() => {
-  return positions.value.map((pos) => `${pos.symbol}.${pos.exchange}`)
+  return props.symbol
+    ? [props.symbol]
+    : positions.value.map((pos) => `${pos.symbol}.${pos.exchange}`)
 })
 
 const modal = useGlobalDrawerDialogStore()
@@ -60,4 +75,5 @@ const { data: articles, pending } = await useAsyncData(
       params: { tickers: symbols.value.join(',') },
     }),
 )
+console.log(articles)
 </script>

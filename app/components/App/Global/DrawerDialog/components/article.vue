@@ -4,7 +4,7 @@
       enableDots
       enableBorderFlare
       :bg-gradient="{ to: 'black-900', from: 'black-800/40' }"
-      class="rounded-b-none! p-3 h-44"
+      class="rounded-b-none! p-3 h-44 absolute -top-5 z-[9999]"
     >
       <div>
         <p class="text-md text-neutral-300 font-semibold uppercase">
@@ -12,147 +12,160 @@
         </p>
       </div>
     </CustomCard>
+    <div class="flex justify-start gap-2 px-4">
+      <!-- Show custom row of widgets Not basic data like "published on" -->
+      <CustomButtonsShiny variant="pill">
+        {{ $dayjs(article?.created_at).format('MMMM D, YYYY') }}
+      </CustomButtonsShiny>
+    </div>
     <div
-      class="article-container h-full relative p-4 md:p-6 lg:p-8 max-w-4xl mx-auto font-sans overflow-scroll"
+      class="flex-1 min-h-0 overflow-y-auto overscroll-contain -webkit-overflow-scrolling-touch"
+      @wheel.stop
+      @touchmove.stop
     >
-      <article class="prose lg:prose-xl max-w-none">
-        <h1 class="text-xl lg:text-3xl font-bold mb-4 text-white">
-          {{ article.title }}
-        </h1>
-        <p class="text-sm text-neutral-400 mb-6">
-          {{ $dayjs(article?.created_at).format('MMMM D, YYYY') }}
-        </p>
+      <div
+        class="relative p-4 md:p-6 lg:p-8 max-w-4xl mx-auto font-sans article-container"
+      >
+        <article class="prose lg:prose-xl max-w-none">
+          <h1 class="text-xl lg:text-3xl font-bold mb-4 text-white">
+            {{ article.title }}
+          </h1>
+          <p class="text-sm text-neutral-400 mb-6">
+            {{ $dayjs(article?.created_at).format('MMMM D, YYYY') }}
+          </p>
 
-        <p class="text-sm mb-6 text-neutral-100">
-          {{ article.introduction }}
-        </p>
-
-        <div
-          v-for="(paragraph, index) in article?.body"
-          :key="`para-${index}`"
-          class="paragraph-block mb-6"
-        >
-          <div
-            v-for="component in getNonInlineComponents(index).filter(
-              (c) => c?.placement === 'above',
-            )"
-            :key="`comp-above-${index}-${component?.componentName}`"
-            class="component-wrapper my-4"
-          >
-            <component
-              :is="resolveComponent(component?.componentName)"
-              v-if="resolveComponent(component?.componentName)"
-              :ticker="article?.ticker"
-              class="animate__animated"
-              :class="[component?.animation?.animateIn]"
-            />
-            <div
-              v-else
-              class="p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded"
-            >
-              Warning: Component "{{ component?.componentName }}" not found.
-            </div>
-          </div>
+          <p class="text-sm mb-6 text-neutral-100">
+            {{ article.introduction }}
+          </p>
 
           <div
-            v-if="hasInlineComponent(index)"
-            class="inline-wrapper flex flex-col md:flex-row gap-4 items-start"
+            v-for="(paragraph, index) in article?.body"
+            :key="`para-${index}`"
+            class="paragraph-block mb-6"
           >
             <div
-              v-if="getInlineComponent(index, 'inline-left')"
-              class="component-wrapper md:w-1/3 flex-shrink-0"
+              v-for="component in getNonInlineComponents(index).filter(
+                (c) => c?.placement === 'above',
+              )"
+              :key="`comp-above-${index}-${component?.componentName}`"
+              class="component-wrapper my-4"
             >
               <component
-                :is="
-                  resolveComponent(
-                    getInlineComponent(index, 'inline-left')!.componentName,
-                  )
-                "
-                v-if="
-                  resolveComponent(
-                    getInlineComponent(index, 'inline-left')!.componentName,
-                  )
-                "
+                :is="resolveComponent(component?.componentName)"
+                v-if="resolveComponent(component?.componentName)"
                 :ticker="article?.ticker"
                 class="animate__animated"
-                :class="[
-                  getInlineComponent(index, 'inline-left')!.animation.animateIn,
-                ]"
+                :class="[component?.animation?.animateIn]"
               />
               <div
                 v-else
                 class="p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded"
               >
-                Warning: Component "{{
-                  getInlineComponent(index, 'inline-left')!.componentName
-                }}" not found.
+                Warning: Component "{{ component?.componentName }}" not found.
               </div>
             </div>
 
-            <p class="flex-grow text-neutral-100">{{ paragraph }}</p>
+            <div
+              v-if="hasInlineComponent(index)"
+              class="inline-wrapper flex flex-col md:flex-row gap-4 items-start"
+            >
+              <div
+                v-if="getInlineComponent(index, 'inline-left')"
+                class="component-wrapper md:w-1/3 flex-shrink-0"
+              >
+                <component
+                  :is="
+                    resolveComponent(
+                      getInlineComponent(index, 'inline-left')!.componentName,
+                    )
+                  "
+                  v-if="
+                    resolveComponent(
+                      getInlineComponent(index, 'inline-left')!.componentName,
+                    )
+                  "
+                  :ticker="article?.ticker"
+                  class="animate__animated"
+                  :class="[
+                    getInlineComponent(index, 'inline-left')!.animation
+                      .animateIn,
+                  ]"
+                />
+                <div
+                  v-else
+                  class="p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded"
+                >
+                  Warning: Component "{{
+                    getInlineComponent(index, 'inline-left')!.componentName
+                  }}" not found.
+                </div>
+              </div>
+
+              <p class="flex-grow text-neutral-100">{{ paragraph }}</p>
+
+              <div
+                v-if="getInlineComponent(index, 'inline-right')"
+                class="component-wrapper md:w-1/3 flex-shrink-0"
+              >
+                <component
+                  :is="
+                    resolveComponent(
+                      getInlineComponent(index, 'inline-right')!.componentName,
+                    )
+                  "
+                  v-if="
+                    resolveComponent(
+                      getInlineComponent(index, 'inline-right')!.componentName,
+                    )
+                  "
+                  :ticker="article?.ticker"
+                  class="animate__animated"
+                  :class="[
+                    getInlineComponent(index, 'inline-right')!.animation
+                      .animateIn,
+                  ]"
+                />
+                <div
+                  v-else
+                  class="p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded"
+                >
+                  Warning: Component "{{
+                    getInlineComponent(index, 'inline-right')!.componentName
+                  }}" not found.
+                </div>
+              </div>
+            </div>
+
+            <p v-else class="text-neutral-100">{{ paragraph }}</p>
 
             <div
-              v-if="getInlineComponent(index, 'inline-right')"
-              class="component-wrapper md:w-1/3 flex-shrink-0"
+              v-for="component in getNonInlineComponents(index).filter(
+                (c) => c.placement === 'below',
+              )"
+              :key="`comp-below-${index}-${component.componentName}`"
+              class="component-wrapper my-4"
             >
               <component
-                :is="
-                  resolveComponent(
-                    getInlineComponent(index, 'inline-right')!.componentName,
-                  )
-                "
-                v-if="
-                  resolveComponent(
-                    getInlineComponent(index, 'inline-right')!.componentName,
-                  )
-                "
+                :is="resolveComponent(component.componentName)"
+                v-if="resolveComponent(component.componentName)"
                 :ticker="article?.ticker"
                 class="animate__animated"
-                :class="[
-                  getInlineComponent(index, 'inline-right')!.animation
-                    .animateIn,
-                ]"
+                :class="[component.animation.animateIn]"
               />
               <div
                 v-else
                 class="p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded"
               >
-                Warning: Component "{{
-                  getInlineComponent(index, 'inline-right')!.componentName
-                }}" not found.
+                Warning: Component "{{ component.componentName }}" not found.
               </div>
             </div>
           </div>
 
-          <p v-else class="text-neutral-100">{{ paragraph }}</p>
-
-          <div
-            v-for="component in getNonInlineComponents(index).filter(
-              (c) => c.placement === 'below',
-            )"
-            :key="`comp-below-${index}-${component.componentName}`"
-            class="component-wrapper my-4"
-          >
-            <component
-              :is="resolveComponent(component.componentName)"
-              v-if="resolveComponent(component.componentName)"
-              :ticker="article?.ticker"
-              class="animate__animated"
-              :class="[component.animation.animateIn]"
-            />
-            <div
-              v-else
-              class="p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded"
-            >
-              Warning: Component "{{ component.componentName }}" not found.
-            </div>
-          </div>
-        </div>
-
-        <p class="text-lg mt-8 border-t pt-6 text-neutral-100">
-          {{ article?.conclusion }}
-        </p>
-      </article>
+          <p class="text-lg mt-8 border-t pt-6 text-neutral-100">
+            {{ article?.conclusion }}
+          </p>
+        </article>
+      </div>
     </div>
   </div>
 </template>
