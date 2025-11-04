@@ -1,47 +1,118 @@
 import { H3Event, getQuery, setResponseStatus, sendError } from 'h3'
-import { eq, desc } from 'drizzle-orm'
+import { sql, inArray } from 'drizzle-orm'
+import type { InferSelectModel } from 'drizzle-orm'
+
+type ArticleRow = InferSelectModel<typeof tables.articles>
+
+function parseTickers(q: Record<string, any>): string[] {
+  const raw = q.tickers
+  const arr = Array.isArray(raw)
+    ? raw
+    : typeof raw === 'string'
+      ? raw.split(',')
+      : []
+  return arr.map((s) => String(s).trim().toLowerCase()).filter(Boolean)
+}
+
+function safeParseJSON<T = unknown>(v: unknown, fallback: T): T {
+  if (v == null) return fallback
+  if (typeof v === 'string') {
+    try {
+      return JSON.parse(v) as T
+    } catch {
+      return fallback
+    }
+  }
+  if (typeof v === 'object') return v as T
+  return fallback
+}
 
 export default defineEventHandler(async (event: H3Event) => {
   const query = getQuery(event)
-  const ticker = query.ticker as string | undefined
+  const tickers = parseTickers(query)
 
-  if (!ticker || typeof ticker !== 'string') {
+  if (!tickers.length) {
     setResponseStatus(event, 400)
     return sendError(
       event,
       createError({
         statusCode: 400,
         statusMessage:
-          'Ticker query parameter is required and must be a string.',
+          'Provide tickers as a comma-separated list, e.g. ?tickers=AAPL,TSLA',
+      }),
+    )
+  }
+
+  if (tickers.length > 50) {
+    setResponseStatus(event, 400)
+    return sendError(
+      event,
+      createError({
+        statusCode: 400,
+        statusMessage: 'Too many tickers (max 50).',
       }),
     )
   }
 
   try {
-    const result = await useDB()
-      .select()
-      .from(tables.articles)
-      .where(eq(tables.articles.ticker, ticker.toLowerCase()))
-      .orderBy(desc(tables.articles.createdAt))
-      .limit(1)
+    const db = await useDB()
 
-    if (!result || result.length === 0) {
-      setResponseStatus(event, 404)
-      return null
+    const rows = await db.execute<ArticleRow>(
+      sql`
+        SELECT DISTINCT ON (${tables.articles.ticker})
+          ${tables.articles}.* 
+        FROM ${tables.articles}
+        WHERE ${inArray(tables.articles.ticker, tickers)}
+        ORDER BY ${tables.articles.ticker}, ${tables.articles.createdAt} DESC
+      `,
+    )
+
+    const got = new Map<string, ArticleRow>()
+    const resultRows = (rows as any).rows ?? rows
+    for (const row of resultRows) {
+      if (!row?.ticker) continue
+      got.set(String(row.ticker).toLowerCase(), row)
     }
 
-    const latestArticle = result[0]
+    const out = tickers.map((t) => {
+      const row = got.get(t)
+      if (!row) return null
+
+      const created_at =
+        (row as any).created_at ?? (row as any).createdAt ?? null
+
+      return {
+        id: row.id,
+        created_at,
+        ticker: String(row.ticker).toUpperCase(),
+        title: row.title,
+        introduction: row.introduction,
+
+        body: safeParseJSON<string[]>(
+          row.body,
+          Array.isArray(row.body) ? (row.body as any) : [],
+        ),
+
+        conclusion: row.conclusion,
+
+        components: safeParseJSON<any[]>(
+          row.components,
+          Array.isArray(row.components) ? (row.components as any) : [],
+        ),
+      } as ArticleData
+    })
+
     setResponseStatus(event, 200)
-    return latestArticle
+    return out
   } catch (err: any) {
-    console.error('Database query or server error:', err)
+    console.error('get-latest error:', err)
     setResponseStatus(event, 500)
     return sendError(
       event,
       createError({
         statusCode: 500,
-        statusMessage: 'Failed to fetch article from database.',
-        data: err.message,
+        statusMessage: 'Failed to fetch articles from database.',
+        data: err?.message,
       }),
     )
   }

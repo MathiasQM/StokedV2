@@ -19,11 +19,11 @@
       </div>
     </div>
     <AppTabs v-model="activeTab" :tabs="tabs">
-      <template #settings>
+      <template #settings v-if="activeTab === 'settings'">
         <AppAccountSettings />
       </template>
 
-      <template #portfolio>
+      <template #portfolio v-if="activeTab === 'portfolio'">
         <div class="space-y-8">
           <AppPortfolioSettings v-if="portfolios.length > 0" />
           <AppPortfolioSettingsMembers v-if="portfolios.length > 0" />
@@ -36,15 +36,15 @@
         </div>
       </template>
 
-      <template #billing>
+      <template #billing v-if="activeTab === 'billing'">
         <AppAccountSettingsBilling />
       </template>
 
-      <template #security>
+      <template #security v-if="activeTab === 'security'">
         <AppAccountSettingsSecurity />
       </template>
 
-      <template #support>
+      <template #support v-if="activeTab === 'support'">
         <div class="bg-neutral-900 p-3 border border-neutral-800 rounded-lg">
           <AppAccountSettingsFeedbackForm />
         </div>

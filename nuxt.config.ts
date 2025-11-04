@@ -23,7 +23,7 @@ export default defineNuxtConfig({
     },
     display: 'swap',
   },
-  plugins: ['~/plugins/dayjs.ts'],
+  plugins: ['~/plugins/dayjs.ts', '~/plugins/globalDrawerDialog.client.ts'],
   colorMode: {
     preference: 'dark',
   },
@@ -246,6 +246,7 @@ export default defineNuxtConfig({
     elevenLabsModelId: process.env.ELEVENLABS_MODEL_ID,
     openaiApiKey: process.env.OPENAI_API_KEY,
     geminiApiKey: process.env.GEMINI_API_KEY, // Missing in apphosting
+    exchangeRateAppId: process.env.EXCHANGE_RATE_APP_ID, // Missing in apphosting
     public: {
       webauthn: getWebAuthnConfig(),
       yodleeFastlinkUrl: process.env.YODLEE_FASTLINK_URL,

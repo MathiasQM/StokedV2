@@ -1,9 +1,15 @@
 <script setup lang="ts">
-const props = defineProps<{
-  enableDots?: boolean
-  enableBorderFlare?: boolean
-  disableBorders?: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    enableDots?: boolean
+    enableBorderFlare?: boolean
+    disableBorders?: boolean
+    bgGradient?: { to: string; from: string }
+  }>(),
+  {
+    bgGradient: { to: 'black-800', from: 'black-800/30' },
+  },
+)
 
 const isMobile = useIsMobile()
 </script>
@@ -24,8 +30,8 @@ const isMobile = useIsMobile()
         class="absolute top-0 left-0 m-[1px] h-full w-full"
         :class="
           isMobile
-            ? 'from-black-800/30 to-black-800 bg-gradient-to-b'
-            : 'bg-black-950'
+            ? `from-${props.bgGradient.from} to-${props.bgGradient.to} bg-gradient-to-b`
+            : `bg-${props.bgGradient.to}`
         "
       ></div>
       <div

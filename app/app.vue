@@ -13,6 +13,7 @@
     <!-- <AppPortfolioCountryProviderDropdown /> -->
     <AuthDrawer />
     <AppPortfolioSetupDrawer />
+    <AppGlobalDrawerDialog />
   </div>
 
   <!-- IOS Haptic Feedback workaround -->
@@ -28,6 +29,7 @@
 </template>
 
 <script lang="ts" setup>
+await getExchangeRates()
 const wrapperRef = ref<HTMLElement | null>(null)
 
 provide('wrapperRef', wrapperRef)

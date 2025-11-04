@@ -3,45 +3,32 @@ import { Button } from '@/components/ui/button'
 import { computed, useSlots, type PropType, Comment, Text } from 'vue'
 
 const props = defineProps({
-  /**
-   * The visual style of the button.
-   * - 'pill': The default rectangular button with rounded ends.
-   * - 'circle': A circular button, ideal for an icon.
-   * - 'square': A square button with rounded corners.
-   */
   variant: {
     type: String as PropType<'pill' | 'circle' | 'square'>, // 'glow' removed
     required: false,
     default: 'pill',
   },
-  /**
-   * If true, removes the gradient border effect.
-   */
   disableGradient: {
     type: Boolean,
     required: false,
     default: false,
   },
-  /**
-   * If true, applies disabled styling and stops events.
-   */
   disabled: {
     type: Boolean,
     required: false,
     default: false,
   },
-  /**
-   * Optional: Apply a custom width (e.g., "w-10", "w-[100px]").
-   */
   width: {
     type: String,
     required: false,
     default: undefined,
   },
-  /**
-   * Optional: Apply a custom height (e.g., "h-10", "h-[100px]").
-   */
   height: {
+    type: String,
+    required: false,
+    default: undefined,
+  },
+  buttonText: {
     type: String,
     required: false,
     default: undefined,
@@ -147,6 +134,9 @@ const iconClasses = computed(() => {
 
       <span v-if="hasDefaultSlot">
         <slot />
+      </span>
+      <span v-else-if="buttonText">
+        {{ buttonText }}
       </span>
     </Button>
   </div>

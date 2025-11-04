@@ -22,7 +22,20 @@
           <AppAccountSettingsOptionsSelect
             :options="supportedCurrencies"
             :selected="state.currency"
-            @update:selected="handleUpdate"
+            @update:selected="handleUpdate($event, 'currency')"
+          />
+        </ItemActions>
+      </Item>
+      <Item class="px-0">
+        <ItemContent>
+          <ItemTitle>Country</ItemTitle>
+          <ItemDescription>Country of origin</ItemDescription>
+        </ItemContent>
+        <ItemActions>
+          <AppAccountSettingsOptionsSelect
+            :options="supportedCountries"
+            :selected="state.country"
+            @update:selected="handleUpdate($event, 'country')"
           />
         </ItemActions>
       </Item>
@@ -45,17 +58,22 @@ const { user } = useUserSession()
 const { updateUser, loading, schema } = useUserAccount()
 
 const supportedCurrencies = _.uniq(Object.values(COUNTRY_TO_CURRENCY))
-const state = ref({
+const supportedCountries = _.uniq(Object.keys(COUNTRY_TO_CURRENCY))
+const state = ref<{
+  currency: string
+  country: string
+}>({
   currency: user.value?.currency ?? 'EUR',
+  country: user.value?.country ?? 'DE',
 })
-const handleUpdate = async (newCurrency: string) => {
-  if (!newCurrency || newCurrency === state.value.currency) return
-  const prev = state.value.currency
-  state.value.currency = newCurrency
+const handleUpdate = async (value: string, key: 'currency' | 'country') => {
+  if (!value || value === state.value[key]) return
+  const prev = state.value[key]
+  state.value[key] = value
   try {
-    await updateUser({ currency: newCurrency })
+    await updateUser({ [key]: value })
   } catch {
-    state.value.currency = prev
+    state.value[key] = prev
   }
 }
 </script>

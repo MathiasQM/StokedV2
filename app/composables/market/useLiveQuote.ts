@@ -172,6 +172,7 @@ export function useLiveQuote() {
   if (import.meta.client && watchedSymbols.value.size > 0) {
     ensurePolling()
   }
+  console.log(allQuotes.value)
 
   return {
     liveQuotes: allQuotes,

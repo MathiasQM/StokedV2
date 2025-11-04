@@ -20,7 +20,7 @@
       </div>
 
       <div v-if="isSuperAdmin" class="flex items-center gap-2">
-        <!-- <CustomButtonsShiny width="w-12">{{ countdown }}</CustomButtonsShiny> -->
+        <CustomButtonsShiny width="w-12">{{ countdown }}</CustomButtonsShiny>
 
         <CustomButtonsShiny
           width="w-8"
@@ -50,7 +50,7 @@
 const route = useRoute()
 const router = useRouter()
 const { user } = useUserSession()
-// const { countdown } = useIntervalRefresh()
+const { countdown } = useIntervalRefresh()
 
 const isSuperAdmin = computed(() => user.value?.superAdmin)
 

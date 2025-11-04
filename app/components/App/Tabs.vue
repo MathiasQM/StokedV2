@@ -64,9 +64,16 @@ const props = withDefaults(
 
 const emit = defineEmits(['update:modelValue'])
 
+const route = useRoute()
+const router = useRouter()
+
 const activeTab = computed({
-  get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value),
+  get: () => route.query.tab || props.modelValue || 'overview',
+  set: (value: string) => {
+    const sanitized = value.replace(/\s+/g, '').trim()
+    emit('update:modelValue', sanitized)
+    router.replace({ query: { ...route.query, tab: sanitized } })
+  },
 })
 
 const tabs = toRef(props, 'tabs')
@@ -161,6 +168,15 @@ const containerStyle = computed(() => {
     userSelect: isSwiping.value ? 'none' : 'auto',
   }
 })
+
+watch(
+  () => route.query.tab,
+  (tab) => {
+    if (tab && tab !== props.modelValue) {
+      emit('update:modelValue', tab)
+    }
+  },
+)
 
 watch(activeTabIndex, async (newIndex) => {
   await nextTick()

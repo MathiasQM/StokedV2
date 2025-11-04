@@ -1,7 +1,7 @@
 import { defineEventHandler, getHeader } from 'h3'
 
 const WINDOW_MS = 60_000
-const MAX = 60
+const MAX = 100
 
 const bucket = new Map<string, { ts: number; n: number }>()
 

@@ -34,7 +34,6 @@ export function readGeoFromHeaders(event: H3Event): HeaderGeo {
   }
 }
 
-// 🌍 Extended map – add as many locales as you plan to support
 export const COUNTRY_TO_LOCALE: Record<string, string> = {
   // Europe
   DK: 'da-DK',
@@ -108,7 +107,6 @@ export const COUNTRY_TO_LOCALE: Record<string, string> = {
   UA: 'uk-UA',
 }
 
-// 💰 Extended currency map
 export const COUNTRY_TO_CURRENCY: Record<string, string> = {
   DK: 'DKK',
   SE: 'SEK',

@@ -1,10 +1,13 @@
 <template>
   <AppContainer :title="`Dashboard`">
     <AppTabs disablePaddingx v-model="activeTab" :tabs="tabs">
-      <template #overview>
+      <template #overview v-if="activeTab === 'overview'">
         <AppPortfolioDashboardOverview />
       </template>
-      <template #holdings>
+      <template #news v-if="activeTab === 'news'">
+        <AppPortfolioDashboardNews />
+      </template>
+      <template #holdings v-if="activeTab === 'holdings'">
         <AppPortfolioTable />
       </template>
     </AppTabs>

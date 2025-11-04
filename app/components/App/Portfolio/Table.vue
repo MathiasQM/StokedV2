@@ -194,9 +194,9 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
-import { storeToRefs } from 'pinia'
-import { usePortfoliosStore } from '~~/stores/portfolios'
-import type { PortfolioPosition } from '~~/types/database'
+import { usePortfolioRealtime } from '@/composables/portfolio/usePortfolioRealtime'
+import { usePortfoliosStore } from '@@/stores/portfolios'
+import type { PortfolioPosition } from '@@/types/database'
 
 const props = withDefaults(
   defineProps<{
@@ -208,17 +208,16 @@ const props = withDefaults(
     disableActions: false,
   },
 )
-
 const route = useRoute()
 const toast = useToast()
 
+const { positionsWithCalculations, pending, error } = usePortfolioRealtime()
 const portfoliosStore = usePortfoliosStore()
-const { positionsWithCalculations, pending, error } =
-  storeToRefs(portfoliosStore)
 
 const { currentPortfolio } = usePortfolio()
-console.log('route.params.isEditing', route)
+
 const isEditing = ref(route.query.isEditing || props.isEditing)
+const isSaving = ref(false)
 
 const liveHoldingsView = computed(() =>
   (positionsWithCalculations.value || []).map((p) => ({
@@ -298,7 +297,7 @@ async function handleEditSave() {
   }
 
   try {
-    pending.value = true
+    isSaving.value = true
 
     const payload = editableHoldings.value.map((h) => ({
       name: h.name,
@@ -319,6 +318,7 @@ async function handleEditSave() {
       title: 'Holdings updated successfully.',
       color: 'success',
     })
+
     isEditing.value = false
   } catch (saveError) {
     console.error('Failed to save holdings:', saveError)
@@ -327,7 +327,7 @@ async function handleEditSave() {
       color: 'error',
     })
   } finally {
-    pending.value = false
+    isSaving.value = false
   }
 }
 

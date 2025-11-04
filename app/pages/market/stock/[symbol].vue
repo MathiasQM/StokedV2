@@ -16,9 +16,9 @@ const tabs = [
   'analysis',
   'financials',
   'options',
-  'order book',
+  'orderBook',
 ] as const
-const activeTab = ref(tabs[0])
+const activeTab = ref(route.query.tab || tabs[0])
 </script>
 
 <template>
@@ -58,7 +58,7 @@ const activeTab = ref(tabs[0])
       </CustomCard>
     </div>
     <AppTabs v-model="activeTab" :tabs="tabs">
-      <template #news>
+      <template #news v-if="activeTab === 'news'">
         <TickerNews :symbol="symbol" />
       </template>
     </AppTabs>
