@@ -1,28 +1,40 @@
 <template>
-  <div class="flex flex-col gap-5 relative w-full h-full">
+  <div class="flex flex-col relative w-full h-full">
     <CustomCard
       enableDots
       enableBorderFlare
       :bg-gradient="{ to: 'black-900', from: 'black-800/40' }"
-      class="rounded-b-none! p-3 h-44 absolute -top-5 z-[9999]"
+      class="rounded-b-none! p-3 h-44 flex items-end"
     >
       <div>
         <p class="text-md text-neutral-300 font-semibold uppercase">
-          {{ article?.ticker }}
+          {{ article?.ticker.split('.')[0] }}
         </p>
+        <p class="text-md text-neutral-300 font-semibold uppercase">$170.26</p>
+        <div class="flex items-center gap-2">
+          <span
+            class="aspect-square w-4 h-4 rounded-sm bg-green-500/40 flex items-center justify-center"
+            ><Icon name="lucide-arrow-up" class="bg-green-400 size-3" />
+          </span>
+          <p class="text-green-600">3.24% · $5.43 today</p>
+        </div>
       </div>
     </CustomCard>
-    <div class="flex justify-start gap-2 px-4">
-      <!-- Show custom row of widgets Not basic data like "published on" -->
-      <CustomButtonsShiny variant="pill">
-        {{ $dayjs(article?.created_at).format('MMMM D, YYYY') }}
-      </CustomButtonsShiny>
-    </div>
     <div
-      class="flex-1 min-h-0 overflow-y-auto overscroll-contain -webkit-overflow-scrolling-touch"
+      class="flex-1 pt-5 min-h-0 overflow-y-auto overscroll-contain -webkit-overflow-scrolling-touch"
       @wheel.stop
       @touchmove.stop
     >
+      <div class="flex justify-start items-center gap-2 px-4">
+        <!-- Show custom row of widgets Not basic data like "published on" -->
+        <CustomButtonsShiny variant="pill">
+          {{ $dayjs(article?.created_at).format('MMMM D, YYYY') }}
+        </CustomButtonsShiny>
+        <WidgetsPillsSentiment
+          :sentiment="article?.sentiment"
+          title="News Sentiment"
+        />
+      </div>
       <div
         class="relative p-4 md:p-6 lg:p-8 max-w-4xl mx-auto font-sans article-container"
       >

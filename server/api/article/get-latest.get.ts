@@ -89,6 +89,9 @@ export default defineEventHandler(async (event: H3Event) => {
           ticker: String(row.ticker).toUpperCase(),
           title: row.title,
           introduction: row.introduction,
+          tags: row.tags,
+          sources: row.sources,
+          sentiment: safeParseJSON(row.sentiment, row.sentiment),
 
           body: safeParseJSON<string[]>(
             row.body,
