@@ -77,5 +77,4 @@ const { data: articles, pending } = await useAsyncData(
       params: { tickers: symbols.value.join(',') },
     }),
 )
-console.log(articles)
 </script>
