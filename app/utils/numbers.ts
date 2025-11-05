@@ -12,7 +12,6 @@ export async function getExchangeRates(): Promise<Record<string, number>> {
   const now = Date.now()
 
   if (cachedRates && now - lastFetchTimestamp < CACHE_DURATION_MS) {
-    console.log('Returning cached rates.')
     return cachedRates
   }
   const rates = await $fetch<Record<string, number>>(`/api/exchange-rates`, {

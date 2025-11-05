@@ -60,13 +60,9 @@ function withAlpha(base: string, a: number) {
 
 /* ─────────── Chart helpers ─────────── */
 function destroyChart() {
-  console.log('Destroying chart', chartInstance)
   try {
     chartInstance?.destroy()
-    console.log('supposedly destroyed', chartInstance)
-  } catch (e) {
-    console.error('Error destroying chart:', e)
-  }
+  } catch (e) {}
   if (!chartInstance) console.error('Chart instance destroyed:', chartInstance)
 
   chartInstance = null
@@ -78,7 +74,6 @@ function buildChart() {
   /* cache UI helpers for this build */
   const existing = Chart.getChart(canvasRef.value)
   if (existing) {
-    console.log('⚠️ Found existing chart on canvas, destroying...')
     existing.destroy()
   }
 

@@ -2,8 +2,8 @@ import { z } from 'zod'
 
 const Body = z.object({
   symbols: z.array(z.string().min(1)).min(1),
-  filter: z.string().optional(), // e.g. "General::Code" or "Financials::Balance_Sheet::yearly"
-  version: z.string().optional(), // optional: &version=1.2 if you need legacy-like shape
+  filter: z.string().optional(),
+  version: z.string().optional(),
 })
 
 export default defineEventHandler(async (event) => {
@@ -20,13 +20,15 @@ export default defineEventHandler(async (event) => {
   const { symbols, filter, version } = Body.parse(body)
 
   const maxConcurrency = 4
-  const queue: Promise<any>[] = []
   const results: { key: string; data: any }[] = []
+
+  // Use a Map to track active promises
+  const activePromises = new Map<string, Promise<any>>()
 
   async function fetchOne(symbol: string) {
     const base = `https://eodhd.com/api/fundamentals/${encodeURIComponent(symbol)}`
     const q = new URLSearchParams({ api_token: apiKey, fmt: 'json' })
-    if (filter) q.set('filter', filter) // EODHD supports multi-layer filter via '::' to go deeper into the object
+    if (filter) q.set('filter', filter)
     if (version) q.set('version', version)
     const url = `${base}?${q.toString()}`
 
@@ -35,24 +37,31 @@ export default defineEventHandler(async (event) => {
   }
 
   for (const s of symbols) {
-    const p = fetchOne(s).then((r) => {
-      results.push(r)
-    })
-    queue.push(p)
-    if (queue.length >= maxConcurrency) {
-      await Promise.race(queue)
-      // remove settled promises
-      for (let i = queue.length - 1; i >= 0; i--) {
-        if (
-          Reflect.get(queue[i], 'status') === 'fulfilled' ||
-          Reflect.get(queue[i], 'status') === 'rejected'
-        ) {
-          queue.splice(i, 1)
-        }
-      }
+    // Create the promise
+    const p = fetchOne(s)
+      .then((r) => {
+        results.push(r)
+      })
+      .catch((e) => {
+        console.error(`Error fetching ${s}:`, e.message)
+        // Optionally, you could propagate this error back
+      })
+      .finally(() => {
+        // When this promise settles (success or fail), remove it
+        activePromises.delete(s)
+      })
+
+    // Add it to the map
+    activePromises.set(s, p)
+
+    // If we've hit the limit, wait for *any* promise to finish
+    if (activePromises.size >= maxConcurrency) {
+      await Promise.race(activePromises.values())
     }
   }
-  await Promise.allSettled(queue)
+
+  // Wait for all remaining promises to complete
+  await Promise.allSettled(activePromises.values())
 
   return results
 })

@@ -2,6 +2,9 @@ import {
   useFundamentalsStore,
   type FundamentalsError,
 } from '@@/stores/fundamentals'
+import { storeToRefs } from 'pinia'
+import { computed, unref, watch } from 'vue'
+import type { MaybeRef } from 'vue'
 
 type Opts = {
   symbols: MaybeRef<string[]>
@@ -10,6 +13,9 @@ type Opts = {
   version?: string
 }
 
+/**
+ * Handles arrays of symbols, perfect for lists or batch operations.
+ */
 export function useFundamentals(opts: Opts) {
   const store = useFundamentalsStore()
 
@@ -19,33 +25,35 @@ export function useFundamentals(opts: Opts) {
   const filter = computed<string | undefined>(() => unref(opts.filter))
   const maxAgeMs = computed(() => opts.maxAgeMs ?? 10 * 60_000)
 
+  console.log(
+    'useFundamentals params:',
+    symbols.value,
+    filter.value,
+    maxAgeMs.value,
+  )
+
   const unique = computed(() =>
     Array.from(new Set(unref(symbols))).filter(Boolean),
   )
 
-  const map = computed<Record<string, any>>(() => {
+  const fundamentalsMap = computed<Record<string, any>>(() => {
     const out: Record<string, any> = {}
-
     const storeData = byKey.value
 
     for (const k of unique.value) {
       out[k] = storeData[k]?.data
     }
-
+    console.log(out)
     return out
   })
 
   const anyPending = computed(() => {
-    // This is now correct
     const pendingSet = pending.value
     return unique.value.some((k) => pendingSet.has(k))
   })
 
-  // *** FIX #2: Use the 'storeErrors' ref ***
   const errors = computed(() => {
     const out: Record<string, FundamentalsError | null> = {}
-
-    // Access the .value of the ref
     const errorsData = storeErrors.value
     for (const k of unique.value) {
       out[k] = errorsData[k] ?? null
@@ -70,5 +78,5 @@ export function useFundamentals(opts: Opts) {
     { immediate: true },
   )
 
-  return { fundamentalsMap: map, pending: anyPending, errors, refresh }
+  return { fundamentalsMap, pending: anyPending, errors, refresh }
 }

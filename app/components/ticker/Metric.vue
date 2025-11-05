@@ -17,8 +17,6 @@ const props = withDefaults(
   { purpose: 'ticker', showIcon: false },
 )
 
-console.log('Ticker Metric Logo URL:', props.logoUrl)
-
 const { selectedRange } = storeToRefs(useMarketStore())
 
 const computedDateFormat = computed(() => {

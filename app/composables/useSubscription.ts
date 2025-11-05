@@ -92,7 +92,6 @@ export const useSubscription = () => {
   onMounted(async () => {
     if (import.meta.client && !stripe.value) {
       stripe.value = await loadStripe(runtimeConfig.public.stripePublicKey)
-      console.log(stripe.value)
     }
     if (!plans.value.length) await fetchPlans()
     if (!activeSubscription.value) await fetchActive()
@@ -101,7 +100,6 @@ export const useSubscription = () => {
   async function fetchPlans() {
     try {
       const fetchedPlans = await $fetch<Price[]>(STRIPE.plans)
-      console.log('fetchedPlans', fetchedPlans)
       plans.value = fetchedPlans ?? []
       return plans.value
     } catch (e) {

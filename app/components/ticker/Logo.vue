@@ -1,7 +1,7 @@
 <template>
   <span
     v-if="!logoUrl"
-    class="h-6 w-6 uppercase rounded-full bg-black-700 flex items-center justify-center font-black"
+    class="h-6 w-6 uppercase rounded-full bg-black-600 flex items-center justify-center font-black"
     >{{ symbol[0] }}</span
   >
 
@@ -10,7 +10,7 @@
     :key="logoUrl"
     :src="`https://eodhd.com${logoUrl}`"
     :alt="`${symbol} logo`"
-    class="block h-6 w-6 rounded-full bg-black-700 p-1"
+    class="block h-6 w-6 rounded-full bg-black-600 p-1"
   />
 </template>
 

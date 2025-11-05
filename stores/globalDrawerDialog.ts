@@ -59,12 +59,6 @@ export const useGlobalDrawerDialogStore = defineStore(
   () => {
     const isMobile = useIsMobile()
 
-    console.log(
-      'isMobile in globalDrawerDialogStore:',
-      isMobile.value,
-      isMobile.value ? 'drawer' : 'dialog',
-    )
-
     const open = ref(false)
     const config = reactive<DrawerDialogConfig>({
       mode: isMobile.value ? 'drawer' : 'dialog',

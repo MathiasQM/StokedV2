@@ -9,11 +9,6 @@ definePageMeta({ validate: (route) => !!route.params.symbol })
 const route = useRoute()
 const symbol = computed(() => route.params.symbol as string)
 
-const symbols = computed(() => {
-  return symbol.value ? [symbol.value] : []
-})
-console.log('Market Stock Page for symbol:', symbol, typeof symbol)
-
 const hoveredChartData = ref<any>(null)
 
 const tabs = [
@@ -28,11 +23,10 @@ const activeTab = ref(route.query.tab || tabs[0])
 
 const {
   fundamentalsMap,
-  pending: fundamentalsPending,
-  errors,
+  errors: fundamentalError,
   refresh,
 } = useFundamentals({
-  symbols: symbols,
+  symbols: [symbol.value],
   filter: 'General',
   maxAgeMs: 15 * 60_000,
 })

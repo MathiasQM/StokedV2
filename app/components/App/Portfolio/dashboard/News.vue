@@ -28,9 +28,7 @@
           <CustomButtonsShiny variant="pill">
             Up 10% since this news
           </CustomButtonsShiny>
-          <CustomButtonsShiny variant="pill">
-            {{ article?.sentiment }}
-          </CustomButtonsShiny>
+          <CustomButtonsShiny variant="pill"> Sentiment </CustomButtonsShiny>
         </div>
       </div>
     </CustomCard>
