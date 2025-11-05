@@ -38,7 +38,6 @@
 </template>
 
 <script setup lang="ts">
-import { ar } from 'zod/v4/locales'
 import { useGlobalDrawerDialogStore } from '~~/stores/globalDrawerDialog'
 import { usePortfoliosStore } from '~~/stores/portfolios'
 

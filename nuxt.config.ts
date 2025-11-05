@@ -247,6 +247,7 @@ export default defineNuxtConfig({
     openaiApiKey: process.env.OPENAI_API_KEY,
     geminiApiKey: process.env.GEMINI_API_KEY, // Missing in apphosting
     exchangeRateAppId: process.env.EXCHANGE_RATE_APP_ID, // Missing in apphosting
+    eodFundamentalsApiKey: process.env.EOD_FUNDAMENTALS_API_KEY, // Missing in apphosting
     public: {
       webauthn: getWebAuthnConfig(),
       yodleeFastlinkUrl: process.env.YODLEE_FASTLINK_URL,

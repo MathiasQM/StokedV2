@@ -10,7 +10,8 @@ export default defineCachedEventHandler(
     }
 
     const url = eodUrl(`eod/${symbol}`, { from, to })
-    return await $fetch<Candle[]>(url)
+    const data = await $fetch<Candle[]>(url, { method: 'GET' })
+    return data
   },
   { maxAge: 60 * 60 },
 ) // 1 h cache

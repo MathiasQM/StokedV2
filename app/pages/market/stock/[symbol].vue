@@ -2,11 +2,17 @@
 import { gradientLinePlugin } from '@/lib/chart/gradientLinePlugin'
 import { pointerCrosshair } from '@/lib/chart/CrosshairPlugin'
 import { gradientFlarePlugin } from '@/lib/chart/gradientFlarePlugin'
+import { useFundamentals } from '~/composables/market/useFundamentals'
 
 definePageMeta({ validate: (route) => !!route.params.symbol })
 
 const route = useRoute()
-const symbol = route.params.symbol as string
+const symbol = computed(() => route.params.symbol as string)
+
+const symbols = computed(() => {
+  return symbol.value ? [symbol.value] : []
+})
+console.log('Market Stock Page for symbol:', symbol, typeof symbol)
 
 const hoveredChartData = ref<any>(null)
 
@@ -19,6 +25,17 @@ const tabs = [
   'orderBook',
 ] as const
 const activeTab = ref(route.query.tab || tabs[0])
+
+const {
+  fundamentalsMap,
+  pending: fundamentalsPending,
+  errors,
+  refresh,
+} = useFundamentals({
+  symbols: symbols,
+  filter: 'General',
+  maxAgeMs: 15 * 60_000,
+})
 </script>
 
 <template>
@@ -31,15 +48,15 @@ const activeTab = ref(route.query.tab || tabs[0])
         <ChartsWrapper :symbol="symbol" class="pt-20">
           <template #default="{ quoteData }">
             <TickerMetric
-              class="px-5 pt-0 md:pt-5 absolute -top-20"
+              class="px-5 mt-5 pt-0 md:pt-5 absolute -top-20"
               :quoteData="quoteData"
+              :logoUrl="fundamentalsMap[symbol]?.LogoURL"
               showIcon
               show
               :symbol="symbol"
               :hover-data="hoveredChartData"
               :purpose="hoveredChartData ? 'chartTooltip' : 'ticker'"
             />
-
             <ChartsLineChart
               v-if="quoteData && quoteData.length"
               :key="symbol"

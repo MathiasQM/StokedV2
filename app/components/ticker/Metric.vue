@@ -9,12 +9,15 @@ const props = withDefaults(
   defineProps<{
     purpose?: 'ticker' | 'chartTooltip'
     showIcon?: boolean
+    logoUrl?: string
     symbol: string
     quoteData: HistoricalQuote[]
     hoverData?: any
   }>(),
   { purpose: 'ticker', showIcon: false },
 )
+
+console.log('Ticker Metric Logo URL:', props.logoUrl)
 
 const { selectedRange } = storeToRefs(useMarketStore())
 
@@ -82,14 +85,16 @@ const computeDifference = computed(() => {
 
 <template>
   <div class="space-y-2 text-start">
-    <span v-if="showIcon" class="block h-8 w-8 bg-white rounded-full"></span>
-    <p class="text-black-100 text-lg font-bold">
-      {{
-        purpose === 'ticker' && !hoverData
-          ? symbol
-          : useDateFormat(hoverData?.date, `${computedDateFormat} YYYY`)
-      }}
-    </p>
+    <div class="flex gap-3 items-center">
+      <TickerLogo :logoUrl="logoUrl" :symbol="symbol" />
+      <p class="text-black-300 text-lg font-bold">
+        {{
+          purpose === 'ticker' && !hoverData
+            ? symbol.split('.')[0]
+            : useDateFormat(hoverData?.date, `${computedDateFormat} YYYY`)
+        }}
+      </p>
+    </div>
 
     <p class="text-black-50 mb-2 text-4xl font-semibold tracking-wide">
       ${{
