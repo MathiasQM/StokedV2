@@ -63,7 +63,7 @@ const {
               @hovered-data="(points) => (hoveredChartData = points[0])"
             />
 
-            <ChartsRangePicker :symbol="symbol" :data="quoteData" />
+            <!-- <ChartsRangePicker :symbol="symbol" :data="quoteData" /> -->
           </template>
         </ChartsWrapper>
       </CustomCard>

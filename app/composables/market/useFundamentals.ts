@@ -25,13 +25,6 @@ export function useFundamentals(opts: Opts) {
   const filter = computed<string | undefined>(() => unref(opts.filter))
   const maxAgeMs = computed(() => opts.maxAgeMs ?? 10 * 60_000)
 
-  console.log(
-    'useFundamentals params:',
-    symbols.value,
-    filter.value,
-    maxAgeMs.value,
-  )
-
   const unique = computed(() =>
     Array.from(new Set(unref(symbols))).filter(Boolean),
   )
@@ -43,7 +36,6 @@ export function useFundamentals(opts: Opts) {
     for (const k of unique.value) {
       out[k] = storeData[k]?.data
     }
-    console.log(out)
     return out
   })
 

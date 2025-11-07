@@ -61,7 +61,6 @@ export const useFundamentalsStore = defineStore('fundamentals', () => {
         errors.value[key] = null
       }
     } catch (e: any) {
-      console.error('🚨 FUNDAMENTALS FETCH FAILED:', e)
       const serializableError: FundamentalsError = {
         message: e.message || 'An unknown error occurred',
         statusCode: e.statusCode || null,

@@ -21,6 +21,6 @@ definePageMeta({
 
 const route = useRoute()
 
-const tabs = ['overview', 'news', 'analysis', 'calendar', 'holdings']
+const tabs = ['overview', 'news', 'holdings'] //'analysis', 'calendar',
 const activeTab = ref(route.query.tab || tabs[0])
 </script>

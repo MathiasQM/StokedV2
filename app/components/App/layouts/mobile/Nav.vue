@@ -6,14 +6,14 @@
     <div
       class="h-14 border-black-100 dark:border-black-800 dark:bg-black-500/10 flex w-full max-w-92 items-center justify-evenly rounded-full border-1 bg-white/10 backdrop-blur-md"
     >
-      <AppSidebarLink
+      <!-- <AppSidebarLink
         key="market"
         v-bind="{
           label: 'Market',
           icon: 'i-lucide-globe',
           to: `/market`,
         }"
-      />
+      /> -->
       <AppSidebarLink
         key="brief"
         v-bind="{
