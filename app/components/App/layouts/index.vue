@@ -33,7 +33,7 @@
     </div>
 
     <div v-if="isSuperAdminRoute" key="super-admin">
-      <AppSidebarSuperAdmin />
+      <AppLayoutsSuperAdmin />
     </div>
   </header>
 
@@ -42,7 +42,7 @@
   </main>
 
   <footer>
-    <AppLayoutsMobileNav />
+    <AppLayoutsNav />
   </footer>
 </template>
 
