@@ -20,7 +20,7 @@
     -->
   <div
     class="fixed bottom-0 left-0 right-0 w-full flex justify-center gap-2 px-5 z-40 transition-transform duration-300 ease-in-out"
-    :class="isSearchOpen ? 'pb-3' : 'pb-8'"
+    :class="'pb-4'"
     :style="{ transform: `translateY(${navTranslateY}px)` }"
   >
     <!-- 

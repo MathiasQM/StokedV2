@@ -1,6 +1,6 @@
 <template>
   <Drawer v-if="isStandalone !== undefined && !isStandalone && !isDismissed">
-    <DrawerTrigger as-child class="absolute z-50">
+    <DrawerTrigger as-child>
       <Button
         variant="default"
         class="rounded-none flex justify-between px-5 h-12 w-full cursor-pointer bg-gray-100 items-center md:w-auto hover:bg-zinc-200/80 md:rounded-md md:px-3 md:py-4 dark:bg-white/8 dark:hover:bg-white/10"
