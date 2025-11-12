@@ -1,5 +1,4 @@
 <template>
-  <>
   <!-- ... existing overlay code ... -->
   <Transition
     enter-from-class="opacity-0"
@@ -113,6 +112,8 @@
           placeholder="Search..."
           class="w-full bg-transparent text-white placeholder-gray-400 outline-none"
           @keydown.esc="isSearchOpen = false"
+          @keydown.enter="searchInput?.blur()"
+          @onBlur="isSearchOpen = false"
           @click.stop
         />
         <button @click.stop="isSearchOpen = false" class="outline-none">

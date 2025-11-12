@@ -1,7 +1,7 @@
 <template>
   <NuxtRouteAnnouncer />
   <NuxtPwaManifest />
-  <div class="md:hidden h-10">
+  <div class="md:hidden">
     <PwaInstallPrompt />
   </div>
   <div ref="wrapperRef" class="padding-env-top">
