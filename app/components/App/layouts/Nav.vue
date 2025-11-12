@@ -1,14 +1,6 @@
 <template>
   <>
-  <!-- 
-      New Fullscreen Overlay
-      - Uses <Transition> for a smooth fade-in/out.
-      - v-if="isSearchOpen" controls its visibility.
-      - 'fixed inset-0' makes it fullscreen.
-      - 'backdrop-blur-sm' creates the frosted glass effect.
-      - 'z-30' places it behind the nav bar.
-      - @click closes the search.
-    -->
+  <!-- ... existing overlay code ... -->
   <Transition
     enter-from-class="opacity-0"
     enter-to-class="opacity-100"
@@ -25,9 +17,11 @@
   <!-- 
       Existing Nav Bar Container
       - Added 'z-40' to ensure it's on top of the new overlay.
+      - Added 'transition-transform' and style binding for keyboard offset.
     -->
   <div
-    class="fixed bottom-0 left-0 right-0 w-full flex justify-center gap-2 p-4 z-40"
+    class="fixed bottom-0 left-0 right-0 w-full flex justify-center gap-2 px-5 pb-8 z-40 transition-transform duration-300 ease-in-out"
+    :style="{ transform: `translateY(${navTranslateY}px)` }"
   >
     <!-- 
       This is now the SINGLE container for both states.
@@ -129,11 +123,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch, nextTick } from 'vue'
+import { ref, onMounted, computed, watch, nextTick, onUnmounted } from 'vue'
 
 // --- State ---
 const isSearchOpen = ref(false)
 const searchInput = ref(null)
+const navTranslateY = ref(0) // New state for keyboard offset
 
 // The list of navigation items
 // We use shallowRef for the icon component to avoid performance overhead
@@ -226,9 +221,34 @@ function updateIndicator() {
 // --- Lifecycle & Watchers ---
 
 /**
+ * Handles visual viewport resizing (e.g., keyboard opening/closing).
+ */
+const handleViewportResize = () => {
+  const visualViewport = window.visualViewport
+  if (!visualViewport) return
+
+  // Calculate the height of the keyboard
+  const keyboardHeight = window.innerHeight - visualViewport.height
+
+  if (keyboardHeight > 0 && isSearchOpen.value) {
+    // Keyboard is open AND search is active, move nav up
+    navTranslateY.value = -keyboardHeight
+  } else {
+    // Keyboard is closed OR search is not active, reset position
+    navTranslateY.value = 0
+  }
+}
+
+/**
+ * Handles window resize for updating the indicator.
+ */
+const onWindowResize = () => nextTick(updateIndicator)
+
+/**
  * When the component mounts:
  * 1. Wait for the DOM to be ready and layout to be calculated (hence setTimeout),
  * then run updateIndicator to position the indicator at the initial active item.
+ * 2. Add resize listeners.
  */
 onMounted(() => {
   // Use nextTick (or setTimeout) to ensure DOM is ready for measurement
@@ -237,15 +257,27 @@ onMounted(() => {
   })
 
   // Add a resize listener to recalculate position if window size changes
-  window.addEventListener('resize', () => nextTick(updateIndicator))
+  window.addEventListener('resize', onWindowResize)
+
+  // Add visualViewport listener for keyboard
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', handleViewportResize)
+  }
+})
+
+/**
+ * Clean up listeners when component is unmounted.
+ */
+onUnmounted(() => {
+  window.removeEventListener('resize', onWindowResize)
+  if (window.visualViewport) {
+    window.visualViewport.removeEventListener('resize', handleViewportResize)
+  }
 })
 
 /**
  * Watch for changes to 'displayIndex'.
- * When it changes (due to hover or click):
- * 1. Wait for Vue to update the DOM (e.g., apply w-0/w-16 classes).
- * 3. Call updateIndicator to animate the slider to the new position.
- * 'flush: 'post'' ensures this runs *after* DOM updates.
+ * ... existing code ...
  */
 watch(
   displayIndex,
@@ -256,11 +288,15 @@ watch(
 )
 
 /**
- * Watch for search state changes to update the indicator.
- * When search opens/closes, we need to re-calculate/hide the indicator.
+ * Watch for search state changes to update the indicator
+ * and handle keyboard offset.
  */
 watch(isSearchOpen, () => {
   // When search closes, update indicator to slide back
   nextTick(updateIndicator)
+
+  // Re-run resize logic when search state changes
+  // Use a timeout to ensure it runs after other DOM updates
+  setTimeout(handleViewportResize, 50)
 })
 </script>
