@@ -1,5 +1,5 @@
 <template>
-  <header class="relative z-50 flex w-full flex-col justify-end px-5 h-10">
+  <header class="relative z-30 flex w-full flex-col justify-end px-5 h-10">
     <div class="flex w-full items-end justify-between">
       <TransitionGroup tag="div" name="nav" class="flex items-center gap-3">
         <UButton
@@ -26,14 +26,20 @@
           width="w-8"
           height="h-8"
           variant="square"
-          @click="navigateTo('/dashboard/super-admin')"
-          ><Icon name="i-material-symbols-shield-rounded" class="size-4"
+          @click="
+            navigateTo(
+              isSuperAdminRoute ? '/dashboard' : '/dashboard/super-admin',
+            )
+          "
+          ><Icon
+            :name="
+              isSuperAdminRoute
+                ? 'i-lucide-shield-off'
+                : 'i-material-symbols-shield-rounded'
+            "
+            class="size-4"
         /></CustomButtonsShiny>
       </div>
-    </div>
-
-    <div v-if="isSuperAdminRoute" key="super-admin">
-      <AppLayoutsSuperAdmin />
     </div>
   </header>
 
@@ -53,7 +59,9 @@ const { user } = useUserSession()
 const { countdown } = useIntervalRefresh()
 
 const isSuperAdmin = computed(() => user.value?.superAdmin)
-
+const isSuperAdminRoute = computed(() => {
+  return route.path.startsWith('/dashboard/super-admin')
+})
 const baseRoutes = ['/dashboard', '/market', '/news']
 const hasPreviousHistory = computed(() => {
   if (import.meta.client) {
@@ -65,9 +73,9 @@ const showBackButton = computed(
   () => hasPreviousHistory?.value && !baseRoutes.includes(route.path),
 )
 
-const isSuperAdminRoute = computed(() => {
-  return route.path.startsWith('/dashboard/super-admin')
-})
+// const isSuperAdminRoute = computed(() => {
+//   return route.path.startsWith('/dashboard/super-admin')
+// })
 </script>
 
 <style scoped>

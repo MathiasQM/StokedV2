@@ -1,13 +1,6 @@
 <template>
-  <div>
-    <header class="hidden px-2 md:block">
-      <p class="font-bold">Super Admin</p>
-    </header>
-    <AppSidebarContent class="mt-2">
-      <AppSidebarGroup class="flex md:flex-col">
-        <AppSidebarLink v-for="link in links" :key="link.to" v-bind="link" />
-      </AppSidebarGroup>
-    </AppSidebarContent>
+  <div class="">
+    <AppLayoutsNavLink v-for="link in links" :key="link.to" v-bind="link" />
   </div>
 </template>
 

@@ -1,5 +1,4 @@
 <template>
-  <!-- ... existing overlay code ... -->
   <Transition
     enter-from-class="opacity-0"
     enter-to-class="opacity-100"
@@ -13,40 +12,23 @@
     ></div>
   </Transition>
 
-  <!-- 
-      Existing Nav Bar Container
-      - Added 'z-40' to ensure it's on top of the new overlay.
-      - Added 'transition-transform' and style binding for keyboard offset.
-    -->
   <div
     class="fixed bottom-0 left-0 right-0 w-full flex justify-center gap-2 px-5 z-40 transition-transform duration-300 ease-in-out"
     :class="'pb-4'"
     :style="{ transform: `translateY(${navTranslateY}px)` }"
   >
-    <!-- 
-      This is now the SINGLE container for both states.
-      - 'overflow-hidden' is the key to the vertical slide animation.
-    -->
     <nav
       class="h-15 relative flex w-full max-w-md items-center justify-between rounded-full border-1 border-black-100 dark:border-black-800 dark:bg-black-500/10 p-1 shadow-lg select-none backdrop-blur-md overflow-hidden"
     >
-      <!-- 
-        PANEL 1: NAV ITEMS
-        - This div holds the nav buttons and the sliding indicator.
-        - It's positioned absolutely.
-        - It slides UP ('-translate-y-full') when search is open.
-      -->
       <div
         class="absolute inset-0 flex items-center justify-between p-1 transition-transform duration-300 ease-in-out"
         :class="[isSearchOpen ? '-translate-y-full' : 'translate-y-0']"
       >
-        <!-- Sliding Indicator -->
         <span
-          class="absolute top-1 bottom-1 bg-white rounded-full shadow-md transition-all duration-300 ease-in-out"
+          class="absolute top-1 bottom-1 bg-white rounded-full shadow-md transition-all duration-300 ease-in-out z-0"
           :style="indicatorStyle"
         ></span>
 
-        <!-- Nav Buttons -->
         <button
           v-for="(item, index) in navItems"
           :key="item.iconName"
@@ -56,12 +38,12 @@
             }
           "
           @mouseenter="hoveredIndex = index"
-          @click="((activeIndex = index), navigateTo(item.link))"
+          @click="!item.link ? openSearch() : handleNavItemClick($event, item)"
           :class="[
-            'relative z-10 flex items-center justify-center gap-1.5 rounded-full px-3.5 py-2.5 transition-colors duration-300 outline-none focus:outline-none',
+            'relative z-10 flex items-center justify-center rounded-full px-3.5 py-2.5 transition-colors duration-300 outline-none focus:outline-none',
             displayIndex === index
-              ? 'text-gray-900'
-              : 'text-white hover:text-gray-300',
+              ? 'text-black'
+              : 'text-white hover:text-white/80',
           ]"
         >
           <Icon
@@ -69,43 +51,33 @@
             :name="item.iconName"
             class="w-6 h-6 flex-shrink-0"
           />
+
           <AppLogo
             v-else
-            :background="displayIndex === index ? '#000' : '#fff'"
+            :background="displayIndex === index ? 'black' : 'white'"
             class="w-6 h-6"
           />
-          <span
-            :class="[
-              'text-md font-medium overflow-hidden text-left',
-              displayIndex === index ? 'w-16' : 'w-0',
-            ]"
-            >{{ item.text }}</span
-          >
-        </button>
 
-        <!-- Search Trigger Button -->
-        <button
-          @click="openSearch"
-          :class="[
-            'relative z-10 flex items-center justify-center rounded-full px-3.5 py-2.5 text-white hover:text-gray-300 transition-colors duration-300 outline-none focus:outline-none',
-          ]"
-        >
-          <Icon name="i-lucide-search" class="w-6 h-6 flex-shrink-0" />
+          <div
+            class="grid transition-[grid-template-columns] duration-300 ease-in-out"
+            :class="
+              displayIndex === index ? 'grid-cols-[1fr]' : 'grid-cols-[0fr]'
+            "
+          >
+            <span class="overflow-hidden whitespace-nowrap">
+              <span class="pl-2 text-md font-medium block">
+                {{ item.text }}
+              </span>
+            </span>
+          </div>
         </button>
       </div>
 
-      <!-- 
-        PANEL 2: SEARCH INPUT
-        - This div holds the search input and close button.
-        - It's also positioned absolutely.
-        - It starts ABOVE ('-translate-y-full') and slides DOWN ('translate-y-0')
-          when search is open. This is the change.
-      -->
       <div
         class="absolute inset-0 flex w-full items-center gap-2 px-3 transition-transform duration-300 ease-in-out"
         :class="[isSearchOpen ? 'translate-y-0' : '-translate-y-full']"
       >
-        <Icon name="i-lucide-search" class="w-6 h-6 flex-shrink-0" />
+        <Icon name="i-lucide-search" class="w-6 h-6 flex-shrink-0 text-white" />
         <input
           ref="searchInput"
           type="text"
@@ -116,7 +88,10 @@
           @onBlur="isSearchOpen = false"
           @click.stop
         />
-        <button @click.stop="isSearchOpen = false" class="outline-none">
+        <button
+          @click.stop="isSearchOpen = false"
+          class="outline-none text-white hover:text-gray-300"
+        >
           <Icon name="i-lucide-x" class="w-6 h-6 flex-shrink-0" />
         </button>
       </div>
@@ -124,95 +99,162 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, computed, watch, nextTick, onUnmounted } from 'vue'
+import { useAuthModal } from '~~/stores/authModal'
+import { usePortfolioSetupModal } from '~~/stores/portfolioSetupModal'
 
-// --- State ---
+const { loggedIn, user } = useUserSession()
+const authStore = useAuthModal()
+const portfolioStore = usePortfolioSetupModal()
+const { currentPortfolio } = usePortfolio()
+const route = useRoute()
+
 const isSearchOpen = ref(false)
-const searchInput = ref(null)
-const navTranslateY = ref(0) // New state for keyboard offset
+const searchInput = ref<HTMLInputElement | null>(null)
+const navTranslateY = ref(0)
 
-// The list of navigation items
-// We use shallowRef for the icon component to avoid performance overhead
-const navItems = ref([
+const isAdminModeActive = computed(() => {
+  const p = route.path || ''
+  return user.value?.superAdmin && p.startsWith('/dashboard/super-admin')
+})
+
+type NavItem = {
+  text: string
+  iconName: string
+  link: string
+  requireAuth?: boolean
+  requirePortfolio?: boolean
+}
+
+const userItems: NavItem[] = [
   {
     text: 'Brief',
     iconName: 'i-lucide-newspaper',
     link: '/brief',
+    requireAuth: true,
+    requirePortfolio: true,
   },
   {
     text: 'Portfolio',
     iconName: 'i-lucide-briefcase-business',
     link: '/dashboard',
+    requireAuth: true,
+    requirePortfolio: true,
   },
   {
     text: 'Watchlist',
     iconName: 'watchlist',
     link: '/watchlists',
+    requireAuth: true,
+    requirePortfolio: true,
   },
   {
     text: 'Account',
     iconName: 'i-lucide-circle-user',
     link: '/account',
+    requireAuth: true,
+    requirePortfolio: true,
   },
-])
+  {
+    text: 'Search',
+    iconName: 'i-lucide-search',
+    link: '',
+    requireAuth: false,
+    requirePortfolio: false,
+  },
+]
 
-// The currently clicked/active item index
+const adminItems: NavItem[] = [
+  { text: 'Users', iconName: 'i-lucide-users', link: '/dashboard/super-admin' },
+  {
+    text: 'Portfolios',
+    iconName: 'i-lucide-users',
+    link: '/dashboard/super-admin/portfolios',
+  },
+  {
+    text: 'Plans',
+    iconName: 'i-lucide-credit-card',
+    link: '/dashboard/super-admin/stripe-plans',
+  },
+  {
+    text: 'Feedback',
+    iconName: 'i-lucide-message-circle',
+    link: '/dashboard/super-admin/feedback-submissions',
+  },
+  {
+    text: 'Newsletter',
+    iconName: 'i-lucide-mail',
+    link: '/dashboard/super-admin/newsletter-subscribers',
+  },
+]
+
+const navItems = computed<NavItem[]>(() =>
+  isAdminModeActive.value && !user.value?._impersonated
+    ? adminItems
+    : userItems,
+)
 const activeIndex = ref(0)
-// The currently hovered item index (null if not hovering)
 const hoveredIndex = ref(null)
-// An array to store the DOM elements of the nav buttons
 const itemRefs = ref([])
-// The dynamic style for the sliding indicator
 const indicatorStyle = ref({
   left: '0px',
   width: '0px',
   opacity: 0,
 })
 
-// --- Computed ---
+function startIndicatorTracking() {
+  const startTime = performance.now()
+  const duration = 200
 
-// The index that should be visually highlighted.
-// Hover state takes precedence over active state.
+  const animate = (currentTime: number) => {
+    updateIndicator()
+    if (currentTime - startTime < duration) {
+      animationFrameId = requestAnimationFrame(animate)
+    }
+  }
+
+  if (animationFrameId) cancelAnimationFrame(animationFrameId)
+  animationFrameId = requestAnimationFrame(animate)
+}
+
 const displayIndex = computed(() => {
-  // Prevent hover state from updating when search is open
   if (isSearchOpen.value) return activeIndex.value
   return hoveredIndex.value !== null ? hoveredIndex.value : activeIndex.value
 })
 
-// --- Methods ---
+let animationFrameId: number | null = null
 
-/**
- * Opens the search bar and focuses the input.
- */
+const handleNavItemClick = (e: Event, item: NavItem) => {
+  if (item.requireAuth && !loggedIn.value) {
+    e.preventDefault()
+    return authStore.openAuthModal()
+  } else if (item.requirePortfolio && !currentPortfolio?.value) {
+    e.preventDefault()
+    return portfolioStore.openPortfolioSetupModal()
+  } else {
+    navigateTo(item.link)
+  }
+}
+
 async function openSearch() {
   if (isSearchOpen.value) return
   isSearchOpen.value = true
-  // Reset hover index to null when opening search
   hoveredIndex.value = null
-  // Wait for the input to be rendered
   await nextTick()
   searchInput.value?.focus()
+  searchInput.value && (searchInput.value.value = '')
 }
 
-/**
- * Calculates and updates the position and width of the
- * sliding indicator based on the current displayIndex.
- */
 function updateIndicator() {
-  // Don't update indicator if search is open
   if (isSearchOpen.value) {
     indicatorStyle.value.opacity = 0
     return
   }
 
-  // Find the DOM element corresponding to the active/hovered index
   const el = itemRefs.value[displayIndex.value]
   if (!el) return
 
-  // Update the style object. Vue will reactively apply this.
-  // We use offsetLeft and offsetWidth to get the element's
-  // rendered position and size relative to the nav container.
   indicatorStyle.value = {
     left: `${el.offsetLeft}px`,
     width: `${el.offsetWidth}px`,
@@ -220,56 +262,33 @@ function updateIndicator() {
   }
 }
 
-// --- Lifecycle & Watchers ---
-
-/**
- * Handles visual viewport resizing (e.g., keyboard opening/closing).
- */
 const handleViewportResize = () => {
   const visualViewport = window.visualViewport
   if (!visualViewport) return
 
-  // Calculate the height of the keyboard
   const keyboardHeight = window.innerHeight - visualViewport.height
 
   if (keyboardHeight > 0 && isSearchOpen.value) {
-    // Keyboard is open AND search is active, move nav up
     navTranslateY.value = -keyboardHeight
   } else {
-    // Keyboard is closed OR search is not active, reset position
     navTranslateY.value = 0
   }
 }
 
-/**
- * Handles window resize for updating the indicator.
- */
 const onWindowResize = () => nextTick(updateIndicator)
 
-/**
- * When the component mounts:
- * 1. Wait for the DOM to be ready and layout to be calculated (hence setTimeout),
- * then run updateIndicator to position the indicator at the initial active item.
- * 2. Add resize listeners.
- */
 onMounted(() => {
-  // Use nextTick (or setTimeout) to ensure DOM is ready for measurement
   nextTick(() => {
-    setTimeout(updateIndicator, 50) // A small delay for layout to settle
+    setTimeout(updateIndicator, 50)
   })
 
-  // Add a resize listener to recalculate position if window size changes
   window.addEventListener('resize', onWindowResize)
 
-  // Add visualViewport listener for keyboard
   if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', handleViewportResize)
   }
 })
 
-/**
- * Clean up listeners when component is unmounted.
- */
 onUnmounted(() => {
   window.removeEventListener('resize', onWindowResize)
   if (window.visualViewport) {
@@ -277,28 +296,15 @@ onUnmounted(() => {
   }
 })
 
-/**
- * Watch for changes to 'displayIndex'.
- * ... existing code ...
- */
 watch(
   displayIndex,
   () => {
-    nextTick(updateIndicator)
+    startIndicatorTracking()
   },
   { flush: 'post' },
 )
 
-/**
- * Watch for search state changes to update the indicator
- * and handle keyboard offset.
- */
 watch(isSearchOpen, () => {
-  // When search closes, update indicator to slide back
   nextTick(updateIndicator)
-
-  // Re-run resize logic when search state changes
-  // Use a timeout to ensure it runs after other DOM updates
-  setTimeout(handleViewportResize, 50)
 })
 </script>
