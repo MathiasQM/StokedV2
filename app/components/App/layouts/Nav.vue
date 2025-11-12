@@ -13,12 +13,12 @@
   </Transition>
 
   <div
-    class="fixed bottom-0 left-0 right-0 w-full flex justify-center gap-2 px-5 z-40 transition-transform duration-300 ease-in-out"
+    class="fixed bottom-0 left-0 right-0 w-full flex justify-center gap-2 px-2 z-40 transition-transform duration-300 ease-in-out"
     :class="'pb-4'"
     :style="{ transform: `translateY(${navTranslateY}px)` }"
   >
     <nav
-      class="h-15 relative flex w-full max-w-md items-center justify-between rounded-full border-1 border-black-100 dark:border-black-800 dark:bg-black-500/10 p-1 shadow-lg select-none backdrop-blur-md overflow-hidden"
+      class="h-12 relative flex w-full max-w-md items-center justify-between rounded-full border-1 border-black-100 dark:border-black-800 dark:bg-black-500/10 p-1 shadow-lg select-none backdrop-blur-md overflow-hidden"
     >
       <div
         class="absolute inset-0 flex items-center justify-between p-1 transition-transform duration-300 ease-in-out"
@@ -47,7 +47,7 @@
           ]"
         >
           <Icon
-            v-if="item.link !== '/watchlists'"
+            v-if="item.link !== '/brief'"
             :name="item.iconName"
             class="w-6 h-6 flex-shrink-0"
           />
@@ -80,6 +80,7 @@
         <Icon name="i-lucide-search" class="w-6 h-6 flex-shrink-0 text-white" />
         <input
           ref="searchInput"
+          v-model="searchInputValue"
           type="text"
           placeholder="Search..."
           class="w-full bg-transparent text-white placeholder-gray-400 outline-none"
@@ -89,13 +90,27 @@
           @click.stop
         />
         <button
-          @click.stop="isSearchOpen = false"
+          v-if="searchInputValue !== ''"
+          @click.stop="searchInput?.value && (searchInput.value = '')"
           class="outline-none text-white hover:text-gray-300"
         >
-          <Icon name="i-lucide-x" class="w-6 h-6 flex-shrink-0" />
+          <Icon name="i-lucide-x" class="w-4 h-4 flex-shrink-0" />
         </button>
       </div>
     </nav>
+    <div
+      @click.stop="
+        isSearchOpen ? (isSearchOpen = false) : (isSearchOpen = true)
+      "
+      class="h-12 relative flex min-w-12 aspect-square items-center justify-center rounded-full border-1 border-black-100 dark:border-black-800 dark:bg-black-500/10 p-1 shadow-lg select-none backdrop-blur-md overflow-hidden"
+    >
+      <button class="outline-none text-white hover:text-gray-300">
+        <Icon
+          :name="isSearchOpen ? 'i-lucide-x' : 'i-lucide-search'"
+          class="w-6 h-6 flex-shrink-0"
+        />
+      </button>
+    </div>
   </div>
 </template>
 
@@ -112,6 +127,7 @@ const route = useRoute()
 
 const isSearchOpen = ref(false)
 const searchInput = ref<HTMLInputElement | null>(null)
+const searchInputValue = ref('')
 const navTranslateY = ref(0)
 
 const isAdminModeActive = computed(() => {
@@ -129,9 +145,9 @@ type NavItem = {
 
 const userItems: NavItem[] = [
   {
-    text: 'Brief',
-    iconName: 'i-lucide-newspaper',
-    link: '/brief',
+    text: 'Watchlist',
+    iconName: 'i-lucide-layout-list',
+    link: '/watchlists',
     requireAuth: true,
     requirePortfolio: true,
   },
@@ -143,9 +159,9 @@ const userItems: NavItem[] = [
     requirePortfolio: true,
   },
   {
-    text: 'Watchlist',
-    iconName: 'watchlist',
-    link: '/watchlists',
+    text: 'Brief',
+    iconName: '',
+    link: '/brief',
     requireAuth: true,
     requirePortfolio: true,
   },
@@ -155,13 +171,6 @@ const userItems: NavItem[] = [
     link: '/account',
     requireAuth: true,
     requirePortfolio: true,
-  },
-  {
-    text: 'Search',
-    iconName: 'i-lucide-search',
-    link: '',
-    requireAuth: false,
-    requirePortfolio: false,
   },
 ]
 
