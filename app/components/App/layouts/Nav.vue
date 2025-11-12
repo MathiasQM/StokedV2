@@ -18,7 +18,7 @@
     :style="{ transform: `translateY(${navTranslateY}px)` }"
   >
     <nav
-      class="h-12 relative flex w-full max-w-md items-center justify-between rounded-full border-1 border-black-100 dark:border-black-800 dark:bg-black-500/10 p-1 shadow-lg select-none backdrop-blur-md overflow-hidden"
+      class="h-15 relative flex w-full max-w-md items-center justify-between rounded-full border-1 border-black-100 dark:border-black-800 dark:bg-black-500/10 p-1 shadow-lg select-none backdrop-blur-md overflow-hidden"
     >
       <div
         class="absolute inset-0 flex items-center justify-between p-1 transition-transform duration-300 ease-in-out"
@@ -102,7 +102,7 @@
       @click.stop="
         isSearchOpen ? (isSearchOpen = false) : (isSearchOpen = true)
       "
-      class="h-12 relative flex min-w-12 aspect-square items-center justify-center rounded-full border-1 border-black-100 dark:border-black-800 dark:bg-black-500/10 p-1 shadow-lg select-none backdrop-blur-md overflow-hidden"
+      class="h-15 relative flex min-w-15 aspect-square items-center justify-center rounded-full border-1 border-black-100 dark:border-black-800 dark:bg-black-500/10 p-1 shadow-lg select-none backdrop-blur-md overflow-hidden"
     >
       <button class="outline-none text-white hover:text-gray-300">
         <Icon
