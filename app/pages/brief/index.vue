@@ -39,7 +39,7 @@ function openModal() {
     mode: 'drawer',
     title: '',
     description: '',
-    componentName: 'MediaController',
+    componentName: 'BriefStage',
     componentProps: { buttonText: 'Send Invite' },
     footerText:
       'Remember, this is not financial advice. Always pair your choices with a healthy dose of skepticism and your own research.',

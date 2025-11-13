@@ -36,7 +36,7 @@ function openModal() {
     mode: 'drawer',
     title: '',
     description: '',
-    componentName: 'MediaController',
+    componentName: 'BriefStage',
     footerText: 'Remember, this is not financial advice...',
     actions: [],
     backdropClose: true,
