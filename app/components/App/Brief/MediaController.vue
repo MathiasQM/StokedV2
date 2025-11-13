@@ -6,9 +6,17 @@
     <Button class="rounded-full" variant="default" @click.stop="toggle">
       <Icon :name="playing ? 'i-lucide-pause' : 'i-lucide-play'" />
     </Button>
-    <span class="tabular-nums"
-      >{{ mmss(currentTime) }} / {{ mmss(duration) }}</span
-    >
+
+    <div class="flex items-center gap-4 flex-1 justify-center">
+      <AudioWaveform :playing="playing" @scrub="(t) => (scrubTime = t)" />
+
+      <span
+        class="tabular-nums bg-neutral-800 px-2 py-0 rounded-full text-sm text-orange-500"
+      >
+        {{ displayTime }}
+      </span>
+    </div>
+
     <Icon
       @click.stop="handleCloseBrief"
       name="i-lucide-x"
@@ -18,6 +26,7 @@
 </template>
 
 <script setup lang="ts">
+import AudioWaveform from '@/components/App/Brief/AudioWaveform.vue'
 import { useBrief } from '@@/stores/brief'
 import { useGlobalDrawerDialogStore } from '@@/stores/globalDrawerDialog'
 import { Button } from '@/components/ui/button'
@@ -26,6 +35,21 @@ const modal = useGlobalDrawerDialogStore()
 const brief = useBrief()
 const { playing, currentTime, duration, showBriefNavElement } =
   storeToRefs(brief)
+
+const scrubTime = ref<number | null>(null)
+
+// 4. Create a computed property for clean logic
+// Priority: Scrubbing -> Playing -> Duration
+const displayTime = computed(() => {
+  // If we are scrubbing, show that time immediately
+  if (scrubTime.value !== null) return mmss(scrubTime.value)
+
+  // If playing, show current progress
+  if (playing.value) return mmss(currentTime.value)
+
+  // If paused and idle, show total duration
+  return mmss(duration.value)
+})
 
 function toggle() {
   playing.value = !playing.value
