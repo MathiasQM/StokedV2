@@ -32,6 +32,36 @@ const { user } = useUserSession()
 const { $dayjs } = useNuxtApp()
 const selectedDate = ref($dayjs())
 
+onMounted(() => {
+  // 1. Guard against SSR (Server Side Rendering) just in case, though onMounted usually handles this.
+  if (typeof window === 'undefined') return
+
+  // 2. Define context safely (with TS handling for webkit prefix)
+  const AudioContext = window.AudioContext || (window as any).webkitAudioContext
+
+  // 3. If the browser supports it, initialize
+  if (AudioContext) {
+    const audioCtx = new AudioContext()
+
+    const unlockAudio = () => {
+      // Only resume if it's suspended (which it usually is on iOS PWA launch)
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().then(() => {
+          console.log('🔊 iOS AudioContext unlocked/resumed')
+        })
+      }
+
+      // Clean up listeners so we don't spam the logic
+      document.removeEventListener('touchstart', unlockAudio)
+      document.removeEventListener('click', unlockAudio)
+    }
+
+    // Listen for the very first interaction
+    document.addEventListener('touchstart', unlockAudio, { once: true })
+    document.addEventListener('click', unlockAudio, { once: true })
+  }
+})
+
 const modal = useGlobalDrawerDialogStore()
 
 function openModal() {

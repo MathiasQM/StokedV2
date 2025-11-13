@@ -13,7 +13,7 @@
   </Transition>
 
   <div class="fixed bottom-0 z-30 w-full flex flex-col items-center gap-3">
-    <slot name="navActionsMenu" />
+    <slot v-if="!isSearchOpen" name="navActionsMenu" />
 
     <div
       class="w-full flex justify-center gap-2 px-2 z-40 transition-transform duration-300 ease-in-out"
@@ -179,7 +179,7 @@ const userItems: NavItem[] = [
     iconName: 'i-lucide-circle-user',
     link: '/account',
     requireAuth: true,
-    requirePortfolio: true,
+    requirePortfolio: false,
   },
 ]
 
@@ -244,6 +244,14 @@ const displayIndex = computed(() => {
 let animationFrameId: number | null = null
 
 const handleNavItemClick = (e: Event, item: NavItem) => {
+  if (
+    item.link === '/dashboard/super-admin' &&
+    !user.value?._impersonated &&
+    user.value?.superAdmin
+  ) {
+    navigateTo(item.link)
+    return
+  }
   if (item.requireAuth && !loggedIn.value) {
     e.preventDefault()
     return authStore.openAuthModal()
