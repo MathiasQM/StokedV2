@@ -16,7 +16,7 @@
     <slot name="navActionsMenu" />
 
     <div
-      class="w-full flex justify-center gap-2px-2 z-40 transition-transform duration-300 ease-in-out"
+      class="w-full flex justify-center gap-2 px-2 z-40 transition-transform duration-300 ease-in-out"
       :class="'pb-4'"
       :style="{ transform: `translateY(${navTranslateY}px)` }"
     >
