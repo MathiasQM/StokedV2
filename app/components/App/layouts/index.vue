@@ -50,7 +50,7 @@
   <footer>
     <AppLayoutsNav>
       <template v-if="showBriefNavElement" #navActionsMenu>
-        <div class="w-full px-3">
+        <div class="w-full px-3 flex justify-center">
           <AppBriefMediaController />
         </div>
       </template>
