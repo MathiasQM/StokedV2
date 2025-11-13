@@ -93,7 +93,7 @@ function btnVariant(type?: 'primary' | 'secondary' | 'danger' | 'ghost') {
       >
         <p
           v-if="store.config.footerText"
-          class="text-sm opacity-80 text-center"
+          class="self-center text-xs max-w-92 opacity-80 text-center"
         >
           {{ store.config.footerText }}
         </p>
@@ -109,12 +109,6 @@ function btnVariant(type?: 'primary' | 'secondary' | 'danger' | 'ghost') {
             <component v-if="a.icon" :is="a.icon" class="mr-2 h-4 w-4" />
             <span v-if="a.label">{{ a.label }}</span>
           </Button>
-          <DrawerClose
-            as-child
-            v-if="!store.config.actions || store.config.actions.length === 0"
-          >
-            <Button variant="secondary">Close</Button>
-          </DrawerClose>
         </div>
       </DrawerFooter>
     </DrawerContent>

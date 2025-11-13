@@ -26,6 +26,9 @@
     class="hidden"
   />
   <!-- IOS Haptic Feedback workaround -->
+
+  <!-- Global Audio Host -->
+  <AppGlobalAudioHost />
 </template>
 
 <script lang="ts" setup>

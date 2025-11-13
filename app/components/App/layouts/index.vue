@@ -48,15 +48,25 @@
   </main>
 
   <footer>
-    <AppLayoutsNav />
+    <AppLayoutsNav>
+      <template v-if="showBriefNavElement" #navActionsMenu>
+        <div class="w-full px-3">
+          <AppBriefMediaController />
+        </div>
+      </template>
+    </AppLayoutsNav>
   </footer>
 </template>
 
 <script lang="ts" setup>
+import { useBrief } from '~~/stores/brief'
+
 const route = useRoute()
 const router = useRouter()
 const { user } = useUserSession()
 const { countdown } = useIntervalRefresh()
+const brief = useBrief()
+const { showBriefNavElement } = storeToRefs(brief)
 
 const isSuperAdmin = computed(() => user.value?.superAdmin)
 const isSuperAdminRoute = computed(() => {
