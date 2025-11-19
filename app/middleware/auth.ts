@@ -18,7 +18,8 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
     const memberships = portfolios.value
     const firstPortfolio = memberships[0]
     if (!firstPortfolio) {
-      return navigateTo('/market')
+      if (to.path === '/dashboard') return
+      return navigateTo('/dashboard')
     }
     const lastPortfolioSlug = getLastUsedPortfolio()
     const targetPortfolio =

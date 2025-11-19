@@ -10,6 +10,7 @@
 <script setup lang="ts">
 definePageMeta({
   middleware: ['auth'],
+  key: 'dashboard',
 })
 
 const { user } = useUserSession()

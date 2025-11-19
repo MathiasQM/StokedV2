@@ -7,13 +7,11 @@ import { useMediaControls } from '@vueuse/core'
 export const useBrief = defineStore('brief', () => {
   const { $dayjs } = useNuxtApp()
 
-  const selectedDate = ref($dayjs())
+  const selectedDate = ref($dayjs().format('YYYY-MM-DD'))
   const audioRef = ref<HTMLAudioElement | null>(null)
   const showBriefNavElement = ref(false)
 
-  const cacheKey = computed(
-    () => `brief:${selectedDate.value.format('YYYY-MM-DD')}`,
-  )
+  const cacheKey = computed(() => `brief:${selectedDate.value}`)
 
   const {
     data: briefData,
@@ -25,7 +23,7 @@ export const useBrief = defineStore('brief', () => {
     () =>
       $fetch('/api/brief', {
         method: 'POST',
-        body: { date: selectedDate.value.startOf('day').toISOString() },
+        body: { date: $dayjs(selectedDate.value).startOf('day').toISOString() },
       }),
     { watch: [selectedDate], immediate: true },
   )
@@ -56,7 +54,7 @@ export const useBrief = defineStore('brief', () => {
   }
 
   function setDate(d: string | Date) {
-    selectedDate.value = $dayjs(d)
+    selectedDate.value = $dayjs(d).format('YYYY-MM-DD')
   }
 
   return {

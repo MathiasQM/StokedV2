@@ -37,7 +37,7 @@
             :key="item.iconName"
             :ref="
               (el) => {
-                if (el) itemRefs[index] = el
+                if (el) itemRefs[index] = el as HTMLElement
               }
             "
             @mouseenter="hoveredIndex = index"
@@ -96,6 +96,7 @@
             @keydown.enter="searchInput?.blur()"
             @onBlur="isSearchOpen = false"
             @click.stop
+            autofocus
           />
           <button
             v-if="searchInputValue !== ''"
@@ -213,35 +214,18 @@ const navItems = computed<NavItem[]>(() =>
     : userItems,
 )
 const activeIndex = ref(0)
-const hoveredIndex = ref(null)
-const itemRefs = ref([])
+const hoveredIndex = ref<number | null>(null)
+const itemRefs = ref<HTMLElement[]>([])
 const indicatorStyle = ref({
   left: '0px',
   width: '0px',
   opacity: 0,
 })
 
-function startIndicatorTracking() {
-  const startTime = performance.now()
-  const duration = 200
-
-  const animate = (currentTime: number) => {
-    updateIndicator()
-    if (currentTime - startTime < duration) {
-      animationFrameId = requestAnimationFrame(animate)
-    }
-  }
-
-  if (animationFrameId) cancelAnimationFrame(animationFrameId)
-  animationFrameId = requestAnimationFrame(animate)
-}
-
 const displayIndex = computed(() => {
   if (isSearchOpen.value) return activeIndex.value
   return hoveredIndex.value !== null ? hoveredIndex.value : activeIndex.value
 })
-
-let animationFrameId: number | null = null
 
 const handleNavItemClick = (e: Event, item: NavItem) => {
   if (
@@ -267,9 +251,13 @@ async function openSearch() {
   if (isSearchOpen.value) return
   isSearchOpen.value = true
   hoveredIndex.value = null
+  // Wait for transition/render
   await nextTick()
-  searchInput.value?.focus()
-  searchInput.value && (searchInput.value.value = '')
+  // Small delay to ensure element is interactive/visible if there's a transition
+  setTimeout(() => {
+    searchInput.value?.focus()
+    if (searchInput.value) searchInput.value.value = ''
+  }, 50)
 }
 
 function updateIndicator() {
@@ -303,8 +291,39 @@ const handleViewportResize = () => {
 
 const onWindowResize = () => nextTick(updateIndicator)
 
+let resizeObserver: ResizeObserver | null = null
+
+function setupResizeObserver() {
+  if (resizeObserver) resizeObserver.disconnect()
+
+  resizeObserver = new ResizeObserver(() => {
+    updateIndicator()
+  })
+
+  // Observe all nav items to catch width changes during transitions
+  itemRefs.value.forEach((el) => {
+    if (el) resizeObserver?.observe(el)
+  })
+}
+
+function setActiveIndexFromRoute() {
+  const currentPath = route.path
+  const index = navItems.value.findIndex((item) => {
+    if (item.link === '/') return currentPath === '/'
+    return currentPath.startsWith(item.link)
+  })
+
+  if (index !== -1) {
+    activeIndex.value = index
+  }
+}
+
 onMounted(() => {
+  setActiveIndexFromRoute()
+
   nextTick(() => {
+    setupResizeObserver()
+    // Initial update
     setTimeout(updateIndicator, 50)
   })
 
@@ -316,11 +335,36 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  if (resizeObserver) resizeObserver.disconnect()
   window.removeEventListener('resize', onWindowResize)
   if (window.visualViewport) {
     window.visualViewport.removeEventListener('resize', handleViewportResize)
   }
 })
+
+watch(
+  () => route.path,
+  () => {
+    setActiveIndexFromRoute()
+  },
+)
+
+let animationFrameId: number | null = null
+
+function startIndicatorTracking() {
+  const startTime = performance.now()
+  const duration = 400 // Slightly longer than CSS transition (300ms)
+
+  const animate = (currentTime: number) => {
+    updateIndicator()
+    if (currentTime - startTime < duration) {
+      animationFrameId = requestAnimationFrame(animate)
+    }
+  }
+
+  if (animationFrameId) cancelAnimationFrame(animationFrameId)
+  animationFrameId = requestAnimationFrame(animate)
+}
 
 watch(
   displayIndex,
@@ -330,7 +374,16 @@ watch(
   { flush: 'post' },
 )
 
-watch(isSearchOpen, () => {
+watch(isSearchOpen, (isOpen) => {
+  if (isOpen) {
+    nextTick(() => {
+      // Try focusing immediately and after a small delay to handle transitions
+      searchInput.value?.focus()
+      setTimeout(() => {
+        searchInput.value?.focus()
+      }, 100)
+    })
+  }
   nextTick(updateIndicator)
 })
 </script>

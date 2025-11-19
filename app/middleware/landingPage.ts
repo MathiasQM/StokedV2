@@ -7,7 +7,7 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
     const lastPortfolioSlug = getLastUsedPortfolio()
     const url = lastPortfolioSlug
       ? `/dashboard/${lastPortfolioSlug}`
-      : '/market'
+      : '/dashboard'
     return navigateTo(url)
   }
 })

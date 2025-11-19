@@ -32,6 +32,14 @@ const { user } = useUserSession()
 const { $dayjs } = useNuxtApp()
 const selectedDate = ref($dayjs())
 
+watch(selectedDate, (newDate) => {
+  briefStore.setDate(newDate.format('YYYY-MM-DD'))
+})
+
+definePageMeta({
+  key: 'brief',
+})
+
 onMounted(() => {
   // 1. Guard against SSR (Server Side Rendering) just in case, though onMounted usually handles this.
   if (typeof window === 'undefined') return
