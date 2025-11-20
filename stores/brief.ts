@@ -28,9 +28,9 @@ export const useBrief = defineStore('brief', () => {
     { watch: [selectedDate], immediate: true },
   )
 
-  // Make src reactive for vueuse
   const src = computed(() => briefData.value?.audioUrl || '')
 
+  // Make src reactive for vueuse
   // Hook controls to the SINGLE audio element.
   const { playing, currentTime, duration, volume } = useMediaControls(
     audioRef,

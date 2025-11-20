@@ -1,24 +1,7 @@
 <template>
   <div>
     <div v-if="!disableActions" class="flex justify-end gap-3 mb-4">
-      <button
-        v-if="isEditing"
-        @click="cancelEditing"
-        class="px-4 py-2 text-sm font-semibold rounded-lg transition-colors bg-zinc-700 hover:bg-zinc-600 text-zinc-200"
-      >
-        Cancel
-      </button>
-      <button
-        @click="handleEditSave"
-        class="px-4 py-2 text-sm font-semibold rounded-lg transition-colors"
-        :class="
-          isEditing
-            ? 'bg-green-600 hover:bg-green-500 text-white'
-            : 'bg-zinc-700 hover:bg-zinc-600 text-zinc-200'
-        "
-      >
-        {{ isEditing ? 'Save Changes' : 'Edit Holdings' }}
-      </button>
+      <!-- Actions will be moved to per-row -->
     </div>
 
     <!-- Loading skeleton -->
@@ -40,9 +23,7 @@
         <div v-for="holding in editableHoldings" :key="holding.id">
           <div class="relative">
             <Transition name="slide-up">
-              <!-- VIEW MODE -->
               <div
-                v-if="!isEditing"
                 :key="'view-' + holding.id"
                 class="flex flex-col items-center p-4"
               >
@@ -104,90 +85,28 @@
                     </p>
                   </div>
 
-                  <div class="text-right text-xs">
-                    <p class="text-xs text-zinc-500">Latest</p>
-                    <p class="text-xs text-zinc-400">
-                      {{ formatCurrency(holding.latest, 'USD') }}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <!-- EDIT MODE -->
-              <div
-                v-else
-                :key="'edit-' + holding.id"
-                class="flex flex-col items-between justify-end gap-4 p-4"
-              >
-                <div class="flex items-center gap-2 w-full">
-                  <img
-                    v-if="holding.website"
-                    :src="getLogoSrc(holding.website)"
-                    class="w-5 h-5 bg-zinc-700 rounded-full"
-                    :alt="`${holding.name} logo`"
-                    @error="
-                      ($event.target as HTMLImageElement).style.display = 'none'
-                    "
-                  />
-                  <span
-                    v-else
-                    class="bg-neutral-800 h-5 w-5 aspect-square rounded-full flex items-center text-xs justify-center"
-                  >
-                    {{ holding.name?.[0] }}
-                  </span>
-                  <p class="font-semibold text-white text-sm truncate min-w-0">
-                    {{ holding.name }}
-                  </p>
-                </div>
-
-                <div class="flex w-full items-end gap-4">
-                  <div class="text-start text-xs">
-                    <label class="text-xs text-zinc-500 block mb-1"
-                      >Price</label
-                    >
-                    <input
-                      v-model.number="holding.avgCostPerShare"
-                      type="number"
-                      step="0.01"
-                      placeholder="0.00"
-                      class="bg-zinc-800 border border-zinc-700 text-white text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2"
+                  <div class="text-right text-xs flex items-center gap-2">
+                    <div>
+                      <p class="text-xs text-zinc-500">Latest</p>
+                      <p class="text-xs text-zinc-400">
+                        {{ formatCurrency(holding.latest, 'USD') }}
+                      </p>
+                    </div>
+                    <UButton
+                      v-if="!disableActions"
+                      icon="i-lucide-pencil"
+                      size="xs"
+                      color="neutral"
+                      variant="ghost"
+                      @click="openEditModal(holding)"
                     />
                   </div>
-
-                  <div class="text-start text-xs">
-                    <label class="text-xs text-zinc-500 block mb-1"
-                      >Amount</label
-                    >
-                    <input
-                      v-model.number="holding.shares"
-                      type="number"
-                      step="1"
-                      placeholder="0"
-                      class="bg-zinc-800 border border-zinc-700 text-white text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2"
-                    />
-                  </div>
-
-                  <button
-                    @click="deleteHolding(holding.id)"
-                    class="w-9 h-9 bg-red-500 font-semibold p-2 rounded-md mt-5"
-                  >
-                    <Icon name="i-lucide-trash-2" />
-                  </button>
                 </div>
               </div>
             </Transition>
           </div>
         </div>
       </TransitionGroup>
-
-      <div class="p-4" v-if="isEditing && !disableActions">
-        <button
-          @click="addHolding"
-          class="w-full py-2 px-4 text-sm font-semibold text-zinc-200 bg-black-800 hover:bg-white-100 hover:text-black rounded-lg"
-        >
-          + Add New Holding
-        </button>
-      </div>
     </div>
   </div>
 </template>
@@ -196,7 +115,8 @@
 import { ref, watch, computed } from 'vue'
 import { usePortfolioRealtime } from '@/composables/portfolio/usePortfolioRealtime'
 import { usePortfoliosStore } from '@@/stores/portfolios'
-import type { PortfolioPosition } from '@@/types/database'
+import { useGlobalDrawerDialogStore } from '~~/stores/globalDrawerDialog'
+import EditHoldingForm from './EditHoldingForm.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -215,8 +135,8 @@ const { positionsWithCalculations, pending, error } = usePortfolioRealtime()
 const portfoliosStore = usePortfoliosStore()
 
 const { currentPortfolio } = usePortfolio()
+const store = useGlobalDrawerDialogStore()
 
-const isEditing = ref(route.query.isEditing || props.isEditing)
 const isSaving = ref(false)
 
 const liveHoldingsView = computed(() =>
@@ -234,78 +154,39 @@ const liveHoldingsView = computed(() =>
   })),
 )
 
-const editableHoldings = ref<Array<ReturnType<typeof makeEditableHolding>>>([])
+// Simplified view, no editable copy needed for list display
+const editableHoldings = computed(() => liveHoldingsView.value)
 
-function makeEditableHolding(base?: any) {
-  return {
-    id: base?.id ?? `new-${Date.now()}`,
-    symbol: base?.symbol ?? '',
-    name: base?.name ?? 'New Holding',
-    exchange: base?.exchange ?? '',
-    website: base?.website ?? '',
-
-    value: base?.value ?? 0,
-    return: base?.return ?? 0,
-    today: base?.today ?? 0,
-    latest: base?.latest ?? 0,
-
-    avgCostPerShare: base?.avgCostPerShare ?? 0,
-    shares: base?.shares ?? 0,
-
-    isNew: base?.isNew ?? !base,
-  }
+function openEditModal(holding: any) {
+  store.openModal({
+    title: 'Edit Holding',
+    component: EditHoldingForm,
+    componentProps: {
+      holding,
+      saving: isSaving,
+      onSave: handleModalSave,
+      onDelete: handleModalDelete,
+      onCancel: store.closeModal,
+    },
+  })
 }
 
-watch(
-  [liveHoldingsView, isEditing],
-  ([newHoldings, editing]) => {
-    if (!editing && newHoldings) {
-      editableHoldings.value = newHoldings.map((h) => makeEditableHolding(h))
-    }
-  },
-  { immediate: true, deep: true },
-)
-
-function cancelEditing() {
-  editableHoldings.value = liveHoldingsView.value.map((h) =>
-    makeEditableHolding(h),
-  )
-  isEditing.value = false
-}
-
-function addHolding() {
-  editableHoldings.value.push(
-    makeEditableHolding({
-      isNew: true,
-    }),
-  )
-}
-
-function deleteHolding(holdingId: string) {
-  editableHoldings.value = editableHoldings.value.filter(
-    (h) => h.id !== holdingId,
-  )
-}
-
-async function handleEditSave() {
-  if (!isEditing.value) {
-    editableHoldings.value = liveHoldingsView.value.map((h) =>
-      makeEditableHolding(h),
-    )
-    isEditing.value = true
-    return
-  }
-
+async function handleModalSave(updatedHolding: any) {
   try {
     isSaving.value = true
 
-    const payload = editableHoldings.value.map((h) => ({
-      name: h.name,
-      symbol: h.symbol,
-      website: h.website || null,
-      shares: parseInt(h.shares) || null,
-      costPerShare: parseInt(h.avgCostPerShare),
-    }))
+    // Create a new list with the updated holding
+    // We need to map ALL current holdings to the payload format, replacing the one that was edited
+    const payload = liveHoldingsView.value.map((h) => {
+      const target = h.id === updatedHolding.id ? updatedHolding : h
+      return {
+        name: target.name,
+        symbol: target.symbol,
+        website: target.website || null,
+        shares: parseInt(target.shares) || null,
+        costPerShare: Number(target.avgCostPerShare), // Use Number for cost
+      }
+    })
 
     await $fetch(`/api/portfolios/${currentPortfolio.value.id}/positions`, {
       method: 'PATCH',
@@ -315,15 +196,54 @@ async function handleEditSave() {
     await portfoliosStore.fetchPositions()
 
     toast.add({
-      title: 'Holdings updated successfully.',
+      title: 'Holding updated successfully.',
       color: 'success',
     })
 
-    isEditing.value = false
+    store.closeModal()
   } catch (saveError) {
-    console.error('Failed to save holdings:', saveError)
+    console.error('Failed to save holding:', saveError)
     toast.add({
-      title: 'Failed to update holdings.',
+      title: 'Failed to update holding.',
+      color: 'error',
+    })
+  } finally {
+    isSaving.value = false
+  }
+}
+
+async function handleModalDelete(holdingId: string) {
+  try {
+    isSaving.value = true
+
+    // Filter out the deleted holding
+    const payload = liveHoldingsView.value
+      .filter((h) => h.id !== holdingId)
+      .map((h) => ({
+        name: h.name,
+        symbol: h.symbol,
+        website: h.website || null,
+        shares: parseInt(h.shares) || null,
+        costPerShare: Number(h.avgCostPerShare),
+      }))
+
+    await $fetch(`/api/portfolios/${currentPortfolio.value.id}/positions`, {
+      method: 'PATCH',
+      body: payload,
+    })
+
+    await portfoliosStore.fetchPositions()
+
+    toast.add({
+      title: 'Holding removed successfully.',
+      color: 'success',
+    })
+
+    store.closeModal()
+  } catch (saveError) {
+    console.error('Failed to delete holding:', saveError)
+    toast.add({
+      title: 'Failed to remove holding.',
       color: 'error',
     })
   } finally {

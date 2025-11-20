@@ -68,7 +68,11 @@ const route = useRoute()
 const router = useRouter()
 
 const activeTab = computed({
-  get: () => route.query.tab || props.modelValue || 'overview',
+  get: () => {
+    const current =
+      (route.query.tab as string) || props.modelValue || 'overview'
+    return tabs.value.includes(current) ? current : tabs.value[0] || current
+  },
   set: (value: string) => {
     const sanitized = value.replace(/\s+/g, '').trim()
     emit('update:modelValue', sanitized)
