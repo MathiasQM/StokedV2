@@ -19,29 +19,41 @@
         <slot name="actions" />
       </div>
 
-      <div v-if="isSuperAdmin" class="flex items-center gap-2">
-        <CustomButtonsShiny width="w-12">{{ countdown }}</CustomButtonsShiny>
+      <div class="flex items-center gap-2">
+        <UButton
+          variant="ghost"
+          class="bg-black-800 aspect-square flex-shrink-0 rounded-full p-1 text-white"
+          @click="openSearch()"
+        >
+          <UIcon name="i-lucide-search" class="size-5" />
+        </UButton>
 
-        <CustomButtonsShiny
-          width="w-8"
-          height="h-8"
-          variant="square"
-          @click="
-            navigateTo(
-              isSuperAdminRoute ? '/dashboard' : '/dashboard/super-admin',
-            )
-          "
-          ><Icon
-            :name="
-              isSuperAdminRoute
-                ? 'i-lucide-shield-off'
-                : 'i-material-symbols-shield-rounded'
+        <div v-if="isSuperAdmin" class="flex items-center gap-2">
+          <CustomButtonsShiny width="w-12">{{ countdown }}</CustomButtonsShiny>
+
+          <CustomButtonsShiny
+            width="w-8"
+            height="h-8"
+            variant="square"
+            @click="
+              navigateTo(
+                isSuperAdminRoute ? '/dashboard' : '/dashboard/super-admin',
+              )
             "
-            class="size-4"
-        /></CustomButtonsShiny>
+            ><Icon
+              :name="
+                isSuperAdminRoute
+                  ? 'i-lucide-shield-off'
+                  : 'i-material-symbols-shield-rounded'
+              "
+              class="size-4"
+          /></CustomButtonsShiny>
+        </div>
       </div>
     </div>
   </header>
+
+  <SearchOverlay />
 
   <main>
     <slot />
@@ -60,6 +72,8 @@
 
 <script lang="ts" setup>
 import { useBrief } from '~~/stores/brief'
+import { useCommandPalette } from '@/composables/useCommandPalette'
+import SearchOverlay from '@/components/Search/Overlay.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -67,6 +81,7 @@ const { user } = useUserSession()
 const { countdown } = useIntervalRefresh()
 const brief = useBrief()
 const { showBriefNavElement } = storeToRefs(brief)
+const { openSearch } = useCommandPalette()
 
 const isSuperAdmin = computed(() => user.value?.superAdmin)
 const isSuperAdminRoute = computed(() => {

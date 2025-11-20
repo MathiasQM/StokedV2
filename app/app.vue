@@ -1,34 +1,36 @@
 <template>
   <NuxtRouteAnnouncer />
   <NuxtPwaManifest />
-  <div class="md:hidden">
-    <PwaInstallPrompt />
-  </div>
-  <div ref="wrapperRef" class="padding-env-top">
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
-    <!-- MOVE TO LAYOUTS AS AUTH ROUTE ARE NOT AUTHENTICATED -->
+  <UApp :toaster="{ position: 'top-center' }">
+    <div class="md:hidden">
+      <PwaInstallPrompt />
+    </div>
+    <div ref="wrapperRef" class="padding-env-top h-full">
+      <NuxtLayout>
+        <NuxtPage />
+      </NuxtLayout>
+      <!-- MOVE TO LAYOUTS AS AUTH ROUTE ARE NOT AUTHENTICATED -->
 
-    <!-- <AppPortfolioCountryProviderDropdown /> -->
-    <AuthDrawer />
-    <AppPortfolioSetupDrawer />
-    <AppGlobalDrawerDialog />
-  </div>
+      <!-- <AppPortfolioCountryProviderDropdown /> -->
+      <AuthDrawer />
+      <AppPortfolioSetupDrawer />
+      <AppGlobalDrawerDialog />
+    </div>
 
-  <!-- IOS Haptic Feedback workaround -->
-  <label for="haptic-trigger" id="haptic-label" class="hidden"></label>
-  <input
-    id="haptic-trigger"
-    type="checkbox"
-    role="switch"
-    switch
-    class="hidden"
-  />
-  <!-- IOS Haptic Feedback workaround -->
+    <!-- IOS Haptic Feedback workaround -->
+    <label for="haptic-trigger" id="haptic-label" class="hidden"></label>
+    <input
+      id="haptic-trigger"
+      type="checkbox"
+      role="switch"
+      switch
+      class="hidden"
+    />
+    <!-- IOS Haptic Feedback workaround -->
 
-  <!-- Global Audio Host -->
-  <AppGlobalAudioHost />
+    <!-- Global Audio Host -->
+    <AppGlobalAudioHost />
+  </UApp>
 </template>
 
 <script lang="ts" setup>

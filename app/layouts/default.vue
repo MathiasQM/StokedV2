@@ -1,11 +1,9 @@
 <template>
-  <UApp :toaster="{ position: 'top-center' }">
-    <div>
-      <AppLayouts>
-        <AppPopupsChoosePortfolios />
+  <div>
+    <AppLayouts>
+      <AppPopupsChoosePortfolios />
 
-        <slot />
-      </AppLayouts>
-    </div>
-  </UApp>
+      <slot />
+    </AppLayouts>
+  </div>
 </template>
