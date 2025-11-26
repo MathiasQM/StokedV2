@@ -40,37 +40,21 @@ const chartData = computed(() => {
     }
   })
 })
-
-const chartOptions = {
-  plugins: {
-    tooltip: {
-      enabled: true,
-      callbacks: {
-        label: (context: any) => context.raw.toLocaleString(),
-      },
-    },
-  },
-  scales: {
-    x: {
-      display: true,
-      grid: { display: false },
-      ticks: { color: '#666', font: { size: 10 } },
-    },
-    y: { display: false },
-  },
-}
 </script>
 
 <template>
   <div class="p-4 space-y-6">
-    <div v-if="chartData.length" class="space-y-4">
+    <div
+      v-if="chartData.length"
+      class="space-y-4 border-b border-white/10 pb-6"
+    >
       <div class="h-48 w-full">
         <BarChart
           :data="chartData"
           color="#f97316"
-          :options="chartOptions"
           showValues
           :isPercent="isPercent"
+          showXAxis
         />
       </div>
       <p class="text-xs text-muted-foreground text-center">
@@ -98,11 +82,19 @@ const chartOptions = {
       </p>
     </div>
 
-    <div v-if="formula" class="space-y-2">
-      <h3 class="text-lg font-semibold text-foreground">Formula</h3>
-      <div class="bg-muted/50 p-3 rounded-md font-mono text-sm text-center">
+    <div
+      v-if="formula"
+      class="bg-white/5 border border-white/10 p-4 rounded-lg space-y-2"
+    >
+      <h3 class="text-sm font-semibold text-white/80 flex items-center gap-2">
+        <Icon name="lucide-calculator" class="w-4 h-4" />
+        Formula
+      </h3>
+      <code
+        class="text-xs bg-black/30 px-2 py-1 rounded text-orange-400 block w-fit"
+      >
         {{ formula }}
-      </div>
+      </code>
     </div>
 
     <div v-if="interpretation" class="space-y-2">

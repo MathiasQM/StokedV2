@@ -3,7 +3,7 @@ import { shallowRef, ref } from 'vue'
 import type { Component } from 'vue'
 
 type ActionType = 'primary' | 'secondary' | 'danger' | 'ghost'
-type ModalMode = 'drawer' | 'dialog'
+type ModalMode = 'drawer' | 'dialog' | 'sheet'
 
 export interface DrawerDialogAction {
   key?: string

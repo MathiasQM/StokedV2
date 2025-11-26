@@ -21,11 +21,21 @@ import {
 } from '@/components/ui/dialog'
 
 import { Button } from '@/components/ui/button'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+  SheetClose,
+} from '@/components/ui/sheet'
 import { useGlobalDrawerDialogStore } from '~~/stores/globalDrawerDialog'
 
 const store = useGlobalDrawerDialogStore()
 
 const isDrawer = computed(() => (store.config.mode ?? 'drawer') === 'drawer')
+const isSheet = computed(() => store.config.mode === 'sheet')
 const DynComp = computed(() => store.resolveComponent())
 
 function onBackdropClose() {
@@ -79,7 +89,7 @@ function btnVariant(type?: 'primary' | 'secondary' | 'danger' | 'ghost') {
         </DrawerDescription>
       </DrawerHeader>
 
-      <div class="flex-1 min-h-0">
+      <div class="flex-1 min-h-0 overflow-y-auto">
         <component
           v-if="DynComp"
           :is="DynComp"
@@ -117,6 +127,68 @@ function btnVariant(type?: 'primary' | 'secondary' | 'danger' | 'ghost') {
     </DrawerContent>
   </Drawer>
 
+  <Sheet
+    v-else-if="isSheet"
+    :open="store.open"
+    @update:open="(val) => !val && store.closeModal()"
+  >
+    <SheetContent
+      :class="[store.config.widthClass, 'overflow-y-auto flex flex-col h-full']"
+      @interact-outside="onBackdropClose"
+      @escape-key-down="onEscClose"
+    >
+      <SheetHeader v-if="store.config.title || store.config.description">
+        <SheetTitle v-if="store.config.title" class="text-xl">
+          {{ store.config.title }}
+        </SheetTitle>
+        <SheetDescription
+          v-if="store.config.description"
+          class="text-sm opacity-80"
+        >
+          {{ store.config.description }}
+        </SheetDescription>
+      </SheetHeader>
+
+      <div class="flex-1 min-h-0 overflow-y-auto py-4">
+        <component
+          v-if="DynComp"
+          :is="DynComp"
+          v-bind="store.config.componentProps"
+        />
+        <slot v-else />
+      </div>
+
+      <SheetFooter
+        v-if="
+          store.config.footerText ||
+          (store.config.actions && store.config.actions.length)
+        "
+      >
+        <div class="flex flex-col gap-2 w-full">
+          <p
+            v-if="store.config.footerText"
+            class="text-xs opacity-80 text-center"
+          >
+            {{ store.config.footerText }}
+          </p>
+          <div class="flex gap-2 justify-end">
+            <Button
+              v-for="(a, idx) in store.config.actions"
+              :key="a.key || idx"
+              :variant="btnVariant(a.type)"
+              :disabled="a.disabled"
+              :data-loading="a.loading ? '' : null"
+              @click="store.runAction(a)"
+            >
+              <component v-if="a.icon" :is="a.icon" class="mr-2 h-4 w-4" />
+              <span v-if="a.label">{{ a.label }}</span>
+            </Button>
+          </div>
+        </div>
+      </SheetFooter>
+    </SheetContent>
+  </Sheet>
+
   <Dialog
     v-else
     :open="store.open"
@@ -139,7 +211,7 @@ function btnVariant(type?: 'primary' | 'secondary' | 'danger' | 'ghost') {
         </DialogDescription>
       </DialogHeader>
 
-      <div>
+      <div class="max-h-[80vh] overflow-y-auto">
         <component
           v-if="DynComp"
           :is="DynComp"

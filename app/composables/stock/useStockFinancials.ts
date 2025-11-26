@@ -180,7 +180,10 @@ export function useStockFinancials(
           formattedValue: i.format(i.value),
           definitionKey: i.label,
           history: i.history,
-          isPercent: i.format === formatPercent,
+          // For growth metrics, we show history of absolute values (Revenue/Income), so don't format chart as percent
+          isPercent:
+            i.format === formatPercent &&
+            !['Rev Growth (YoY)', 'Earnings Growth (YoY)'].includes(i.label),
         }))
 
       if (items.length) out.push({ title: 'Margins & Growth', items })

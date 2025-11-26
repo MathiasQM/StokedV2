@@ -11,6 +11,7 @@ const props = withDefaults(
     isPercent?: boolean
     showLegend?: boolean
     showYAxis?: boolean
+    showXAxis?: boolean
   }>(),
   {
     color: '#f97316', // orange-500
@@ -19,6 +20,7 @@ const props = withDefaults(
     isPercent: false,
     showLegend: false,
     showYAxis: false,
+    showXAxis: false,
   },
 )
 
@@ -75,6 +77,71 @@ const buildChart = () => {
     })
   }
 
+  // Merge scales manually to ensure props take precedence but options can still configure other things
+  const defaultScales = {
+    x: {
+      display: props.showXAxis,
+      grid: { display: false },
+      ticks: { color: '#666', font: { size: 10 } },
+    },
+    y: {
+      display: props.showYAxis,
+      grace: '10%',
+      grid: {
+        display: props.showYAxis,
+        drawOnChartArea: props.showYAxis,
+        drawTicks: props.showYAxis,
+      },
+      ticks: { display: props.showYAxis },
+      border: { display: props.showYAxis },
+    },
+  }
+
+  // We need to be careful not to let props.options.scales completely overwrite defaultScales
+  // But we also want to allow props.options to override specific scale settings if needed (though props should be primary)
+  // For now, let's assume props control visibility and basic config, and we ignore scales from options if it conflicts?
+  // Or better: spread options, then overwrite scales with our merged version.
+
+  const finalOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    ...props.options,
+    plugins: {
+      legend: { display: props.showLegend },
+      tooltip: { enabled: false },
+      ...props.options?.plugins,
+    },
+    events: [],
+    scales: {
+      ...props.options?.scales,
+      x: {
+        ...defaultScales.x,
+        ...props.options?.scales?.x,
+        display: props.showXAxis, // Enforce prop
+      },
+      y: {
+        ...defaultScales.y,
+        ...props.options?.scales?.y,
+        display: props.showYAxis, // Enforce prop
+        grid: {
+          ...defaultScales.y.grid,
+          ...props.options?.scales?.y?.grid,
+          display: props.showYAxis,
+        }, // Enforce prop
+        ticks: {
+          ...defaultScales.y.ticks,
+          ...props.options?.scales?.y?.ticks,
+          display: props.showYAxis,
+        }, // Enforce prop
+        border: {
+          ...defaultScales.y.border,
+          ...props.options?.scales?.y?.border,
+          display: props.showYAxis,
+        }, // Enforce prop
+      },
+    },
+  }
+
   chartInstance = new Chart(canvasRef.value, {
     type: 'bar',
     data: {
@@ -83,27 +150,13 @@ const buildChart = () => {
         {
           data: props.data.map((d) => d.value),
           backgroundColor: props.color,
-          borderRadius: 2,
+          borderRadius: 6,
           barThickness: 'flex',
-          maxBarThickness: 30,
+          maxBarThickness: 50,
         },
       ],
     },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: props.showLegend },
-        tooltip: { enabled: false },
-      },
-      events: [],
-      scales: {
-        x: { display: false },
-        y: {
-          display: false,
-        },
-      },
-    },
+    options: finalOptions,
     plugins,
   })
 }

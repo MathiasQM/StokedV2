@@ -8,6 +8,7 @@ defineProps<{
   sections: KPISection[]
 }>()
 
+const isMobile = useIsMobile()
 const store = useGlobalDrawerDialogStore()
 
 const openExplanation = (
@@ -25,6 +26,7 @@ const openExplanation = (
 
   store.openModal({
     title: label,
+    mode: isMobile.value ? 'drawer' : 'sheet',
     componentName: 'KPIExplanation',
     componentProps: {
       title: label,
