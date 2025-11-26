@@ -43,6 +43,7 @@
 </template>
 
 <script setup lang="ts">
+await getExchangeRates()
 const router = useRouter()
 </script>
 

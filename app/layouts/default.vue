@@ -7,3 +7,7 @@
     </AppLayouts>
   </div>
 </template>
+
+<script setup lang="ts">
+await getExchangeRates()
+</script>

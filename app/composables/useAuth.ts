@@ -2,6 +2,7 @@ import type { z } from 'zod'
 import type { FetchError } from 'ofetch'
 import type { registerUserSchema } from '@@/shared/validations/auth'
 import type { AuthError } from '@@/server/utils/auth'
+import { useBrief } from '@@/stores/brief'
 
 type RegisterUserSchema = z.output<typeof registerUserSchema>
 
@@ -77,6 +78,7 @@ export const useAuth = () => {
     await clear()
     useState('portfolioSlug').value = ''
     useState('portfolios').value = []
+    useBrief().reset()
   }
 
   const register = async (

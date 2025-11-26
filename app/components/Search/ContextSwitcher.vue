@@ -41,7 +41,7 @@ defineEmits<{
   <!-- Mobile View -->
   <div
     v-else
-    class="fixed bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black via-black to-transparent pb-safe z-50"
+    class="fixed bottom-0 left-0 right-0 px-2 pt-2 pb-safe bg-gradient-to-t from-black via-black to-transparent z-[60]"
     @click.stop
   >
     <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2">
@@ -72,6 +72,6 @@ defineEmits<{
   scrollbar-width: none;
 }
 .pb-safe {
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
 }
 </style>

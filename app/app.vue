@@ -34,7 +34,6 @@
 </template>
 
 <script lang="ts" setup>
-await getExchangeRates()
 const wrapperRef = ref<HTMLElement | null>(null)
 
 provide('wrapperRef', wrapperRef)

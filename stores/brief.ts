@@ -57,6 +57,14 @@ export const useBrief = defineStore('brief', () => {
     selectedDate.value = $dayjs(d).format('YYYY-MM-DD')
   }
 
+  function reset() {
+    playing.value = false
+    currentTime.value = 0
+    briefData.value = null
+    showBriefNavElement.value = false
+    clearNuxtData(cacheKey.value)
+  }
+
   return {
     // data
     selectedDate,
@@ -73,5 +81,6 @@ export const useBrief = defineStore('brief', () => {
     setDate,
     refresh,
     initAudio,
+    reset,
   }
 })
