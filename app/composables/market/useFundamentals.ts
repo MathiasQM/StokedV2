@@ -18,11 +18,14 @@ type Opts = {
  */
 export function useFundamentals(opts: Opts) {
   const store = useFundamentalsStore()
-
-  const { byKey, pending, errors: storeErrors } = storeToRefs(store)
+  const {
+    stockFundamentals,
+    pending: storePending,
+    errors: storeErrors,
+  } = storeToRefs(store)
 
   const symbols = computed<string[]>(() => unref(opts.symbols) ?? [])
-  const filter = computed<string | undefined>(() => unref(opts.filter))
+  const filter = computed<string>(() => unref(opts.filter) || 'General')
   const maxAgeMs = computed(() => opts.maxAgeMs ?? 10 * 60_000)
 
   const unique = computed(() =>
@@ -31,17 +34,19 @@ export function useFundamentals(opts: Opts) {
 
   const fundamentalsMap = computed<Record<string, any>>(() => {
     const out: Record<string, any> = {}
-    const storeData = byKey.value
+    const storeData = stockFundamentals.value
+    const section = filter.value
 
     for (const k of unique.value) {
-      out[k] = storeData[k]?.data
+      out[k] = storeData[k]?.[section]?.data
     }
     return out
   })
 
   const anyPending = computed(() => {
-    const pendingSet = pending.value
-    return unique.value.some((k) => pendingSet.has(k))
+    const pendingSet = storePending.value
+    const section = filter.value
+    return unique.value.some((k) => pendingSet.has(`${k}:${section}`))
   })
 
   const errors = computed(() => {
@@ -54,18 +59,21 @@ export function useFundamentals(opts: Opts) {
   })
 
   async function refresh(force = false) {
-    await store.fetchMany(unique.value, {
-      filter: unref(filter),
-      force,
-      maxAgeMs: maxAgeMs.value,
-      version: opts.version,
-    })
+    const section = filter.value
+    // We don't have a batch fetch anymore, so we fetch individually.
+    // This might be less efficient for large lists but aligns with the new granular store.
+    // Ideally, the API would support batching with filters, but for now we loop.
+    await Promise.all(
+      unique.value.map((symbol) => store.fetchStockSection(symbol, section)),
+    )
   }
 
   watch(
     [unique, filter, maxAgeMs],
     () => {
-      refresh(false)
+      if (unique.value.length) {
+        refresh(false)
+      }
     },
     { immediate: true },
   )

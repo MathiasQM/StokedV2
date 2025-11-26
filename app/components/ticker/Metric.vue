@@ -132,12 +132,14 @@ const computeDifference = computed(() => {
       >
         ${{ computeDifference.change }}
       </p>
-      <p
-        v-if="!hoverData"
-        class="text-black-400 text-sm tracking-wide whitespace-nowrap"
-      >
-        {{ useDateFormat(quoteData?.timestamp) }}
-      </p>
+      <ClientOnly>
+        <p
+          v-if="!hoverData"
+          class="text-black-400 text-sm tracking-wide whitespace-nowrap"
+        >
+          {{ useDateFormat(quoteData?.[quoteData.length - 1]?.date) }}
+        </p>
+      </ClientOnly>
     </div>
 
     <p

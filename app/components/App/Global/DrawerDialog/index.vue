@@ -59,12 +59,15 @@ function btnVariant(type?: 'primary' | 'secondary' | 'danger' | 'ghost') {
     <DrawerContent
       :class="[
         store.config.widthClass,
-        'h-[85vh] max-h-[85vh] overflow-hidden flex flex-col',
+        'h-[85vh] max-h-[85vh] overflow-hidden flex flex-col ',
       ]"
       @interact-outside="onBackdropClose"
       @escape-key-down="onEscClose"
     >
-      <DrawerHeader v-if="store.config.title || store.config.description">
+      <DrawerHeader
+        v-if="store.config.title || store.config.description"
+        class="pt-10"
+      >
         <DrawerTitle v-if="store.config.title" class="text-center text-xl">
           {{ store.config.title }}
         </DrawerTitle>

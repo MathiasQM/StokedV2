@@ -96,3 +96,211 @@ export interface SearchResult {
   Type: string // "Common Stock", "ETF", …
   Country?: string
 }
+
+/* ----------------------------------------------------
+   8. Fundamentals (Partial)
+   -------------------------------------------------- */
+export interface EodFundamentals {
+  General: {
+    Code: string
+    Type: string
+    Name: string
+    Exchange: string
+    CurrencyCode: string
+    CurrencySymbol: string
+    CountryName: string
+    CountryISO: string
+    ISIN: string
+    CUSIP: string
+    CIK: string
+    EmployerIdNumber: string
+    FiscalYearEnd: string
+    IPODate: string
+    InternationalDomestic: string
+    Sector: string
+    Industry: string
+    GicSector: string
+    GicGroup: string
+    GicIndustry: string
+    GicSubIndustry: string
+    HomeCategory: string
+    IsDelisted: boolean
+    Description: string
+    Address: string
+    AddressData: {
+      Street: string
+      City: string
+      State: string
+      Country: string
+      Zip: string
+    }
+    Listings: Record<string, any>
+    Officers: Record<string, any>
+    Phone: string
+    WebURL: string
+    LogoURL: string
+    FullTimeEmployees: string
+    UpdatedAt: string
+  }
+  Highlights: {
+    MarketCapitalization: number
+    MarketCapitalizationMln: number
+    EBITDA: number
+    PE: number
+    PEG: number
+    WallStreetTargetPrice: number
+    BookValue: number
+    DividendShare: number
+    DividendYield: number
+    EarningsShare: number
+    EPSEstimateCurrentYear: number
+    EPSEstimateNextYear: number
+    EPSEstimateNextQuarter: number
+    EPSEstimateCurrentQuarter: number
+    MostRecentQuarter: string
+    ProfitMargin: number
+    OperatingMarginTTM: number
+    ReturnOnAssetsTTM: number
+    ReturnOnEquityTTM: number
+    RevenueTTM: number
+    RevenuePerShareTTM: number
+    QuarterlyRevenueGrowthYOY: number
+    GrossProfitTTM: number
+    DilutedEpsTTM: number
+    QuarterlyEarningsGrowthYOY: number
+  }
+  Valuation: {
+    TrailingPE: number
+    ForwardPE: number
+    PriceSalesTTM: number
+    PriceBookMRQ: number
+    EnterpriseValue: number
+    EnterpriseValueRevenue: number
+    EnterpriseValueEbitda: number
+  }
+  SharesStats: {
+    SharesOutstanding: number
+    SharesFloat: number
+    PercentInsiders: number
+    PercentInstitutions: number
+    SharesShort: number
+    SharesShortPriorMonth: number
+    ShortRatio: number
+    ShortPercentOutstanding: number
+    ShortPercentFloat: number
+  }
+  Technicals: {
+    Beta: number
+    '52WeekHigh': number
+    '52WeekLow': number
+    '50DayMA': number
+    '200DayMA': number
+    SharesShort: number
+    SharesShortPriorMonth: number
+    ShortRatio: number
+    ShortPercent: number
+  }
+  SplitsDividends: {
+    ForwardAnnualDividendRate: number
+    ForwardAnnualDividendYield: number
+    PayoutRatio: number
+    DividendDate: string
+    ExDividendDate: string
+  }
+  Financials: {
+    Balance_Sheet: {
+      quarterly: Record<
+        string,
+        {
+          date: string
+          filing_date: string
+          currency_symbol: string
+          totalAssets: string
+          totalCurrentAssets: string
+          totalLiabilities: string
+          totalCurrentLiabilities: string
+          netDebt: string
+          shortTermDebt: string
+          longTermDebt: string
+          cash: string
+          [key: string]: any
+        }
+      >
+      yearly: Record<
+        string,
+        {
+          date: string
+          filing_date: string
+          currency_symbol: string
+          totalAssets: string
+          totalCurrentAssets: string
+          totalLiabilities: string
+          totalCurrentLiabilities: string
+          netDebt: string
+          shortTermDebt: string
+          longTermDebt: string
+          cash: string
+          [key: string]: any
+        }
+      >
+    }
+    Cash_Flow: {
+      quarterly: Record<
+        string,
+        {
+          date: string
+          filing_date: string
+          currency_symbol: string
+          freeCashFlow: string
+          capitalExpenditures: string
+          salePurchaseOfStock: string
+          stockBasedCompensation: string
+          [key: string]: any
+        }
+      >
+      yearly: Record<
+        string,
+        {
+          date: string
+          filing_date: string
+          currency_symbol: string
+          freeCashFlow: string
+          capitalExpenditures: string
+          salePurchaseOfStock: string
+          stockBasedCompensation: string
+          [key: string]: any
+        }
+      >
+    }
+    Income_Statement: {
+      quarterly: Record<
+        string,
+        {
+          date: string
+          filing_date: string
+          currency_symbol: string
+          totalRevenue: string
+          costOfRevenue: string
+          grossProfit: string
+          operatingIncome: string
+          netIncome: string
+          [key: string]: any
+        }
+      >
+      yearly: Record<
+        string,
+        {
+          date: string
+          filing_date: string
+          currency_symbol: string
+          totalRevenue: string
+          costOfRevenue: string
+          grossProfit: string
+          operatingIncome: string
+          netIncome: string
+          [key: string]: any
+        }
+      >
+    }
+  }
+}
