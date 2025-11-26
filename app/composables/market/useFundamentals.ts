@@ -1,7 +1,7 @@
 import {
   useFundamentalsStore,
   type FundamentalsError,
-} from '@@/stores/fundamentals'
+} from '~~/stores/stock/fundamentals'
 import { storeToRefs } from 'pinia'
 import { computed, unref, watch } from 'vue'
 import type { MaybeRef } from 'vue'

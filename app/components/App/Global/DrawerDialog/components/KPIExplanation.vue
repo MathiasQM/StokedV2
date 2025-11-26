@@ -90,7 +90,7 @@ const chartOptions = {
       class="bg-blue-500/10 border border-blue-500/20 p-4 rounded-lg space-y-2"
     >
       <h3 class="text-sm font-semibold text-blue-400 flex items-center gap-2">
-        <span class="i-lucide-lightbulb w-4 h-4" />
+        <Icon name="lucide-lightbulb" class="w-4 h-4" />
         Analysis
       </h3>
       <p class="text-blue-100/80 text-sm leading-relaxed">

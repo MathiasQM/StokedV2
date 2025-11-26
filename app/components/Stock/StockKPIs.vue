@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { KPI_DEFINITIONS } from '~/utils/kpi-definitions'
 import { useGlobalDrawerDialogStore } from '@@/stores/globalDrawerDialog'
-import type { KPISection } from '~/composables/useStockFinancials'
+import type { KPISection } from '~/composables/stock/useStockFinancials'
 import BarChart from '~/components/charts/BarChart.vue'
 
 defineProps<{
@@ -58,14 +58,14 @@ const formatHistory = (history?: { date: string; value: number }[]) => {
 <template>
   <div class="space-y-8">
     <div v-for="section in sections" :key="section.title">
-      <h3 class="text-sm font-medium text-white/60 mb-3 ml-1">
+      <h3 class="text-sm text-start text-white/60 mb-3 ml-1">
         {{ section.title }}
       </h3>
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
         <div
           v-for="item in section.items"
           :key="item.label"
-          class="bg-[#151515] hover:bg-[#1A1A1A] rounded-xl p-4 cursor-pointer transition-colors flex flex-col justify-between relative overflow-hidden group"
+          class="bg-[#151515] hover:bg-[#1A1A1A] rounded-xl p-2 cursor-pointer transition-colors flex flex-col justify-between relative overflow-hidden group"
           @click="
             openExplanation(
               item.definitionKey,

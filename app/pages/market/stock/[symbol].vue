@@ -2,8 +2,8 @@
 import { gradientLinePlugin } from '@/lib/chart/gradientLinePlugin'
 import { pointerCrosshair } from '@/lib/chart/CrosshairPlugin'
 import { gradientFlarePlugin } from '@/lib/chart/gradientFlarePlugin'
-import { useFundamentalsStore } from '@@/stores/fundamentals'
-import { useStockFinancials } from '~/composables/useStockFinancials'
+import { useFundamentalsStore } from '~~/stores/stock/fundamentals'
+import { useStockFinancials } from '~/composables/stock/useStockFinancials'
 import { useIntervalRefresh } from '~/composables/useIntervalRefresh'
 
 definePageMeta({ validate: (route) => !!route.params.symbol })
@@ -21,7 +21,6 @@ const activeTab = computed({
 
 const store = useFundamentalsStore()
 
-// Define refresh logic
 const refreshData = () => {
   store.fetchStockSection(symbol.value, 'General')
   store.fetchStockSection(symbol.value, 'Highlights')
@@ -33,43 +32,33 @@ const refreshData = () => {
   }
 }
 
-// Use interval refresh
 useIntervalRefresh(refreshData)
 
-// Fetch General data on mount (eager)
 onMounted(() => {
   refreshData()
 })
 
-// Watch active tab to lazy load data
 watch(
   activeTab,
   (tab) => {
-    // If the tab changes, immediately refresh data for the new tab
-    // This will fetch 'Financials' and 'SplitsDividends' if tab is 'financials'
-    // and also re-fetch other sections to ensure data is fresh.
     refreshData()
   },
   { immediate: true },
 )
 
-// Merge data sections for useStockFinancials
 const stockData = computed(() => {
-  const s = symbol.value
-  const general = store.getSection(s, 'General')
-  const highlights = store.getSection(s, 'Highlights')
-  const valuation = store.getSection(s, 'Valuation')
-  const financials = store.getSection(s, 'Financials')
-  const dividends = store.getSection(s, 'SplitsDividends')
+  const general = store.getSection(symbol.value, 'General')
+  const highlights = store.getSection(symbol.value, 'Highlights')
+  const valuation = store.getSection(symbol.value, 'Valuation')
+  const financials = store.getSection(symbol.value, 'Financials')
+  const dividends = store.getSection(symbol.value, 'SplitsDividends')
 
-  // Merge available sections into a single object mimicking EodFundamentals
   return {
     General: general,
     Highlights: highlights,
     Valuation: valuation,
     Financials: financials,
     SplitsDividends: dividends,
-    // Add other sections as needed
   } as any
 })
 
@@ -121,11 +110,7 @@ const tabs = ['overview', 'news', 'financials', 'analysis']
         <AppPortfolioDashboardNews :symbol="symbol" />
       </template>
       <template #financials v-if="activeTab === 'financials'">
-        <div class="text-white/60 py-8 text-center">
-          <div class="mt-5">
-            <StockKPIs :sections="sections" />
-          </div>
-        </div>
+        <StockKPIs :sections="sections" />
       </template>
       <template #analysis v-if="activeTab === 'analysis'">
         <div class="text-white/60 py-8 text-center">

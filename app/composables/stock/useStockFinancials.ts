@@ -1,4 +1,4 @@
-import type { EodFundamentals } from '../../types/eodhd'
+import type { EodFundamentals } from '../../../types/eodhd'
 
 export interface KPIItem {
   label: string
@@ -82,34 +82,46 @@ export function useStockFinancials(
     const d = unref(data)
     if (!d) return []
 
-    const v = d.Valuation
-    const h = d.Highlights
+    const valuation = d.Valuation
+    const highlights = d.Highlights
     const currency = d.General?.CurrencyCode || 'USD'
 
     // Helper to get history from financials
-    const inc = d.Financials?.Income_Statement
-    const bs = d.Financials?.Balance_Sheet
-    const cf = d.Financials?.Cash_Flow
+    const incomeStatement = d.Financials?.Income_Statement
+    const balanceSheet = d.Financials?.Balance_Sheet
+    const cashFlow = d.Financials?.Cash_Flow
 
     const out: KPISection[] = []
 
     // Valuation
-    if (v || h) {
+    if (valuation || highlights) {
       const items = [
-        { label: 'P/E', value: v?.TrailingPE || h?.PE, format: formatNumber },
-        { label: 'Forward P/E', value: v?.ForwardPE, format: formatNumber },
-        { label: 'Price/Sales', value: v?.PriceSalesTTM, format: formatNumber },
+        {
+          label: 'P/E',
+          value: valuation?.TrailingPE || highlights?.PE,
+          format: formatNumber,
+        },
+        {
+          label: 'Forward P/E',
+          value: valuation?.ForwardPE,
+          format: formatNumber,
+        },
+        {
+          label: 'Price/Sales',
+          value: valuation?.PriceSalesTTM,
+          format: formatNumber,
+        },
         {
           label: 'Price/Book',
-          value: v?.PriceBookMRQ || h?.BookValue,
+          value: valuation?.PriceBookMRQ || highlights?.BookValue,
           format: formatNumber,
         },
         {
           label: 'EV/EBITDA',
-          value: v?.EnterpriseValueEbitda,
+          value: valuation?.EnterpriseValueEbitda,
           format: formatNumber,
         },
-        { label: 'PEG', value: h?.PEG, format: formatNumber },
+        { label: 'PEG', value: highlights?.PEG, format: formatNumber },
       ]
         .filter((i) => i.value != null)
         .map((i) => ({
@@ -126,39 +138,39 @@ export function useStockFinancials(
     }
 
     // Margins & Growth
-    if (h) {
+    if (highlights) {
       const items = [
         {
           label: 'Profit Margin',
-          value: h.ProfitMargin,
+          value: highlights.ProfitMargin,
           format: formatPercent,
           history: getHistory(
-            inc,
+            incomeStatement,
             'netIncome',
             (v, q) => parseFloat(v) / parseFloat(q.totalRevenue),
           ), // Approximation if we compare with revenue
         },
         {
           label: 'Operating Margin',
-          value: h.OperatingMarginTTM,
+          value: highlights.OperatingMarginTTM,
           format: formatPercent,
           history: getHistory(
-            inc,
+            incomeStatement,
             'operatingIncome',
             (v, q) => parseFloat(v) / parseFloat(q.totalRevenue),
           ),
         },
         {
           label: 'Rev Growth (YoY)',
-          value: h.QuarterlyRevenueGrowthYOY,
+          value: highlights.QuarterlyRevenueGrowthYOY,
           format: formatPercent,
-          history: getHistory(inc, 'totalRevenue'),
+          history: getHistory(incomeStatement, 'totalRevenue'),
         },
         {
           label: 'Earnings Growth (YoY)',
-          value: h.QuarterlyEarningsGrowthYOY,
+          value: highlights.QuarterlyEarningsGrowthYOY,
           format: formatPercent,
-          history: getHistory(inc, 'netIncome'),
+          history: getHistory(incomeStatement, 'netIncome'),
         },
       ]
         .filter((i) => i.value != null)
@@ -175,7 +187,7 @@ export function useStockFinancials(
     }
 
     // Balance Sheet
-    const bsQuarters = d.Financials?.Balance_Sheet?.quarterly
+    const bsQuarters = balanceSheet?.quarterly
     if (bsQuarters) {
       const quarters = Object.values(bsQuarters).sort(
         (a: any, b: any) =>
@@ -193,14 +205,14 @@ export function useStockFinancials(
             label: 'Cash',
             value: cash,
             format: (v: number) => formatCurrency(v, currency),
-            history: getHistory(bs, 'cash'),
+            history: getHistory(balanceSheet, 'cash'),
           },
           {
             label: 'Total Debt',
             value: debt,
             format: (v: number) => formatCurrency(v, currency),
             history: getHistory(
-              bs,
+              balanceSheet,
               'shortTermDebt',
               (v, q) => parseFloat(v) + parseFloat(q.longTermDebt),
             ), // Approximation, need row-wise sum
@@ -211,7 +223,7 @@ export function useStockFinancials(
             format: (v: number) => formatCurrency(v, currency),
             // Net cash history requires calculation per quarter
             history: getHistory(
-              bs,
+              balanceSheet,
               'cash',
               (v, q) =>
                 parseFloat(v) -
@@ -232,7 +244,7 @@ export function useStockFinancials(
     }
 
     // Cash Flow
-    const cfQuarters = d.Financials?.Cash_Flow?.quarterly
+    const cfQuarters = cashFlow?.quarterly
     if (cfQuarters) {
       const quarters = Object.values(cfQuarters).sort(
         (a: any, b: any) =>
@@ -248,13 +260,13 @@ export function useStockFinancials(
             label: 'Free Cash Flow (MRQ)',
             value: fcf,
             format: (v: number) => formatCurrency(v, currency),
-            history: getHistory(cf, 'freeCashFlow'),
+            history: getHistory(cashFlow, 'freeCashFlow'),
           },
           {
             label: 'SBC (MRQ)',
             value: sbc,
             format: (v: number) => formatCurrency(v, currency),
-            history: getHistory(cf, 'stockBasedCompensation'),
+            history: getHistory(cashFlow, 'stockBasedCompensation'),
           },
         ].map((i) => ({
           label: i.label,
@@ -271,11 +283,11 @@ export function useStockFinancials(
 
     // Dividends
     const div = d.SplitsDividends
-    if (h || div) {
+    if (highlights || div) {
       const items = [
         {
           label: 'Dividend Yield',
-          value: h?.DividendYield || div?.ForwardAnnualDividendYield,
+          value: highlights?.DividendYield || div?.ForwardAnnualDividendYield,
           format: formatPercent,
         },
         {

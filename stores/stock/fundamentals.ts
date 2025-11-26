@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import { defineStore, skipHydrate } from 'pinia'
 
 export type FundamentalsSection = {
   data: any
@@ -25,6 +25,7 @@ export const useFundamentalsStore = defineStore('fundamentals', () => {
     `${ticker}:${section}`
 
   function getSection(ticker: string, section: string) {
+    console.log(stockFundamentals.value)
     return stockFundamentals.value[ticker]?.[section]?.data
   }
 
@@ -39,12 +40,15 @@ export const useFundamentalsStore = defineStore('fundamentals', () => {
     section: string = 'General',
   ) {
     const requestKey = getRequestKey(ticker, section)
+    console.log(`[Store] fetchStockSection called for ${ticker} - ${section}`)
 
     if (isFresh(ticker, section)) {
+      console.log(`[Store] Data is fresh for ${ticker} - ${section}`)
       return stockFundamentals.value[ticker]?.[section]?.data
     }
 
     if (pending.value.has(requestKey)) {
+      console.log(`[Store] Request pending for ${ticker} - ${section}`)
       return
     }
 
@@ -94,7 +98,7 @@ export const useFundamentalsStore = defineStore('fundamentals', () => {
   return {
     stockFundamentals,
     errors,
-    pending,
+    pending: skipHydrate(pending),
     getSection,
     fetchStockSection,
     isFresh,
