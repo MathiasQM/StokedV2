@@ -42,7 +42,9 @@ env:
       - RUNTIME
 
   - variable: APP_DESCRIPTION
-    value: 'Striive is your AI-powered investment assistant. Get personalized insights, daily briefings in text and podcast form, and backtest your strategies with real data. Stay ahead of the markets — smarter, faster.'
+    value: 'Striive is your AI-powered investment assistant. Get personalized
+      insights, daily briefings in text and podcast form, and backtest your
+      strategies with real data. Stay ahead of the markets — smarter, faster.'
     availability:
       - BUILD
       - RUNTIME
@@ -204,6 +206,11 @@ env:
 
   - variable: SUPABASE_SERVICE_KEY
     secret: SUPABASE_SERVICE_KEY
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: EOD_FUNDAMENTALS_API_KEY
+    secret: EOD_FUNDAMENTALS_API_KEY
     availability:
       - BUILD
       - RUNTIME

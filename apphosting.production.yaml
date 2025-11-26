@@ -207,3 +207,9 @@ env:
     availability:
       - BUILD
       - RUNTIME
+
+  - variable: EOD_FUNDAMENTALS_API_KEY
+    secret: EOD_FUNDAMENTALS_API_KEY
+    availability:
+      - BUILD
+      - RUNTIME
