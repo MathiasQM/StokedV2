@@ -12,20 +12,28 @@ const props = withDefaults(
 )
 
 const { selectedRange } = storeToRefs(useMarketStore())
+const { fetchFullHistory, getFromDate, fullHistoricalQuotesCache } =
+  useMarketQuote()
 
-const { fetchFullHistory } = useMarketQuote()
-await fetchFullHistory(props.symbol)
+const { status } = await useAsyncData(
+  `history-${props.symbol}`,
+  () => fetchFullHistory(props.symbol),
+  {
+    watch: [() => props.symbol],
+    lazy: true,
+  },
+)
 
-const { fullHistoricalQuotesCache } = useMarketQuote()
 const quoteData = computed(
   (): HistoricalQuote[] =>
     fullHistoricalQuotesCache.value[props.symbol]?.filter((q) =>
-      dayjs(q.date).isAfter(useMarketQuote().getFromDate(selectedRange.value)),
+      dayjs(q.date).isAfter(getFromDate(selectedRange.value)),
     ) ?? [],
 )
 
 const slotProps = reactive({
   quoteData,
+  isLoading: computed(() => status.value === 'pending'),
 })
 </script>
 

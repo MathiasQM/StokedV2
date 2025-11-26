@@ -273,7 +273,7 @@ const contextOptions = [
     >
       <div
         v-if="isOpen"
-        class="fixed inset-0 z-50 flex flex-col md:items-center md:justify-center bg-black/95 md:bg-black/50 md:backdrop-blur-sm"
+        class="fixed inset-0 z-50 flex flex-col md:items-center md:justify-center bg-black"
         @click="close"
       >
         <!-- Mobile Header (Back + Input) -->

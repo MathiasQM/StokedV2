@@ -1,11 +1,10 @@
-<!-- components/charts/LineChart.vue -->
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { Chart, type Plugin, type ActiveElement } from 'chart.js/auto'
 
 import type { HistoricalQuote } from '~~/types/eodhd'
 import { useTrendAnimation } from '@/composables/charts/useTrendAnimation'
-import { useChartUI } from '~/composables/charts/useChartUi'
+import { useLineChartConfig } from '~/composables/charts/useLineChartConfig'
 
 /* ─────────────── props / emits ─────────────── */
 const props = withDefaults(
@@ -19,11 +18,6 @@ const props = withDefaults(
 const emit = defineEmits<{
   (e: 'hoveredData', points: any[]): void
 }>()
-
-/* keep only valid Chart.js plugins */
-const safePlugins = computed(() =>
-  (props.plugins ?? []).filter((p) => p && (p as any).id),
-)
 
 /* ─────────────── refs & state ─────────────── */
 const canvasRef = ref<HTMLCanvasElement | null>(null)
@@ -60,33 +54,29 @@ function withAlpha(base: string, a: number) {
 
 /* ─────────── Chart helpers ─────────── */
 function destroyChart() {
-  try {
-    chartInstance?.destroy()
-  } catch (e) {}
-  if (!chartInstance) console.error('Chart instance destroyed:', chartInstance)
-
-  chartInstance = null
+  if (chartInstance) {
+    chartInstance.destroy()
+    chartInstance = null
+  }
 }
 
 function buildChart() {
   if (!canvasRef.value) return
 
-  /* cache UI helpers for this build */
-  const existing = Chart.getChart(canvasRef.value)
-  if (existing) {
-    existing.destroy()
-  }
+  // Ensure any existing chart is gone
+  destroyChart()
 
-  const ui = useChartUI(props.data)
+  const ui = useLineChartConfig(props.data)
 
-  /* one‑time gradient plugin (removed after execution) */
+  /* one‑time gradient plugin */
   const gradientOnce: Plugin<'line'> = {
     id: 'gradientOnce',
     afterLayout(chart) {
       const ds = chart.data.datasets[0] as any
-      if (!ds || ds._gradientApplied) return // guard
+      if (!ds || ds._gradientApplied) return
+
       const { ctx, chartArea } = chart
-      const col = ui.trendColors.value.fill
+      const col = ui.trendColors.value.line // Use line color for the gradient start
 
       const grad = ctx.createLinearGradient(
         0,
@@ -94,47 +84,52 @@ function buildChart() {
         0,
         chartArea.bottom,
       )
+      // "Mountain" style: start opaque-ish near the line, fade to transparent at bottom
       grad.addColorStop(0.0, withAlpha(col, 0.4))
-      grad.addColorStop(0.6, withAlpha(col, 0.3))
-      grad.addColorStop(0.75, withAlpha(col, 0.2))
-      grad.addColorStop(0.9, withAlpha(col, 0.1))
+      grad.addColorStop(0.5, withAlpha(col, 0.2))
       grad.addColorStop(1.0, withAlpha(col, 0.0))
 
       ds.backgroundColor = grad
-      ds._gradientApplied = true // mark so we never redo it
-      // plugin keeps running but work is now O(1) no‑op
+      ds._gradientApplied = true
     },
   }
+
+  // Filter valid plugins
+  const safePlugins = (props.plugins ?? []).filter((p) => p && (p as any).id)
 
   chartInstance = new Chart(canvasRef.value, {
     type: 'line',
     data: ui.chartData.value,
     options: ui.chartOptions.value,
-    plugins: [...safePlugins.value, gradientOnce],
+    plugins: [...safePlugins, gradientOnce],
   })
 
   /* dataset augmentation (segment fade, tension, etc.) */
   const ds = chartInstance.data.datasets[0] as any
-  ds.segment = {
-    borderColor(ctx: any) {
-      const win = 100
-      if (ds.opaqueIndex === undefined) return ui.trendColors.value.lineOpacity
-      const i = ctx.p0DataIndex
-      return i <= ds.opaqueIndex && i > ds.opaqueIndex - win
-        ? ui.trendColors.value.line
-        : ui.trendColors.value.lineOpacity
-    },
+  if (ds) {
+    ds.segment = {
+      borderColor(ctx: any) {
+        const win = 100
+        if (ds.opaqueIndex === undefined)
+          return ui.trendColors.value.lineOpacity
+        const i = ctx.p0DataIndex
+        return i <= ds.opaqueIndex && i > ds.opaqueIndex - win
+          ? ui.trendColors.value.line
+          : ui.trendColors.value.lineOpacity
+      },
+    }
+    ds.pointRadius = 0
+    ds.tension = 0.25
+    ds.fill = true
+    ds.finalColor = ui.trendColors.value.line
+    ds.borderColor = ui.trendColors.value.fill
+    ds.backgroundColor = ui.trendColors.value.fill
   }
-  ds.pointRadius = 0
-  ds.tension = 0.25
-  ds.fill = true
-  ds.finalColor = ui.trendColors.value.line
-  ds.borderColor = ui.trendColors.value.fill
-  ds.backgroundColor = ui.trendColors.value.fill
 
   /* hover extraction */
   const readPoints = (e: Event) => {
-    const els = chartInstance!.getElementsAtEventForMode(
+    if (!chartInstance) return []
+    const els = chartInstance.getElementsAtEventForMode(
       e as any,
       'index',
       { intersect: false, axis: 'x' },
@@ -148,6 +143,7 @@ function buildChart() {
       date: chartInstance!.data.labels?.[el.index],
     }))
   }
+
   const emitPoints = (e: Event) => emit('hoveredData', readPoints(e))
 
   const cvs = canvasRef.value
@@ -182,7 +178,7 @@ watch(
 
 <template>
   <div
-    class="relative h-72"
+    class="relative h-72 touch-none"
     @pointerdown="handlePointerDown"
     @pointermove="handlePointerMove"
     @pointerup="handlePointerUp"

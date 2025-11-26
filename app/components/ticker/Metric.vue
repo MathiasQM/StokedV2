@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
 import { POSITIVE, NEGATIVE } from '~~/constants'
-import { useChartUI } from '~/composables/charts/useChartUi'
+import { useLineChartConfig } from '~/composables/charts/useLineChartConfig'
 import type { HistoricalQuote } from '~~/types/eodhd'
 import { useMarketStore } from '~~/stores/market/useMarketStore'
 
@@ -42,7 +42,7 @@ const computedDateFormat = computed(() => {
   }
 })
 
-const { trendColors, isPositive } = useChartUI(
+const { trendColors, isPositive } = useLineChartConfig(
   !props.hoverData ? props.quoteData : props.hoverData,
 )
 

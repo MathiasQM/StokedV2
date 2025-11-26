@@ -14,6 +14,33 @@ defineProps<{
 defineEmits<{
   (e: 'update:context', value: string): void
 }>()
+
+const navTranslateY = ref(0)
+
+const handleViewportResize = () => {
+  const visualViewport = window.visualViewport
+  if (!visualViewport) return
+
+  const keyboardHeight = window.innerHeight - visualViewport.height
+
+  if (keyboardHeight > 0) {
+    navTranslateY.value = -keyboardHeight
+  } else {
+    navTranslateY.value = 0
+  }
+}
+
+onMounted(() => {
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', handleViewportResize)
+  }
+})
+
+onUnmounted(() => {
+  if (window.visualViewport) {
+    window.visualViewport.removeEventListener('resize', handleViewportResize)
+  }
+})
 </script>
 
 <template>
@@ -21,6 +48,7 @@ defineEmits<{
   <div
     v-if="mode === 'desktop'"
     class="flex items-center gap-1 px-4 py-2 border-b border-white/5"
+    :style="{ transform: `translateY(${navTranslateY}px)` }"
   >
     <button
       v-for="opt in options"

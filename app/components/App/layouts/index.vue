@@ -20,19 +20,19 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <UButton
-          variant="ghost"
-          class="bg-black-900 flex-shrink-0 rounded-full p-1 px-2 text-white"
-          :class="isMobile ? 'p-1' : 'p-1 px-2'"
+        <CustomButtonsShiny width="w-12">{{ countdown }}</CustomButtonsShiny>
+
+        <CustomButtonsShiny
+          width="w-8"
+          height="h-8"
+          variant="circle"
           @click="openSearch()"
         >
           <UIcon name="i-lucide-search" class="size-4" />
           <Kbd v-if="!isMobile" class="bg-black-800">⌘ K</Kbd>
-        </UButton>
+        </CustomButtonsShiny>
 
         <div v-if="isSuperAdmin" class="flex items-center gap-2">
-          <CustomButtonsShiny width="w-12">{{ countdown }}</CustomButtonsShiny>
-
           <CustomButtonsShiny
             width="w-8"
             height="h-8"
