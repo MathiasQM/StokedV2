@@ -22,10 +22,12 @@
       <div class="flex items-center gap-2">
         <UButton
           variant="ghost"
-          class="bg-black-800 aspect-square flex-shrink-0 rounded-full p-1 text-white"
+          class="bg-black-900 flex-shrink-0 rounded-full p-1 px-2 text-white"
+          :class="isMobile ? 'p-1' : 'p-1 px-2'"
           @click="openSearch()"
         >
-          <UIcon name="i-lucide-search" class="size-5" />
+          <UIcon name="i-lucide-search" class="size-4" />
+          <Kbd v-if="!isMobile" class="bg-black-800">⌘ K</Kbd>
         </UButton>
 
         <div v-if="isSuperAdmin" class="flex items-center gap-2">
@@ -74,6 +76,7 @@
 import { useBrief } from '~~/stores/brief'
 import { useCommandPalette } from '@/composables/useCommandPalette'
 import SearchOverlay from '@/components/Search/Overlay.vue'
+import Kbd from '~/components/ui/kbd/Kbd.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -82,6 +85,7 @@ const { countdown } = useIntervalRefresh()
 const brief = useBrief()
 const { showBriefNavElement } = storeToRefs(brief)
 const { openSearch } = useCommandPalette()
+const isMobile = useIsMobile()
 
 const isSuperAdmin = computed(() => user.value?.superAdmin)
 const isSuperAdminRoute = computed(() => {

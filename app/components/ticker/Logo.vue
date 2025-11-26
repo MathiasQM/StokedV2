@@ -10,7 +10,7 @@
     :key="logoUrl"
     :src="`https://eodhd.com${logoUrl}`"
     :alt="`${symbol} logo`"
-    class="block h-6 w-6 rounded-full bg-black-600 p-1"
+    class="block h-6 w-6 rounded-full bg-black-600 p-[1px]"
   />
 </template>
 
