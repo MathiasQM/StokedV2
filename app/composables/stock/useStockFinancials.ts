@@ -7,6 +7,7 @@ export interface KPIItem {
   definitionKey: string
   history?: { date: string; value: number }[]
   isPercent?: boolean
+  currency?: string
 }
 
 export interface KPISection {
@@ -18,7 +19,7 @@ export function useStockFinancials(
   data: MaybeRef<EodFundamentals | undefined>,
 ) {
   const formatCurrency = (value: number | string, currency = 'USD') => {
-    if (!value) return '-'
+    if (value === undefined || value === null || value === '') return '-'
     const num =
       typeof value === 'string' ? parseFloat(value) : (value as number)
     if (isNaN(num)) return '-'
@@ -31,7 +32,7 @@ export function useStockFinancials(
   }
 
   const formatNumber = (value: number | string, suffix = '') => {
-    if (!value) return '-'
+    if (value === undefined || value === null || value === '') return '-'
     const num =
       typeof value === 'string' ? parseFloat(value) : (value as number)
     if (isNaN(num)) return '-'
@@ -44,7 +45,7 @@ export function useStockFinancials(
   }
 
   const formatPercent = (value: number | string) => {
-    if (!value) return '-'
+    if (value === undefined || value === null || value === '') return '-'
     const num =
       typeof value === 'string' ? parseFloat(value) : (value as number)
     if (isNaN(num)) return '-'
@@ -209,6 +210,7 @@ export function useStockFinancials(
             value: cash,
             format: (v: number) => formatCurrency(v, currency),
             history: getHistory(balanceSheet, 'cash'),
+            currency,
           },
           {
             label: 'Total Debt',
@@ -219,6 +221,7 @@ export function useStockFinancials(
               'shortTermDebt',
               (v, q) => parseFloat(v) + parseFloat(q.longTermDebt),
             ), // Approximation, need row-wise sum
+            currency,
           },
           {
             label: 'Net Cash',
@@ -232,6 +235,7 @@ export function useStockFinancials(
                 parseFloat(v) -
                 (parseFloat(q.shortTermDebt) + parseFloat(q.longTermDebt)),
             ),
+            currency,
           },
         ].map((i) => ({
           label: i.label,
@@ -240,6 +244,7 @@ export function useStockFinancials(
           definitionKey: i.label,
           history: i.history,
           isPercent: false,
+          currency: i.currency,
         }))
 
         out.push({ title: 'Balance Sheet (MRQ)', items })
@@ -264,12 +269,14 @@ export function useStockFinancials(
             value: fcf,
             format: (v: number) => formatCurrency(v, currency),
             history: getHistory(cashFlow, 'freeCashFlow'),
+            currency,
           },
           {
             label: 'SBC (MRQ)',
             value: sbc,
             format: (v: number) => formatCurrency(v, currency),
             history: getHistory(cashFlow, 'stockBasedCompensation'),
+            currency,
           },
         ].map((i) => ({
           label: i.label,
@@ -278,6 +285,7 @@ export function useStockFinancials(
           definitionKey: i.label,
           history: i.history,
           isPercent: false,
+          currency: i.currency,
         }))
 
         out.push({ title: 'Cash Flow (MRQ)', items })

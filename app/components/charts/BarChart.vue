@@ -13,6 +13,7 @@ const props = withDefaults(
     showYAxis: boolean
     showYAxisTicks?: boolean
     showXAxis?: boolean
+    currency?: string
   }>(),
   {
     color: '#f97316', // orange-500
@@ -61,6 +62,13 @@ const buildChart = () => {
                 style: 'percent',
                 maximumFractionDigits: 0, // 0.22 -> 22%
               }).format(value)
+            } else if (props.currency) {
+              formatted = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: props.currency,
+                notation: 'compact',
+                maximumFractionDigits: 1,
+              }).format(value)
             } else {
               formatted = new Intl.NumberFormat('en-US', {
                 notation: 'compact',
@@ -88,7 +96,7 @@ const buildChart = () => {
     },
     y: {
       display: props.showYAxis,
-      grace: '10%',
+      grace: props.showValues ? '25%' : '5%',
       grid: {
         display: props.showYAxis,
         drawOnChartArea: props.showYAxis,
@@ -107,6 +115,17 @@ const buildChart = () => {
   const finalOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    layout: {
+      padding: props.showValues
+        ? {
+            top: 20,
+            bottom: 20,
+          }
+        : {
+            top: 0,
+            bottom: 0,
+          },
+    },
     ...props.options,
     plugins: {
       legend: { display: props.showLegend },
@@ -164,6 +183,7 @@ const buildChart = () => {
           data: props.data.map((d) => d.value),
           backgroundColor: props.color,
           borderRadius: 6,
+          borderSkipped: false,
           barThickness: 'flex',
           maxBarThickness: 50,
         },

@@ -13,6 +13,7 @@ const props = withDefaults(
     symbol: string
     quoteData: HistoricalQuote[]
     hoverData?: any
+    rangeData?: { start: any; end: any }
   }>(),
   { purpose: 'ticker', showIcon: false },
 )
@@ -47,6 +48,11 @@ const { trendColors, isPositive } = useLineChartConfig(
 )
 
 const localIsPositive = computed(() => {
+  if (props.rangeData) {
+    const first = Number(props.rangeData.start.value.y)
+    const last = Number(props.rangeData.end.value.y)
+    return last - first >= 0
+  }
   if (!props.hoverData) return isPositive.value
 
   const data = props.quoteData
@@ -57,12 +63,23 @@ const localIsPositive = computed(() => {
 })
 
 const localTrendColors = computed(() => {
-  if (!props.hoverData) return trendColors.value
+  if (!props.hoverData && !props.rangeData) return trendColors.value
 
   return localIsPositive.value ? POSITIVE : NEGATIVE
 })
 
 const computeDifference = computed(() => {
+  if (props.rangeData) {
+    const first = Number(props.rangeData.start.value.y)
+    const last = Number(props.rangeData.end.value.y)
+    const change = last - first
+    const change_p = first ? (change / first) * 100 : 0
+    return {
+      change: change.toFixed(2),
+      change_p: change_p.toFixed(2),
+    }
+  }
+
   const first = Number(props.quoteData?.[0]?.adjusted_close ?? 0)
 
   const last = Number(
@@ -87,18 +104,23 @@ const computeDifference = computed(() => {
       <TickerLogo :logoUrl="logoUrl" :symbol="symbol" />
       <p class="text-black-300 text-lg font-bold">
         {{
-          purpose === 'ticker' && !hoverData
+          purpose === 'ticker' && !hoverData && !rangeData
             ? symbol.split('.')[0]
-            : useDateFormat(hoverData?.date, `${computedDateFormat} YYYY`)
+            : rangeData
+              ? `${useDateFormat(rangeData.start.date, 'MMM DD').value} - ${useDateFormat(rangeData.end.date, 'MMM DD YYYY').value}`
+              : useDateFormat(hoverData?.date, `${computedDateFormat} YYYY`)
+                  .value
         }}
       </p>
     </div>
 
     <p class="text-black-50 mb-2 text-4xl font-semibold tracking-wide">
       ${{
-        purpose === 'ticker' && !hoverData
+        purpose === 'ticker' && !hoverData && !rangeData
           ? quoteData?.[quoteData.length - 1]?.close?.toFixed(2)
-          : hoverData?.value?.y.toFixed(2)
+          : rangeData
+            ? Number(rangeData.end.value.y).toFixed(2)
+            : hoverData?.value?.y.toFixed(2)
       }}
     </p>
     <div class="flex max-w-48 items-center justify-start gap-2 font-medium">

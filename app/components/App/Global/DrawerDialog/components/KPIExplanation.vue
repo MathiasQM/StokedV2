@@ -10,6 +10,7 @@ const props = defineProps<{
   analysis?: string
   history?: { date: string; value: number }[]
   isPercent?: boolean
+  currency?: string
 }>()
 
 const chartData = computed(() => {
@@ -54,6 +55,7 @@ const chartData = computed(() => {
           color="#f97316"
           showValues
           :isPercent="isPercent"
+          :currency="currency"
           showXAxis
           showYAxis
           :showYAxisTicks="false"
@@ -85,7 +87,7 @@ const chartData = computed(() => {
     </div>
 
     <div
-      v-if="formula"
+      v-if="formula && formula !== 'N/A'"
       class="bg-white/5 border border-white/10 p-4 rounded-lg space-y-2"
     >
       <h3 class="text-sm font-semibold text-white/80 flex items-center gap-2">

@@ -3,9 +3,11 @@ import { KPI_DEFINITIONS } from '~/utils/kpi-definitions'
 import { useGlobalDrawerDialogStore } from '@@/stores/globalDrawerDialog'
 import type { KPISection } from '~/composables/stock/useStockFinancials'
 import BarChart from '~/components/charts/BarChart.vue'
+import Skeleton from '~/components/ui/skeleton/Skeleton.vue'
 
 defineProps<{
   sections: KPISection[]
+  loading?: boolean
 }>()
 
 const isMobile = useIsMobile()
@@ -16,6 +18,7 @@ const openExplanation = (
   value: number | string,
   history?: { date: string; value: number }[],
   isPercent?: boolean,
+  currency?: string,
 ) => {
   const def = KPI_DEFINITIONS[label]
   if (!def) return
@@ -36,6 +39,7 @@ const openExplanation = (
       analysis,
       history,
       isPercent,
+      currency,
     },
   })
 }
@@ -59,7 +63,20 @@ const formatHistory = (history?: { date: string; value: number }[]) => {
 
 <template>
   <div class="space-y-8">
-    <div v-for="section in sections" :key="section.title">
+    <div v-if="loading" class="space-y-8">
+      <div v-for="i in 3" :key="i">
+        <Skeleton class="h-4 w-24 mb-3 ml-1 bg-white/10" />
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          <Skeleton
+            v-for="j in 4"
+            :key="j"
+            class="h-[60px] rounded-xl bg-[#151515]"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div v-else v-for="section in sections" :key="section.title">
       <h3 class="text-sm text-start text-white/60 mb-3 ml-1">
         {{ section.title }}
       </h3>
@@ -74,20 +91,23 @@ const formatHistory = (history?: { date: string; value: number }[]) => {
               item.value,
               item.history,
               item.isPercent,
+              item.currency,
             )
           "
         >
-          <span class="text-xs text-white/40 font-medium text-start">{{
-            item.label
-          }}</span>
           <div class="flex justify-between items-center z-10">
             <div class="flex flex-col gap-1 text-start">
+              <span class="text-xs text-white/40 font-medium text-start">{{
+                item.label
+              }}</span>
               <span class="text-md font-bold text-white tracking-tight">{{
                 item.formattedValue
               }}</span>
             </div>
             <!-- Bar Chart Icon -->
-            <div class="h-8 w-12 transition-opacity flex items-end">
+            <div
+              class="h-8 w-12 transition-opacity flex items-end justify-center"
+            >
               <BarChart
                 :showLegend="false"
                 :showYAxis="true"
@@ -99,7 +119,7 @@ const formatHistory = (history?: { date: string; value: number }[]) => {
               <!-- Fallback CSS chart if no history -->
               <div
                 v-else
-                class="flex items-end gap-[2px] h-5 w-full justify-end"
+                class="flex items-end gap-[2px] h-5 w-full justify-center"
               >
                 <div class="w-1 bg-white/10 rounded-t-sm h-[40%]"></div>
                 <div class="w-1 bg-white/10 rounded-t-sm h-[70%]"></div>

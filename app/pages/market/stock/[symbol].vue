@@ -13,6 +13,7 @@ const router = useRouter()
 const symbol = computed(() => route.params.symbol as string)
 
 const hoveredChartData = ref<any>(null)
+const selectedRangeData = ref<any>(null)
 
 const activeTab = computed({
   get: () => (route.query.tab as string) || 'overview',
@@ -84,6 +85,7 @@ const tabs = ['overview', 'news', 'financials', 'analysis']
               show
               :symbol="symbol"
               :hover-data="hoveredChartData"
+              :range-data="selectedRangeData"
               :purpose="hoveredChartData ? 'chartTooltip' : 'ticker'"
             />
             <ChartsLineChart
@@ -96,6 +98,7 @@ const tabs = ['overview', 'news', 'financials', 'analysis']
                 gradientFlarePlugin,
               ]"
               @hovered-data="(points) => (hoveredChartData = points[0])"
+              @range-selected="(range) => (selectedRangeData = range)"
             />
 
             <!-- <ChartsRangePicker :symbol="symbol" :data="quoteData" /> -->
