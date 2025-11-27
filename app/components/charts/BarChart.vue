@@ -10,7 +10,8 @@ const props = withDefaults(
     showValues?: boolean
     isPercent?: boolean
     showLegend?: boolean
-    showYAxis?: boolean
+    showYAxis: boolean
+    showYAxisTicks?: boolean
     showXAxis?: boolean
   }>(),
   {
@@ -20,6 +21,7 @@ const props = withDefaults(
     isPercent: false,
     showLegend: false,
     showYAxis: false,
+    showYAxisTicks: true,
     showXAxis: false,
   },
 )
@@ -92,7 +94,7 @@ const buildChart = () => {
         drawOnChartArea: props.showYAxis,
         drawTicks: props.showYAxis,
       },
-      ticks: { display: props.showYAxis },
+      ticks: { display: props.showYAxis && props.showYAxisTicks },
       border: { display: props.showYAxis },
     },
   }
@@ -127,11 +129,16 @@ const buildChart = () => {
           ...defaultScales.y.grid,
           ...props.options?.scales?.y?.grid,
           display: props.showYAxis,
+          drawTicks: props.showYAxis && props.showYAxisTicks,
         }, // Enforce prop
         ticks: {
           ...defaultScales.y.ticks,
           ...props.options?.scales?.y?.ticks,
-          display: props.showYAxis,
+          display: props.showYAxis && props.showYAxisTicks,
+          callback:
+            props.showYAxis && props.showYAxisTicks
+              ? props.options?.scales?.y?.ticks?.callback
+              : () => null,
         }, // Enforce prop
         border: {
           ...defaultScales.y.border,
@@ -141,6 +148,12 @@ const buildChart = () => {
       },
     },
   }
+
+  console.log('BarChart finalOptions:', {
+    showYAxis: props.showYAxis,
+    showYAxisTicks: props.showYAxisTicks,
+    yScale: finalOptions.scales.y,
+  })
 
   chartInstance = new Chart(canvasRef.value, {
     type: 'bar',

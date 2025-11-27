@@ -55,6 +55,8 @@ const chartData = computed(() => {
           showValues
           :isPercent="isPercent"
           showXAxis
+          showYAxis
+          :showYAxisTicks="false"
         />
       </div>
       <p class="text-xs text-muted-foreground text-center">

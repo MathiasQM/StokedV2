@@ -90,7 +90,8 @@ const formatHistory = (history?: { date: string; value: number }[]) => {
             <div class="h-8 w-12 transition-opacity flex items-end">
               <BarChart
                 :showLegend="false"
-                :showYAxis="false"
+                :showYAxis="true"
+                :showYAxisTicks="false"
                 v-if="item.history && item.history.length"
                 :data="formatHistory(item.history)"
                 color="#f97316"
