@@ -75,7 +75,7 @@ const wrapperClasses = computed(() => {
 const buttonClasses = computed(() => {
   const classes = [
     // Base style
-    'bg-neutral-800 text-white line text-[10px] font-thin',
+    'bg-neutral-800/70 text-white line text-[10px] font-thin',
     'whitespace-nowrap leading-none',
     'flex items-center justify-center',
 

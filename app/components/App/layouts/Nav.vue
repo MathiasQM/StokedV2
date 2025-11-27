@@ -7,10 +7,10 @@
       :style="{ transform: `translateY(${navTranslateY}px)` }"
     >
       <nav
-        class="h-15 relative flex w-full max-w-md items-center justify-between rounded-full border-1 border-black-100 dark:border-black-800 dark:bg-black-500/10 p-1 shadow-lg select-none backdrop-blur-md overflow-hidden"
+        class="h-15 relative flex w-full max-w-md items-center justify-between rounded-full gradient p-[1px] shadow-lg select-none backdrop-blur-lg overflow-hidden backdrop-opacity-70"
       >
         <div
-          class="absolute inset-0 flex items-center justify-between p-1 transition-transform duration-300 ease-in-out"
+          class="w-full h-full relative bg-neutral-800/70 rounded-full flex items-center justify-between p-1 transition-transform duration-300 ease-in-out"
         >
           <span
             class="absolute top-1 bottom-1 bg-white rounded-full shadow-md transition-all duration-300 ease-in-out z-0"
@@ -61,6 +61,16 @@
           </button>
         </div>
       </nav>
+      <div>
+        <CustomButtonsShiny
+          @click="handleClickChat($event)"
+          width="w-15"
+          height="h-15"
+          variant="circle"
+        >
+          <Icon name="i-lucide-sparkles" class="w-6 h-6 flex-shrink-0" />
+        </CustomButtonsShiny>
+      </div>
     </div>
   </div>
 </template>
@@ -107,13 +117,13 @@ const userItems: NavItem[] = [
     requireAuth: true,
     requirePortfolio: true,
   },
-  {
-    text: 'Chat',
-    iconName: 'i-lucide-sparkles',
-    link: '/chat',
-    requireAuth: true,
-    requirePortfolio: true,
-  },
+  // {
+  //   text: 'Chat',
+  //   iconName: 'i-lucide-sparkles',
+  //   link: '/chat',
+  //   requireAuth: true,
+  //   requirePortfolio: true,
+  // },
   {
     text: 'Watchlist',
     iconName: 'i-lucide-layout-list',
@@ -189,6 +199,18 @@ const handleNavItemClick = (e: Event, item: NavItem) => {
     return portfolioStore.openPortfolioSetupModal()
   } else {
     navigateTo(item.link)
+  }
+}
+
+const handleClickChat = (e: Event) => {
+  if (!loggedIn.value) {
+    e.preventDefault()
+    return authStore.openAuthModal()
+  } else if (!currentPortfolio?.value) {
+    e.preventDefault()
+    return portfolioStore.openPortfolioSetupModal()
+  } else {
+    navigateTo('/chat')
   }
 }
 
@@ -303,3 +325,16 @@ watch(
   { flush: 'post' },
 )
 </script>
+<style scoped>
+.gradient {
+  background: linear-gradient(
+    160deg,
+    rgba(150, 150, 150, 0.3) 20%,
+    rgba(150, 150, 150, 0.7) 40%,
+    rgba(150, 150, 150, 0.8) 50%,
+    rgba(150, 150, 150, 0.8) 60%,
+    rgba(150, 150, 150, 0.7) 70%,
+    rgba(150, 150, 150, 0.3) 90%
+  );
+}
+</style>

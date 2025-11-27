@@ -23,13 +23,15 @@
         <CustomButtonsShiny width="w-12">{{ countdown }}</CustomButtonsShiny>
 
         <CustomButtonsShiny
-          width="w-8"
+          :width="isMobile ? 'w-8' : 'w-16'"
           height="h-8"
           variant="circle"
           @click="openSearch()"
         >
-          <UIcon name="i-lucide-search" class="size-4" />
-          <Kbd v-if="!isMobile" class="bg-black-800">⌘ K</Kbd>
+          <div class="flex items-center gap-1">
+            <UIcon name="i-lucide-search" class="size-4" />
+            <Kbd v-if="!isMobile" class="bg-black-800">⌘ K</Kbd>
+          </div>
         </CustomButtonsShiny>
 
         <div v-if="isSuperAdmin" class="flex items-center gap-2">
