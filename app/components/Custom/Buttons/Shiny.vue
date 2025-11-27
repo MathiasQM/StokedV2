@@ -33,6 +33,11 @@ const props = defineProps({
     required: false,
     default: undefined,
   },
+  enableOpacity: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
 })
 
 const slots = useSlots()
@@ -75,7 +80,7 @@ const wrapperClasses = computed(() => {
 const buttonClasses = computed(() => {
   const classes = [
     // Base style
-    'bg-neutral-800/70 text-white line text-[10px] font-thin',
+    'text-white line text-[10px] font-thin',
     'whitespace-nowrap leading-none',
     'flex items-center justify-center',
 
@@ -84,6 +89,7 @@ const buttonClasses = computed(() => {
     'disabled:bg-neutral-900 disabled:text-neutral-400 disabled:cursor-not-allowed disabled:opacity-100', // Override shadcn disabled state
 
     // Prop-based styles
+    props.enableOpacity ? 'bg-neutral-800/70' : 'bg-neutral-800',
     props.width ? props.width : '',
     props.height ? props.height : 'h-auto',
   ]

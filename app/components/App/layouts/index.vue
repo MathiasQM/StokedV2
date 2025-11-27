@@ -39,6 +39,7 @@
             width="w-8"
             height="h-8"
             variant="square"
+            enableOpacity
             @click="
               navigateTo(
                 isSuperAdminRoute ? '/dashboard' : '/dashboard/super-admin',
