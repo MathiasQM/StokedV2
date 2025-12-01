@@ -40,6 +40,24 @@ const isMobile = useIsMobile()
 // Track selected indices for segment styling
 const selectionIndices = ref<{ start: number; end: number } | null>(null)
 
+/* ─────────── Chart Visuals Update ─────────── */
+function updateChartVisuals() {
+  if (!chartInstance) return
+
+  // Simply update the chart. The segment logic in buildChart will handle the colors
+  // based on selectionIndices.value
+  chartInstance.update()
+}
+
+// Watch selection mode to clear selection when disabled
+watch(isSelectionMode, (newVal) => {
+  if (!newVal) {
+    selectionIndices.value = null
+    emit('rangeSelected', null)
+    updateChartVisuals()
+  }
+})
+
 /* ─────────── pointer interaction ─────────── */
 function getChartDataAtX(x: number) {
   if (!chartInstance) return null
@@ -79,11 +97,29 @@ function getChartDataAtX(x: number) {
   }
 }
 
+function getDataAtIndex(index: number) {
+  if (!chartInstance) return null
+  const datasets = chartInstance.data.datasets
+  if (!datasets || !datasets.length) return null
+  const data = datasets[0]?.data as any[]
+  if (!data || !data[index]) return null
+
+  return {
+    index: index,
+    value: data[index],
+    date: chartInstance.data.labels?.[index],
+    rawQuote: (data[index] as any).rawQuote,
+  }
+}
+
 function handlePointerDown(e: PointerEvent) {
   // If mobile and not in selection mode, do nothing (let chart.js handle it)
   if (isMobile.value && !isSelectionMode.value) return
 
-  const rect = (e.target as HTMLElement).getBoundingClientRect()
+  const target = e.target as HTMLElement
+  target.setPointerCapture(e.pointerId)
+
+  const rect = target.getBoundingClientRect()
   const x = e.clientX - rect.left
 
   dragStartX.value = x
@@ -93,7 +129,7 @@ function handlePointerDown(e: PointerEvent) {
   // Clear previous selection on new click
   selectionIndices.value = null
   emit('rangeSelected', null)
-  chartInstance?.update()
+  updateChartVisuals()
 }
 
 function handlePointerMove(e: PointerEvent) {
@@ -108,40 +144,63 @@ function handlePointerMove(e: PointerEvent) {
 
     if (startData && endData) {
       selectionIndices.value = { start: startData.index, end: endData.index }
-      chartInstance?.update()
+      // Emit live update
+      emit('rangeSelected', { start: startData, end: endData })
+      updateChartVisuals()
     }
   }
 }
 
 function handlePointerUp(e: PointerEvent) {
-  if (
-    isInteracting.value &&
-    dragStartX.value !== null &&
-    currentX.value !== null
-  ) {
-    const startX = dragStartX.value
-    const endX = currentX.value
+  const target = e.target as HTMLElement
+  try {
+    target.releasePointerCapture(e.pointerId)
+  } catch (err) {
+    // ignore if not captured
+  }
 
-    // If drag is small, treat as click (clear selection)
-    if (Math.abs(endX - startX) < 5) {
-      emit('rangeSelected', null)
-      selectionIndices.value = null
-      dragStartX.value = null
-      currentX.value = null
-      chartInstance?.update()
-    } else {
-      // Finalize selection
-      const startData = getChartDataAtX(Math.min(startX, endX))
-      const endData = getChartDataAtX(Math.max(startX, endX))
+  try {
+    if (
+      isInteracting.value &&
+      dragStartX.value !== null &&
+      currentX.value !== null
+    ) {
+      const rect = (e.target as HTMLElement).getBoundingClientRect()
+      const finalX = e.clientX - rect.left
+      const startX = dragStartX.value
 
-      if (startData && endData) {
-        selectionIndices.value = { start: startData.index, end: endData.index }
-        emit('rangeSelected', { start: startData, end: endData })
-        chartInstance?.update()
+      // If drag is small, treat as click (clear selection)
+      if (Math.abs(finalX - startX) < 5) {
+        emit('rangeSelected', null)
+        selectionIndices.value = null
+        updateChartVisuals()
+      } else {
+        // Finalize selection
+        let startData = getChartDataAtX(Math.min(startX, finalX))
+        let endData = getChartDataAtX(Math.max(startX, finalX))
+
+        // Fallback to last valid selection if current position is invalid (e.g. off chart)
+        if ((!startData || !endData) && selectionIndices.value) {
+          startData = getDataAtIndex(selectionIndices.value.start)
+          endData = getDataAtIndex(selectionIndices.value.end)
+        }
+
+        if (startData && endData) {
+          selectionIndices.value = {
+            start: startData.index,
+            end: endData.index,
+          }
+          emit('rangeSelected', { start: startData, end: endData })
+          updateChartVisuals()
+        }
       }
     }
+  } finally {
+    // Always reset interaction state
+    dragStartX.value = null
+    currentX.value = null
+    isInteracting.value = false
   }
-  isInteracting.value = false
 }
 
 function handlePointerLeave() {
@@ -233,33 +292,42 @@ function buildChart() {
   const ds = chartInstance.data.datasets[0] as any
   if (ds) {
     ds.segment = {
+      // 1. Line Color (Border)
       borderColor(ctx: ScriptableContext<'line'>) {
-        const i = (ctx as any).p0DataIndex
+        const i = (ctx as any).p0DataIndex ?? (ctx as any).index
+        // Animation check: if point is beyond opaqueIndex, hide it
+        if (
+          ds.opaqueIndex !== undefined &&
+          ds.opaqueIndex !== -1 &&
+          i > ds.opaqueIndex
+        ) {
+          return 'transparent'
+        }
 
-        // Selection logic (High Priority)
         if (selectionIndices.value) {
+          // If segment is before start OR after end, it's faded
           if (
             i < selectionIndices.value.start ||
             i >= selectionIndices.value.end
           ) {
-            return withAlpha(ui.trendColors.value.line, 0.2) // Faded line
+            return withAlpha(ui.trendColors.value.line, 0.2)
           }
         }
-
-        // Trend animation logic
-        const win = 100
-        if (ds.opaqueIndex !== undefined) {
-          if (i > ds.opaqueIndex || i <= ds.opaqueIndex - win) {
-            return ui.trendColors.value.lineOpacity
-          }
-        }
-
         return ui.trendColors.value.line
       },
+      // 2. Fill Color (Background)
       backgroundColor(ctx: ScriptableContext<'line'>) {
-        // Selection logic for fill
+        const i = (ctx as any).p0DataIndex ?? (ctx as any).index
+        // Animation check
+        if (
+          ds.opaqueIndex !== undefined &&
+          ds.opaqueIndex !== -1 &&
+          i > ds.opaqueIndex
+        ) {
+          return 'transparent'
+        }
+
         if (selectionIndices.value) {
-          const i = (ctx as any).p0DataIndex
           if (
             i < selectionIndices.value.start ||
             i >= selectionIndices.value.end
@@ -274,7 +342,7 @@ function buildChart() {
     ds.tension = 0.25
     ds.fill = true
     ds.finalColor = ui.trendColors.value.line
-    ds.borderColor = ui.trendColors.value.fill
+    ds.borderColor = ui.trendColors.value.line // Default to solid line
     ds.backgroundColor = ui.trendColors.value.fill
   }
 
@@ -346,11 +414,13 @@ watch(
     <!-- Mobile Toggle Button -->
     <div
       v-if="isMobile"
-      class="absolute top-2 right-2 z-10"
-      @click.stop
+      class="absolute top-2 right-2 z-10 cursor-pointer"
+      @click.stop="isSelectionMode = !isSelectionMode"
       @pointerdown.stop
+      @touchstart.stop
+      @touchend.stop
     >
-      <ShinyButton variant="circle" @click="isSelectionMode = !isSelectionMode">
+      <ShinyButton variant="circle">
         <template #icon>
           <UIcon
             name="i-lucide-scan"

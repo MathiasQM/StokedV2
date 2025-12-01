@@ -29,11 +29,9 @@ export function useTrendAnimation(
 
       const len = ds.data.length
       if (opaque.value >= len + segmentSize + 50) {
-        const final = ds.finalColor ?? ds.borderColor // use custom if present
-        ds.segment.borderColor = final
-        ds.borderColor = final // solid line
-        c.update('none')
-        stop() // Stop the timer once done
+        // Animation done. We don't overwrite borderColor here anymore
+        // because we want the segment logic (which supports selection) to take over.
+        stop()
         return
       }
       opaque.value += segmentSize - 90 // same “-90 +100” hop as original
