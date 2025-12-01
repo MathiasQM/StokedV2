@@ -2,9 +2,9 @@ import { Chart } from 'chart.js/auto'
 
 export function useTrendAnimation(
   chart: () => Chart | undefined | null,
-  { segmentSize = 100, interval = 20 } = {},
+  { segmentSize = 5, interval = 10 } = {},
 ) {
-  const opaque = ref(-1)
+  const scanIndex = ref(-1)
   let timer: number | undefined
 
   const tick = () => {
@@ -13,13 +13,13 @@ export function useTrendAnimation(
     const ds: any = c.data.datasets[0]
     if (!ds) return
 
-    ds.opaqueIndex = opaque.value
+    ds.scanIndex = scanIndex.value
     c.update('none') // <= draw instantly
   }
 
   function start() {
     stop()
-    opaque.value = 0
+    scanIndex.value = 0
     timer = window.setInterval(() => {
       const c = chart()
       if (!c) return
@@ -28,13 +28,13 @@ export function useTrendAnimation(
       if (!ds || !ds.data) return
 
       const len = ds.data.length
-      if (opaque.value >= len + segmentSize + 50) {
-        // Animation done. We don't overwrite borderColor here anymore
-        // because we want the segment logic (which supports selection) to take over.
+      // Run until the scan window has fully passed the line
+      if (scanIndex.value >= len + 50) {
         stop()
+        scanIndex.value = -1 // Reset to -1 to turn off glow
         return
       }
-      opaque.value += segmentSize - 90 // same “-90 +100” hop as original
+      scanIndex.value += segmentSize
     }, interval)
   }
 

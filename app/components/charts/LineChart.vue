@@ -295,37 +295,34 @@ function buildChart() {
       // 1. Line Color (Border)
       borderColor(ctx: ScriptableContext<'line'>) {
         const i = (ctx as any).p0DataIndex ?? (ctx as any).index
-        // Animation check: if point is beyond opaqueIndex, hide it
-        if (
-          ds.opaqueIndex !== undefined &&
-          ds.opaqueIndex !== -1 &&
-          i > ds.opaqueIndex
-        ) {
-          return 'transparent'
-        }
 
+        // Priority 1: Selection (Fade out if not selected)
         if (selectionIndices.value) {
-          // If segment is before start OR after end, it's faded
           if (
             i < selectionIndices.value.start ||
             i >= selectionIndices.value.end
           ) {
             return withAlpha(ui.trendColors.value.line, 0.2)
           }
+          return ui.trendColors.value.line
         }
+
+        // Priority 2: Glow Animation
+        if (ds.scanIndex !== undefined && ds.scanIndex !== -1) {
+          if (Math.abs(i - ds.scanIndex) < 20) {
+            // Glow color (Solid Trend Color)
+            return ui.trendColors.value.line
+          }
+          // Base Line (Dimmed)
+          return withAlpha(ui.trendColors.value.line, 0.5)
+        }
+
+        // Default: Solid Line (fallback)
         return ui.trendColors.value.line
       },
       // 2. Fill Color (Background)
       backgroundColor(ctx: ScriptableContext<'line'>) {
         const i = (ctx as any).p0DataIndex ?? (ctx as any).index
-        // Animation check
-        if (
-          ds.opaqueIndex !== undefined &&
-          ds.opaqueIndex !== -1 &&
-          i > ds.opaqueIndex
-        ) {
-          return 'transparent'
-        }
 
         if (selectionIndices.value) {
           if (
@@ -377,10 +374,10 @@ function buildChart() {
   })
   cvs.addEventListener('pointerleave', () => emit('hoveredData', []))
 
-  /* draw‑in animation */
+  /* glow animation */
   const { start } = useTrendAnimation(() => chartInstance!, {
-    segmentSize: 100,
-    interval: 20,
+    segmentSize: 100, // Faster scan
+    interval: 10,
   })
   start()
 }
