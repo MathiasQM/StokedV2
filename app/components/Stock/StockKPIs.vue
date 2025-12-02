@@ -58,6 +58,7 @@ const formatHistory = (history?: { date: string; value: number }[]) => {
   return Array.from(yearlyMap.values())
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .map((h) => ({ label: h.date, value: h.value }))
+    .slice(-5)
 }
 </script>
 
@@ -115,6 +116,7 @@ const formatHistory = (history?: { date: string; value: number }[]) => {
                 v-if="item.history && item.history.length"
                 :data="formatHistory(item.history)"
                 color="#f97316"
+                :barThickness="6"
               />
               <!-- Fallback CSS chart if no history -->
               <div

@@ -14,6 +14,7 @@ const props = withDefaults(
     showYAxisTicks?: boolean
     showXAxis?: boolean
     currency?: string
+    barThickness?: number | 'flex'
   }>(),
   {
     color: '#f97316', // orange-500
@@ -24,6 +25,7 @@ const props = withDefaults(
     showYAxis: false,
     showYAxisTicks: true,
     showXAxis: false,
+    barThickness: 'flex',
   },
 )
 
@@ -184,7 +186,7 @@ const buildChart = () => {
           backgroundColor: props.color,
           borderRadius: 6,
           borderSkipped: false,
-          barThickness: 'flex',
+          barThickness: props.barThickness,
           maxBarThickness: 50,
         },
       ],

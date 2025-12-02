@@ -72,8 +72,8 @@ export function useStockFinancials(
       (a: any, b: any) =>
         new Date(a.date).getTime() - new Date(b.date).getTime(),
     )
-    // Return last 5 years (approx 20 quarters)
-    return periods.slice(-20).map((q: any) => ({
+    // Return last 10 years (approx 40 quarters)
+    return periods.slice(-40).map((q: any) => ({
       date: q.date,
       value: transform(q[key], q),
     }))

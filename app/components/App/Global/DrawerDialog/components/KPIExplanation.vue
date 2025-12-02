@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onMounted, watch, nextTick } from 'vue'
 import BarChart from '~/components/charts/BarChart.vue'
 
 const props = defineProps<{
@@ -20,13 +20,7 @@ const chartData = computed(() => {
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   )
 
-  const filtered = sorted.filter((d) => {
-    const date = new Date(d.date)
-    const month = date.getMonth()
-    const threeYearsAgo = new Date()
-    threeYearsAgo.setFullYear(threeYearsAgo.getFullYear() - 3)
-    return date >= threeYearsAgo && (month === 5 || month === 11)
-  })
+  const filtered = sorted
 
   return filtered.map((d) => {
     const date = new Date(d.date)
@@ -41,6 +35,28 @@ const chartData = computed(() => {
     }
   })
 })
+
+const scrollContainer = ref<HTMLElement | null>(null)
+
+const scrollToRight = () => {
+  if (scrollContainer.value) {
+    scrollContainer.value.scrollLeft = scrollContainer.value.scrollWidth
+  }
+}
+
+onMounted(() => {
+  // Small delay to ensure rendering is complete
+  setTimeout(scrollToRight, 100)
+})
+
+watch(
+  () => chartData.value,
+  () => {
+    nextTick(() => {
+      scrollToRight()
+    })
+  },
+)
 </script>
 
 <template>
@@ -49,17 +65,22 @@ const chartData = computed(() => {
       v-if="chartData.length"
       class="space-y-4 border-b border-white/10 pb-6"
     >
-      <div class="h-48 w-full">
-        <BarChart
-          :data="chartData"
-          color="#f97316"
-          showValues
-          :isPercent="isPercent"
-          :currency="currency"
-          showXAxis
-          showYAxis
-          :showYAxisTicks="false"
-        />
+      <div ref="scrollContainer" class="h-48 w-full overflow-x-auto">
+        <div
+          :style="{ width: `${Math.max(100, (chartData.length / 6) * 100)}%` }"
+          class="h-full"
+        >
+          <BarChart
+            :data="chartData"
+            color="#f97316"
+            showValues
+            :isPercent="isPercent"
+            :currency="currency"
+            showXAxis
+            showYAxis
+            :showYAxisTicks="false"
+          />
+        </div>
       </div>
       <p class="text-xs text-muted-foreground text-center">
         Historical Data (Quarterly)
